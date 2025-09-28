@@ -3,6 +3,7 @@ package com.airflights.entity;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -11,6 +12,7 @@ import java.util.List;
 @Table(name = "flights")
 @Data
 @AllArgsConstructor
+@NoArgsConstructor
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

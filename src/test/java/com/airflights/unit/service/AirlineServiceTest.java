@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,11 +34,11 @@ class AirlineServiceTest {
 
     @BeforeEach
     void setUp() {
-        airline = Airline.builder()
-                .id(1L)
-                .name("BestAir")
-                .contactEmail("ops@bestair.com")
-                .build();
+        airline = new Airline();
+        airline.setId(1L);
+        airline.setName("BestAir");
+        airline.setContactEmail("ops@bestair.com");
+        airline.setFlights(new ArrayList<>());
 
         airlineDto = new AirlineDto();
         airlineDto.setId(1L);
@@ -57,7 +58,7 @@ class AirlineServiceTest {
     @Test
     void create_shouldSave() {
         when(airlineRepository.existsByName("BestAir")).thenReturn(false);
-        when(airlineMapper.toEntity(airlineDto)).thenReturn(airline);
+        when(airlineMapper.toEntity(airlineDto, new ArrayList<>())).thenReturn(airline);
         when(airlineRepository.save(airline)).thenReturn(airline);
         when(airlineMapper.toDto(airline)).thenReturn(airlineDto);
 

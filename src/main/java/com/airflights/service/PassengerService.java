@@ -1,11 +1,16 @@
 package com.airflights.service;
 
 import com.airflights.dto.PassengerDto;
+import com.airflights.entity.Booking;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.PassengerMapper;
+import com.airflights.repository.BookingRepository;
 import com.airflights.repository.PassengerRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+
+import java.util.List;
+
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -17,6 +22,7 @@ public class PassengerService {
 
     private final PassengerRepository passengerRepository;
     private final PassengerMapper passengerMapper;
+    private final BookingRepository bookingRepository;
 
     public Page<PassengerDto> getAll(Pageable pageable) {
         return passengerRepository.findAll(pageable)
@@ -28,7 +34,10 @@ public class PassengerService {
         if (passengerRepository.existsByPassportNumber(dto.getPassportNumber())) {
             throw new IllegalArgumentException("Passenger with this passport already exists");
         }
-        Passenger passenger = passengerMapper.toEntity(dto);
+        List<Booking> bookingList = bookingRepository.findAllByFlight_Id(dto.getId()).
+                orElseThrow(() -> new IllegalArgumentException("bookings not found"));
+
+        Passenger passenger = passengerMapper.toEntity(dto, bookingList);
         return passengerMapper.toDto(passengerRepository.save(passenger));
     }
 

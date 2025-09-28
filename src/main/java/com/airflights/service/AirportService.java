@@ -11,6 +11,8 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
+
 @Service
 @RequiredArgsConstructor
 public class AirportService {
@@ -35,7 +37,7 @@ public class AirportService {
             throw new IllegalArgumentException("Airport with code '" + dto.getCode() + "' already exists");
         }
 
-        Airport entity = airportMapper.toEntity(dto);
+        Airport entity = airportMapper.toEntity(dto, new ArrayList<>(), new ArrayList<>());
         Airport saved = airportRepository.save(entity);
         return airportMapper.toDto(saved);
     }

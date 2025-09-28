@@ -34,16 +34,22 @@ public class BookingService {
         Flight flight = flightRepository.findById(flightId)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
 
-        Booking booking = new Booking(id, passenger, flight, LocalDateTime.now());
+        Booking booking = new Booking();
         booking.setPassenger(passenger);
         booking.setFlight(flight);
-
+        booking.setBookingTime(LocalDateTime.now());
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Transactional
     public BookingDto create(@Valid BookingDto dto) {
-        Booking booking = bookingMapper.toEntity(dto);
+        Passenger passenger = passengerRepository.findById(dto.getPassengerId()).
+                orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+
+        Flight flight = flightRepository.findById(dto.getFlightId()).
+                orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+
+        Booking booking = bookingMapper.toEntity(dto, passenger, flight);
         booking.setBookingTime(LocalDateTime.now());
         return bookingMapper.toDto(bookingRepository.save(booking));
     }

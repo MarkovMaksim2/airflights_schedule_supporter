@@ -24,7 +24,7 @@ public class FlightMapper {
         );
     }
 
-    public Flight toEntity(FlightDto flightDto, Airline airline, Airport departureAirport, Airport arrivalAirport, List<Booking> bookingsList) {
+    public Flight toEntity(FlightDto flightDto, Airline airline, Airport departureAirport, Airport arrivalAirport, List<Booking> bookingList) {
         return new Flight(
                 flightDto.getId(),
                 airline,
@@ -32,7 +32,7 @@ public class FlightMapper {
                 arrivalAirport,
                 flightDto.getDepartureTime(),
                 flightDto.getArrivalTime(),
-                bookingsList,
+                bookingList,
                 flightDto.getStatus()
         );
     }

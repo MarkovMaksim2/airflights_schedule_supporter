@@ -58,7 +58,8 @@ class PassengerControllerIntegrationTest {
     @Test
     void shouldGetAllPassengers() throws Exception {
         Passenger p = new Passenger();
-        p.setName("Alice");
+        p.setFirstName("Alice");
+        p.setLastName("Smith");
         p.setEmail("alice@example.com");
         passengerRepository.save(p);
 
@@ -70,7 +71,8 @@ class PassengerControllerIntegrationTest {
     @Test
     void shouldDeletePassenger() throws Exception {
         Passenger p = new Passenger();
-        p.setName("Bob");
+        p.setFirstName("Bob");
+        p.setLastName("Brown");
         p.setEmail("bob@example.com");
         Passenger saved = passengerRepository.save(p);
 
