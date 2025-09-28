@@ -275,7 +275,7 @@ airline-scheduler/
 │ │ │ ├── application.yml
 │ │ │ ├── db/migration/
 │ │ │ └──── 1_init.sql
-│ ├── test/
+│ └── test/
 │ │ ├── java/com/airflights/
 │ │ │ ├── integraion/
 │ │ │ └── unit/
