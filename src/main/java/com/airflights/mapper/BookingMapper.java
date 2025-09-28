@@ -9,7 +9,7 @@ import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
 public class BookingMapper {
-    BookingDto toDto(Booking booking) {
+    public BookingDto toDto(Booking booking) {
         return new BookingDto(
                 booking.getId(),
                 booking.getPassenger().getId(),
@@ -18,7 +18,7 @@ public class BookingMapper {
         );
     }
 
-    Booking toEntity(BookingDto bookingDto, Passenger passenger, Flight flight) {
+    public Booking toEntity(BookingDto bookingDto, Passenger passenger, Flight flight) {
         return new Booking(
                 bookingDto.getId(),
                 passenger,

@@ -12,7 +12,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public class FlightMapper {
-    FlightDto toDto(Flight flight) {
+    public FlightDto toDto(Flight flight) {
         return new FlightDto(
                 flight.getId(),
                 flight.getAirline().getId(),
@@ -24,7 +24,7 @@ public class FlightMapper {
         );
     }
 
-    Flight toEntity(FlightDto flightDto, Airline airline, Airport departureAirport, Airport arrivalAirport, List<Booking> bookingsList) {
+    public Flight toEntity(FlightDto flightDto, Airline airline, Airport departureAirport, Airport arrivalAirport, List<Booking> bookingsList) {
         return new Flight(
                 flightDto.getId(),
                 airline,

@@ -10,7 +10,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public class PassengerMapper {
-    PassengerDto toDto(Passenger passenger) {
+    public PassengerDto toDto(Passenger passenger) {
         return new PassengerDto(
                 passenger.getId(),
                 passenger.getFirstName(),
@@ -19,7 +19,7 @@ public class PassengerMapper {
                 passenger.getPassportNumber()
         );
     }
-    Passenger toEntity(PassengerDto passengerDto, List<Booking> bookings) {
+    public Passenger toEntity(PassengerDto passengerDto, List<Booking> bookings) {
         return new Passenger(
                 passengerDto.getId(),
                 passengerDto.getFirstName(),

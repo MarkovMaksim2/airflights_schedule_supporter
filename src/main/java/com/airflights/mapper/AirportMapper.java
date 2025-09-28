@@ -9,7 +9,7 @@ import java.util.List;
 
 @Mapper(componentModel = "spring")
 public class AirportMapper {
-    AirportDto toDto(Airport airport) {
+    public AirportDto toDto(Airport airport) {
         return new AirportDto(
                 airport.getId(),
                 airport.getName(),
@@ -17,7 +17,7 @@ public class AirportMapper {
                 airport.getCity()
         );
     }
-    Airport toEntity(AirportDto airportDto, List<Flight> departures, List<Flight> arrivals) {
+    public Airport toEntity(AirportDto airportDto, List<Flight> departures, List<Flight> arrivals) {
         return new Airport(
                 airportDto.getId(),
                 airportDto.getCode(),

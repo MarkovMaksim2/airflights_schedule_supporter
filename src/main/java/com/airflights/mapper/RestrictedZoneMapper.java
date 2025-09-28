@@ -6,7 +6,7 @@ import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
 public class RestrictedZoneMapper {
-    RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
+    public RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
         return new RestrictedZoneDto(
                 restrictedZone.getId(),
                 restrictedZone.getRegion(),
@@ -14,7 +14,7 @@ public class RestrictedZoneMapper {
                 restrictedZone.getEndTime()
         );
     }
-    RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto) {
+    public RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto) {
         return new RestrictedZone(
                 restrictedZoneDto.getId(),
                 restrictedZoneDto.getRegion(),

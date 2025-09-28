@@ -5,6 +5,7 @@ import com.airflights.entity.Flight;
 import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.FlightMapper;
 import com.airflights.repository.FlightRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,5 +42,13 @@ public class FlightService {
                     flight.setStatus("CANCELED");
                     flightRepository.save(flight);
                 });
+    }
+
+    @Transactional
+    public FlightDto update(Long id, @Valid FlightDto dto) {
+        Flight flight = flightRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        flightMapper.updateEntityFromDto(dto, flight);
+        return flightMapper.toDto(flightRepository.save(flight));
     }
 }

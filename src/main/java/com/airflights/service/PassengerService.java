@@ -4,6 +4,7 @@ import com.airflights.dto.PassengerDto;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.PassengerMapper;
 import com.airflights.repository.PassengerRepository;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -40,5 +41,15 @@ public class PassengerService {
     @Transactional
     public void delete(Long id) {
         passengerRepository.deleteById(id);
+    }
+
+    @Transactional
+    public PassengerDto update(Long id, @Valid PassengerDto dto) {
+        Passenger passenger = passengerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+        passenger.setFirstName(dto.getFirstName());
+        passenger.setLastName(dto.getLastName());
+        passenger.setPassportNumber(dto.getPassportNumber());
+        return passengerMapper.toDto(passengerRepository.save(passenger));
     }
 }
