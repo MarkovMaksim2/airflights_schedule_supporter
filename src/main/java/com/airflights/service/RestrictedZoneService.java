@@ -5,6 +5,8 @@ import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.RestrictedZoneMapper;
 import com.airflights.repository.RestrictedZoneRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -29,14 +31,21 @@ public class RestrictedZoneService {
         return restrictedZoneMapper.toDto(saved);
     }
 
-    public List<RestrictedZoneDto> getAll() {
-        return restrictedZoneRepository.findAll()
-                .stream()
-                .map(restrictedZoneMapper::toDto)
-                .toList();
+    @Transactional
+    public Page<RestrictedZoneDto> getAll(Pageable pageable) {
+        return restrictedZoneRepository.findAll(pageable)
+                .map(restrictedZoneMapper::toDto);
     }
 
+    @Transactional
     public void delete(Long id) {
         restrictedZoneRepository.deleteById(id);
+    }
+
+    @Transactional
+    public RestrictedZoneDto getById(Long id) {
+        return restrictedZoneRepository.findById(id)
+                .map(restrictedZoneMapper::toDto)
+                .orElseThrow(() -> new IllegalArgumentException("Restricted zone not found"));
     }
 }

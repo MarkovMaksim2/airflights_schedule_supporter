@@ -51,4 +51,10 @@ public class FlightService {
         flightMapper.updateEntityFromDto(dto, flight);
         return flightMapper.toDto(flightRepository.save(flight));
     }
+
+    @Transactional
+    public FlightDto getById(Long id) {
+        return flightMapper.toDto(flightRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Flight not found")));
+    }
 }
