@@ -249,7 +249,7 @@ Support API for country airlines
   3. Файл возвращается пользователю.
 
 
-
+## Диаграмма Use Cases системы
 ![Диаграмма Use Cases системы](./docs/usecase_airline_scheduling.png)
 
 
@@ -268,12 +268,6 @@ airline-scheduler/
 │ │ │ ├── controller/
 │ │ │ ├── dto/
 │ │ │ ├── entity/
-│ │ │ │ ├── Passenger.java
-│ │ │ │ ├── Airline.java
-│ │ │ │ ├── Airport.java
-│ │ │ │ ├── Flight.java
-│ │ │ │ ├── RestrictedZone.java
-│ │ │ │ └── Booking.java
 │ │ │ ├── repository/
 │ │ │ ├── service/
 │ │ │ └── exception/
@@ -281,10 +275,10 @@ airline-scheduler/
 │ │ │ ├── application.yml
 │ │ │ ├── db/migration/
 │ │ │ └──── 1_init.sql
-│ └── test/
-│ ├── java/com/example/scheduler/
-│ │ ├── integration/
-│ │ └── unit/
-│ └── resources/
+│ ├── test/
+│ │ ├── java/com/airflights/
+│ │ │ ├── integraion/
+│ │ │ └── unit/
+│ │ └── resources/
 └── README.md
 ```
