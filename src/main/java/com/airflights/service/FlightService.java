@@ -62,4 +62,10 @@ public class FlightService {
     public void delete(Long id) {
         flightRepository.deleteById(id);
     }
+
+    @Transactional
+    public Iterable<FlightDto> getInfiniteScroll(int offset, int limit) {
+        return flightRepository.findAllByOrderByDepartureTimeAsc(offset, limit)
+                .map(flightMapper::toDto);
+    }
 }
