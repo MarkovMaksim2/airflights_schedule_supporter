@@ -1,12 +1,16 @@
 package com.airflights.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
 @Table(name = "flights")
+@Data
+@AllArgsConstructor
 public class Flight {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -36,5 +40,8 @@ public class Flight {
 
 
     @OneToMany(mappedBy = "flight", cascade = CascadeType.ALL)
-    private List<Booking> bookings;
+    private List<Booking> bookingsList;
+
+    @Column(nullable = false)
+    private String status;
 }

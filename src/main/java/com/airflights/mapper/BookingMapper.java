@@ -2,17 +2,28 @@ package com.airflights.mapper;
 
 import com.airflights.dto.BookingDto;
 import com.airflights.entity.Booking;
+import com.airflights.entity.Flight;
+import com.airflights.entity.Passenger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
 
 @Mapper(componentModel = "spring")
-public interface BookingMapper {
+public class BookingMapper {
+    BookingDto toDto(Booking booking) {
+        return new BookingDto(
+                booking.getId(),
+                booking.getPassenger().getId(),
+                booking.getFlight().getId(),
+                booking.getBookingTime()
+        );
+    }
 
-    @Mapping(source = "passenger.id", target = "passengerId")
-    @Mapping(source = "flight.id", target = "flightId")
-    BookingDto toDto(Booking booking);
-
-    @Mapping(source = "passengerId", target = "passenger.id")
-    @Mapping(source = "flightId", target = "flight.id")
-    Booking toEntity(BookingDto bookingDto);
+    Booking toEntity(BookingDto bookingDto, Passenger passenger, Flight flight) {
+        return new Booking(
+                bookingDto.getId(),
+                passenger,
+                flight,
+                bookingDto.getBookingTime()
+        );
+    }
 }

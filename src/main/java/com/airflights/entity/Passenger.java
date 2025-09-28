@@ -1,11 +1,15 @@
 package com.airflights.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
 @Table(name = "passengers")
+@Data
+@AllArgsConstructor
 public class Passenger {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

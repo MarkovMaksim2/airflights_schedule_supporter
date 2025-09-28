@@ -1,11 +1,15 @@
 package com.airflights.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.util.List;
 
 @Entity
 @Table(name = "airlines")
+@Data
+@AllArgsConstructor
 public class Airline {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -18,4 +22,7 @@ public class Airline {
 
     @OneToMany(mappedBy = "airline")
     private List<Flight> flights;
+
+    @Column(nullable = false, unique = true, name = "contact_email")
+    private String contactEmail;
 }

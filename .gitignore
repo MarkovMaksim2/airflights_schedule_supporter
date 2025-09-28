@@ -27,6 +27,8 @@ replay_pid*
 build/
 .idea/
 .vscode/
+bin/
+gradle/
 
 gradlew
 gradlew.bat
