@@ -1,0 +1,18 @@
+package com.airflights.dto;
+
+import jakarta.validation.constraints.NotBlank;
+import lombok.Data;
+
+@Data
+public class AirportDto {
+    private Long id;
+
+    @NotBlank
+    private String name;
+
+    @NotBlank
+    private String code;
+
+    @NotBlank
+    private String city;
+}
