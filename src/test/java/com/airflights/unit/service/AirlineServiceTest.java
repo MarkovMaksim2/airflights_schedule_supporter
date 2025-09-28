@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import jakarta.persistence.EntityNotFoundException;
 
 import java.util.ArrayList;
 import java.util.Optional;
@@ -40,10 +41,7 @@ class AirlineServiceTest {
         airline.setContactEmail("ops@bestair.com");
         airline.setFlights(new ArrayList<>());
 
-        airlineDto = new AirlineDto();
-        airlineDto.setId(1L);
-        airlineDto.setName("BestAir");
-        airlineDto.setContactEmail("ops@bestair.com");
+        airlineDto = new AirlineDto(1L, "BestAir", "ops@bestair.com");
     }
 
     @Test
@@ -70,6 +68,6 @@ class AirlineServiceTest {
     @Test
     void getById_whenMissing_throwsEntityNotFound() {
         when(airlineRepository.findById(99L)).thenReturn(Optional.empty());
-        assertThrows(javax.persistence.EntityNotFoundException.class, () -> airlineService.getById(99L));
+        assertThrows(jakarta.persistence.EntityNotFoundException.class, () -> airlineService.getById(99L));
     }
 }

@@ -10,7 +10,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import jakarta.persistence.EntityNotFoundException.*;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,12 +35,11 @@ class AirportServiceTest {
 
     @BeforeEach
     void setUp() {
-        airport = Airport.builder()
-                .id(1L)
-                .name("Sheremetyevo")
-                .code("SVO")
-                .city("Moscow")
-                .build();
+        airport = new Airport();
+        airport.setId(1L);
+        airport.setName("Sheremetyevo");
+        airport.setCode("SVO");
+        airport.setCity("Moscow");
 
         airportDto = new AirportDto();
         airportDto.setId(1L);
@@ -57,7 +58,7 @@ class AirportServiceTest {
     @Test
     void create_shouldSave() {
         when(airportRepository.existsByCode("SVO")).thenReturn(false);
-        when(airportMapper.toEntity(airportDto)).thenReturn(airport);
+        when(airportMapper.toEntity(airportDto, new ArrayList<>(), new ArrayList<>())).thenReturn(airport);
         when(airportRepository.save(airport)).thenReturn(airport);
         when(airportMapper.toDto(airport)).thenReturn(airportDto);
 
@@ -69,6 +70,6 @@ class AirportServiceTest {
     @Test
     void getById_whenMissing_throwsEntityNotFound() {
         when(airportRepository.findById(999L)).thenReturn(Optional.empty());
-        assertThrows(javax.persistence.EntityNotFoundException.class, () -> airportService.getById(999L));
+        assertThrows(jakarta.persistence.EntityNotFoundException.class, () -> airportService.getById(999L));
     }
 }

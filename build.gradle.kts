@@ -37,6 +37,7 @@ dependencies {
     testImplementation("org.mockito:mockito-core:5.5.0")
     testImplementation("org.mockito:mockito-junit-jupiter:5.5.0")
     testImplementation("org.assertj:assertj-core:3.24.2")
+    testImplementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 }
 
 

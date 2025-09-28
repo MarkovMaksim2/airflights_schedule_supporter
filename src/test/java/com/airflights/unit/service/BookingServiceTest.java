@@ -48,11 +48,11 @@ class BookingServiceTest {
     void setUp() {
         passenger = new Passenger();
         passenger.setId(1L);
-        passenger.setFullName("User");
+        passenger.setFirstName("Egor");
+        passenger.setLastName("Aganin");
 
         flight = new Flight();
         flight.setId(10L);
-        flight.setCapacity(2);
         flight.setStatus("SCHEDULED");
         flight.setDepartureTime(LocalDateTime.now().plusDays(1));
 
@@ -71,7 +71,6 @@ class BookingServiceTest {
     void bookFlight_success() {
         when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(bookingRepository.countByFlightId(10L)).thenReturn(0L);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
 

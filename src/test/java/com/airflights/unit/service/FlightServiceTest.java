@@ -1,6 +1,8 @@
 package com.airflights.unit.service;
 
 import com.airflights.dto.FlightDto;
+import com.airflights.entity.Airline;
+import com.airflights.entity.Airport;
 import com.airflights.entity.Flight;
 import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.FlightMapper;
@@ -13,6 +15,7 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -41,7 +44,6 @@ class FlightServiceTest {
         flight.setDepartureTime(LocalDateTime.now().plusDays(1));
         flight.setArrivalTime(LocalDateTime.now().plusDays(1).plusHours(2));
         flight.setStatus("SCHEDULED");
-        flight.setCapacity(100);
 
         flightDto = new FlightDto();
         flightDto.setId(1L);
@@ -55,7 +57,7 @@ class FlightServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(flightMapper.toEntity(flightDto)).thenReturn(flight);
+        when(flightMapper.toEntity(flightDto, new Airline(), new Airport(), new Airport(), new ArrayList<>())).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 

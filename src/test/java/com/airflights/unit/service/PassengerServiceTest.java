@@ -11,6 +11,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -33,30 +34,32 @@ class PassengerServiceTest {
 
     @BeforeEach
     void setUp() {
-        passenger = Passenger.builder()
-                .id(1L)
-                .fullName("Ivan Petrov")
-                .email("ivan@example.com")
-                .passportNumber("P123456")
-                .build();
+        passenger = new Passenger();
+        passenger.setId(1L);
+        passenger.setFirstName("Ivan");
+        passenger.setLastName("Petrob");
+        passenger.setEmail("ivan@example.com");
+        passenger.setPassportNumber("P123456");
 
         passengerDto = new PassengerDto();
         passengerDto.setId(1L);
-        passengerDto.setFullName("Ivan Petrov");
+        passengerDto.setFirstName("Ivan");
+        passengerDto.setLastName("Petrov");
         passengerDto.setEmail("ivan@example.com");
         passengerDto.setPassportNumber("P123456");
     }
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(passengerMapper.toEntity(passengerDto)).thenReturn(passenger);
+        when(passengerMapper.toEntity(passengerDto, new ArrayList<>())).thenReturn(passenger);
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
 
         PassengerDto created = passengerService.create(passengerDto);
 
         assertNotNull(created);
-        assertEquals("Ivan Petrov", created.getFullName());
+        assertEquals("Ivan", created.getFirstName());
+        assertEquals("Petrov", created.getLastName());
         verify(passengerRepository, times(1)).save(passenger);
     }
 
