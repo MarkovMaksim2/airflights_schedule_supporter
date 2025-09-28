@@ -141,4 +141,4 @@ Support API for country airlines
 
 
 
-![Диаграмма Use Cases системы](docs\usecase_airline_scheduling.png)
+![Диаграмма Use Cases системы](./docs/usecase_airline_scheduling.png)
