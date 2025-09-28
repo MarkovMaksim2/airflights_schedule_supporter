@@ -263,7 +263,7 @@ airline-scheduler/
 ├── Dockerfile
 ├── src/
 │ ├── main/
-│ │ ├── java/com/example/scheduler/
+│ │ ├── java/com/airflights/
 │ │ │ ├── AirlineSchedulerApplication.java
 │ │ │ ├── controller/
 │ │ │ ├── dto/
