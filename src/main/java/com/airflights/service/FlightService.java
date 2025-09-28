@@ -57,4 +57,9 @@ public class FlightService {
         return flightMapper.toDto(flightRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found")));
     }
+
+    @Transactional
+    public void delete(Long id) {
+        flightRepository.deleteById(id);
+    }
 }
