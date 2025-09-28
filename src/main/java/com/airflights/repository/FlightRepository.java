@@ -1,6 +1,6 @@
-package com.example.scheduler.repository;
+package com.airflights.repository;
 
-import com.example.scheduler.entity.Flight;
+import com.airflights.entity.Flight;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 

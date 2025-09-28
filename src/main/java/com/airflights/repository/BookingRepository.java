@@ -1,6 +1,6 @@
-package com.example.scheduler.repository;
+package com.airflights.repository;
 
-import com.example.scheduler.entity.Booking;
+import com.airflights.entity.Booking;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 public interface BookingRepository extends JpaRepository<Booking, Long> {

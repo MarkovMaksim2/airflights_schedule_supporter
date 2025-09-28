@@ -3,9 +3,9 @@ version: '3.9'
 
 services:
   db:
-  image: postgres:16
-  container_name: airline_db
-  restart: always
+    image: postgres:16
+    container_name: airline_db
+    restart: always
   environment:
     POSTGRES_USER: airline_user
     POSTGRES_PASSWORD: airline_pass
