@@ -34,7 +34,7 @@ public class PassengerService {
         if (passengerRepository.existsByPassportNumber(dto.getPassportNumber())) {
             throw new IllegalArgumentException("Passenger with this passport already exists");
         }
-        List<Booking> bookingList = bookingRepository.findAllByFlight_Id(dto.getId()).
+        List<Booking> bookingList = bookingRepository.findAllByPassenger_Id(dto.getId()).
                 orElseThrow(() -> new IllegalArgumentException("bookings not found"));
 
         Passenger passenger = passengerMapper.toEntity(dto, bookingList);

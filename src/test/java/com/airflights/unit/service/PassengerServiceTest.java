@@ -3,8 +3,12 @@ package com.airflights.unit.service;
 import com.airflights.dto.PassengerDto;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.PassengerMapper;
+import com.airflights.repository.BookingRepository;
 import com.airflights.repository.PassengerRepository;
 import com.airflights.service.PassengerService;
+
+import jakarta.persistence.MapKeyColumn;
+
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -22,6 +26,9 @@ class PassengerServiceTest {
 
     @Mock
     private PassengerRepository passengerRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
 
     @Mock
     private PassengerMapper passengerMapper;
@@ -54,6 +61,8 @@ class PassengerServiceTest {
         when(passengerMapper.toEntity(passengerDto, new ArrayList<>())).thenReturn(passenger);
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
+        when(passengerRepository.existsByPassportNumber(passengerDto.getPassportNumber())).thenReturn(false);
+        when(bookingRepository.findAllByPassenger_Id(passengerDto.getId())).thenReturn(Optional.of(new ArrayList<>()));
 
         PassengerDto created = passengerService.create(passengerDto);
 

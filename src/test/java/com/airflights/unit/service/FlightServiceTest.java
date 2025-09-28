@@ -6,6 +6,9 @@ import com.airflights.entity.Airport;
 import com.airflights.entity.Flight;
 import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.FlightMapper;
+import com.airflights.repository.AirlineRepository;
+import com.airflights.repository.AirportRepository;
+import com.airflights.repository.BookingRepository;
 import com.airflights.repository.FlightRepository;
 import com.airflights.service.FlightService;
 import org.junit.jupiter.api.BeforeEach;
@@ -28,10 +31,20 @@ class FlightServiceTest {
     private FlightRepository flightRepository;
 
     @Mock
+    private AirlineRepository airlineRepository;
+
+    @Mock
+    private AirportRepository airportRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
+    
+    @Mock
     private FlightMapper flightMapper;
 
     @InjectMocks
     private FlightService flightService;
+
 
     private Flight flight;
     private FlightDto flightDto;
@@ -60,6 +73,9 @@ class FlightServiceTest {
         when(flightMapper.toEntity(flightDto, new Airline(), new Airport(), new Airport(), new ArrayList<>())).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
+        when(airlineRepository.findById(flightDto.getAirlineId())).thenReturn(java.util.Optional.of(new Airline()));
+        when(airportRepository.findById(flightDto.getDepartureAirportId())).thenReturn(java.util.Optional.of(new Airport()));
+        when(bookingRepository.findAllByFlight_Id(flightDto.getId())).thenReturn(java.util.Optional.of(new ArrayList<>()));
 
         FlightDto res = flightService.create(flightDto);
         assertNotNull(res);
