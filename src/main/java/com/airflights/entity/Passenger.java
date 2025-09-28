@@ -28,6 +28,10 @@ public class Passenger {
     private String email;
 
 
+    @Column(nullable = false, unique = true)
+    private String passportNumber;
+
+
     @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL)
     private List<Booking> bookings;
 }

@@ -5,7 +5,21 @@ import com.airflights.entity.RestrictedZone;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring")
-public interface RestrictedZoneMapper {
-    RestrictedZoneDto toDto(RestrictedZone restrictedZone);
-    RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto);
+public class RestrictedZoneMapper {
+    RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
+        return new RestrictedZoneDto(
+                restrictedZone.getId(),
+                restrictedZone.getRegion(),
+                restrictedZone.getStartTime(),
+                restrictedZone.getEndTime()
+        );
+    }
+    RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto) {
+        return new RestrictedZone(
+                restrictedZoneDto.getId(),
+                restrictedZoneDto.getRegion(),
+                restrictedZoneDto.getStartTime(),
+                restrictedZoneDto.getEndTime()
+        );
+    }
 }

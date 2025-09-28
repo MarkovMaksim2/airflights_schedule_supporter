@@ -1,12 +1,16 @@
 package com.airflights.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Data;
 
 import java.time.LocalDateTime;
 
 
 @Entity
 @Table(name = "restricted_zones")
+@Data
+@AllArgsConstructor
 public class RestrictedZone {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
