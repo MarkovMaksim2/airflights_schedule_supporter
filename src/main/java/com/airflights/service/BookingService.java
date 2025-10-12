@@ -59,12 +59,10 @@ public class BookingService {
         bookingRepository.deleteById(id);
     }
 
-    @Transactional(readOnly = true)
     public Page<BookingDto> getAll(Pageable pageable) {
         return bookingRepository.findAll(pageable).map(bookingMapper::toDto);
     }
 
-    @Transactional(readOnly = true)
     public BookingDto getById(Long id) {
         return bookingMapper.toDto(bookingRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Booking not found")));

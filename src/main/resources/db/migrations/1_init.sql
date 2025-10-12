@@ -1,13 +1,15 @@
 CREATE TABLE airlines (
     id BIGSERIAL PRIMARY KEY,
-    name VARCHAR(255) NOT NULL UNIQUE
+    name VARCHAR(255) NOT NULL UNIQUE,
+    contact_email VARCHAR(255) NOT NULL UNIQUE
 );
 
 
 CREATE TABLE airports (
     id BIGSERIAL PRIMARY KEY,
     code VARCHAR(10) NOT NULL UNIQUE,
-    city VARCHAR(255) NOT NULL
+    city VARCHAR(255) NOT NULL,
+    name VARCHAR(255) NOT NULL
 );
 
 
@@ -15,7 +17,8 @@ CREATE TABLE passengers (
     id BIGSERIAL PRIMARY KEY,
     first_name VARCHAR(255) NOT NULL,
     last_name VARCHAR(255) NOT NULL,
-    email VARCHAR(255) NOT NULL UNIQUE
+    email VARCHAR(255) NOT NULL UNIQUE,
+    passport_number VARCHAR(20) NOT NULL UNIQUE
 );
 
 
@@ -25,7 +28,9 @@ CREATE TABLE flights (
     departure_airport_id BIGINT NOT NULL REFERENCES airports(id),
     arrival_airport_id BIGINT NOT NULL REFERENCES airports(id),
     departure_time TIMESTAMP NOT NULL,
-    arrival_time TIMESTAMP NOT NULL
+    arrival_time TIMESTAMP NOT NULL,
+    status VARCHAR(50) NOT NULL DEFAULT 'SCHEDULED',
+    seats INTEGER NOT NULL DEFAULT 100
 );
 
 

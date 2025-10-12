@@ -14,6 +14,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -37,11 +38,10 @@ public class FlightService {
                 orElseThrow(() -> new IllegalArgumentException("airline not found"));
         Airport departureAirport = airportRepository.findById(dto.getDepartureAirportId()).
                 orElseThrow(() -> new IllegalArgumentException("departure airport not found"));
-        Airport arrivalAirport = airportRepository.findById(dto.getDepartureAirportId()).
+        Airport arrivalAirport = airportRepository.findById(dto.getArrivalAirportId()).
                 orElseThrow(() -> new IllegalArgumentException("arrival airport not found"));
 
-        List<Booking> bookingList = bookingRepository.findAllByFlight_Id(dto.getId()).
-                orElseThrow(() -> new IllegalArgumentException("bookings not found"));
+        List<Booking> bookingList = new ArrayList<>();
 
         Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport, bookingList);
         return flightMapper.toDto(flightRepository.save(flight));
@@ -61,7 +61,7 @@ public class FlightService {
 
     @Transactional
     public FlightDto update(Long id, @Valid FlightDto dto) {
-        if (id != null && flightRepository.existsById(id)) {
+        if (id == null || !flightRepository.existsById(id)) {
             throw new IllegalArgumentException("flight not found");
         }
 
@@ -71,14 +71,13 @@ public class FlightService {
                 orElseThrow(() -> new IllegalArgumentException("departure airport not found"));
         Airport arrivalAirport = airportRepository.findById(dto.getArrivalAirportId()).
                 orElseThrow(() -> new IllegalArgumentException("arrival airport not found"));
-        List<Booking> bookingList = bookingRepository.findAllByFlight_Id(dto.getId()).
+        List<Booking> bookingList = bookingRepository.findAllByFlight_Id(id).
                 orElseThrow(() -> new IllegalArgumentException("bookings not found"));
 
         Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport, bookingList);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
-    @Transactional
     public FlightDto getById(Long id) {
         return flightMapper.toDto(flightRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Flight not found")));

@@ -31,7 +31,6 @@ public class RestrictedZoneService {
         return restrictedZoneMapper.toDto(saved);
     }
 
-    @Transactional
     public Page<RestrictedZoneDto> getAll(Pageable pageable) {
         return restrictedZoneRepository.findAll(pageable)
                 .map(restrictedZoneMapper::toDto);
@@ -42,7 +41,6 @@ public class RestrictedZoneService {
         restrictedZoneRepository.deleteById(id);
     }
 
-    @Transactional
     public RestrictedZoneDto getById(Long id) {
         return restrictedZoneRepository.findById(id)
                 .map(restrictedZoneMapper::toDto)
