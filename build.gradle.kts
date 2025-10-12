@@ -20,9 +20,9 @@ dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    // ✅ Flyway — совместимая версия с PostgreSQL 16
-    implementation("org.flywaydb:flyway-core:11.9.1")
-    implementation("org.flywaydb:flyway-database-postgresql:11.9.1")
+    // Flyway
+    implementation("org.flywaydb:flyway-core:11.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
 
     // OpenAPI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")

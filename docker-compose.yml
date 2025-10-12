@@ -2,7 +2,7 @@ version: '3.9'
 
 services:
   db:
-    image: postgres:16
+    image: postgres:15
     container_name: airline_db
     restart: always
     environment:
