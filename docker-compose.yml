@@ -1,20 +1,18 @@
 version: '3.9'
 
-
 services:
   db:
     image: postgres:16
     container_name: airline_db
     restart: always
-  environment:
-    POSTGRES_USER: airline_user
-    POSTGRES_PASSWORD: airline_pass
-    POSTGRES_DB: airline_db
-  ports:
-    - "5432:5432"
-  volumes:
-    - postgres_data:/var/lib/postgresql/data
-
+    environment:
+      POSTGRES_USER: airline_user
+      POSTGRES_PASSWORD: airline_pass
+      POSTGRES_DB: airline_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
 
   app:
     build: .
@@ -27,7 +25,6 @@ services:
       SPRING_DATASOURCE_PASSWORD: airline_pass
     ports:
       - "8080:8080"
-
 
 volumes:
   postgres_data:
