@@ -61,10 +61,3 @@ tasks.withType<Test> {
         "--add-opens", "java.base/java.util=ALL-UNNAMED"
     )
 }
-
-dependencyManagement {
-    imports {
-        mavenBom("org.flywaydb:flyway-bom:11.9.1")
-    }
-}
-
