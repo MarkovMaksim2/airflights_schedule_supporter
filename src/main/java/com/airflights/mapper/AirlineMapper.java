@@ -3,9 +3,11 @@ package com.airflights.mapper;
 import com.airflights.dto.AirlineDto;
 import com.airflights.entity.Airline;
 import com.airflights.entity.Flight;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
+@Component
 public class AirlineMapper {
     public AirlineDto toDto(Airline airline) {
         return new AirlineDto(

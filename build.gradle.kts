@@ -16,10 +16,15 @@ repositories {
 
 
 dependencies {
-    // Основные зависимости
+    // Spring
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.flywaydb:flyway-core")
+
+    // ✅ Flyway — совместимая версия с PostgreSQL 16
+    implementation("org.flywaydb:flyway-core:11.9.1")
+    implementation("org.flywaydb:flyway-database-postgresql:11.9.1")
+
+    // OpenAPI
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
 
     // MapStruct
@@ -30,15 +35,15 @@ dependencies {
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    // DB
-    runtimeOnly("org.postgresql:postgresql")
+    // PostgreSQL JDBC
+    runtimeOnly("org.postgresql:postgresql:42.7.4")
 
     // Тесты
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine") // если не нужен JUnit4
+        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    testImplementation("org.testcontainers:junit-jupiter")
-    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.3")
+    testImplementation("org.testcontainers:postgresql:1.20.3")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
     testImplementation("org.assertj:assertj-core")

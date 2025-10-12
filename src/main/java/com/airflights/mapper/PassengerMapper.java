@@ -5,10 +5,11 @@ import com.airflights.dto.PassengerDto;
 import com.airflights.entity.Booking;
 import com.airflights.entity.Passenger;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Component
 public class PassengerMapper {
     public PassengerDto toDto(Passenger passenger) {
         return new PassengerDto(

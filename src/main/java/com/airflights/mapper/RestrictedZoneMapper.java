@@ -3,8 +3,9 @@ package com.airflights.mapper;
 import com.airflights.dto.RestrictedZoneDto;
 import com.airflights.entity.RestrictedZone;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
+@Component
 public class RestrictedZoneMapper {
     public RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
         return new RestrictedZoneDto(

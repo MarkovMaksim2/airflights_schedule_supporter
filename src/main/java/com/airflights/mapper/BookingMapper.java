@@ -6,8 +6,9 @@ import com.airflights.entity.Flight;
 import com.airflights.entity.Passenger;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
-@Mapper(componentModel = "spring")
+@Component
 public class BookingMapper {
     public BookingDto toDto(Booking booking) {
         return new BookingDto(

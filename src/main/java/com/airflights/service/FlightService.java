@@ -10,6 +10,7 @@ import com.airflights.repository.FlightRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -88,10 +89,12 @@ public class FlightService {
         flightRepository.deleteById(id);
     }
 
-    @Transactional
+    @Transactional(readOnly = true)
     public List<FlightDto> getInfiniteScroll(int offset, int limit) {
-        List<Flight> flightList =  flightRepository.findAllByOrderByDepartureTimeAsc(offset, limit).
-                orElseThrow(() -> new IllegalArgumentException("flights not found"));
-        return flightList.stream().map(flightMapper::toDto).toList();
+        Pageable pageable = PageRequest.of(offset / limit, limit); // вычисляем номер страницы
+        Page<Flight> flights = flightRepository.findAllByOrderByDepartureTimeAsc(pageable);
+        return flights.stream()
+                .map(flightMapper::toDto)
+                .toList();
     }
 }

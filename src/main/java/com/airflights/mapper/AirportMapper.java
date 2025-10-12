@@ -4,10 +4,11 @@ import com.airflights.dto.AirportDto;
 import com.airflights.entity.Airport;
 import com.airflights.entity.Flight;
 import org.mapstruct.Mapper;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Component
 public class AirportMapper {
     public AirportDto toDto(Airport airport) {
         return new AirportDto(

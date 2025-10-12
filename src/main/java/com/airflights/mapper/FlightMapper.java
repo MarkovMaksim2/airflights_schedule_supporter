@@ -7,10 +7,11 @@ import com.airflights.entity.Booking;
 import com.airflights.entity.Flight;
 import org.mapstruct.Mapper;
 import org.mapstruct.Mapping;
+import org.springframework.stereotype.Component;
 
 import java.util.List;
 
-@Mapper(componentModel = "spring")
+@Component
 public class FlightMapper {
     public FlightDto toDto(Flight flight) {
         return new FlightDto(

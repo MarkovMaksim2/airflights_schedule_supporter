@@ -70,12 +70,16 @@ class FlightServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(flightMapper.toEntity(flightDto, new Airline(), new Airport(), new Airport(), new ArrayList<>())).thenReturn(flight);
+        Airline airline = new Airline();
+        Airport departureAirport = new Airport();
+        Airport arrivalAirport = new Airport();
+        
+        when(flightMapper.toEntity(flightDto, airline, departureAirport, arrivalAirport, new ArrayList<>())).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
-        when(airlineRepository.findById(flightDto.getAirlineId())).thenReturn(java.util.Optional.of(new Airline()));
-        when(airportRepository.findById(flightDto.getDepartureAirportId())).thenReturn(java.util.Optional.of(new Airport()));
-        when(bookingRepository.findAllByFlight_Id(flightDto.getId())).thenReturn(java.util.Optional.of(new ArrayList<>()));
+        when(airlineRepository.findById(flightDto.getAirlineId())).thenReturn(java.util.Optional.of(airline));
+        when(airportRepository.findById(flightDto.getDepartureAirportId())).thenReturn(java.util.Optional.of(departureAirport));
+        when(airportRepository.findById(flightDto.getArrivalAirportId())).thenReturn(java.util.Optional.of(arrivalAirport));
 
         FlightDto res = flightService.create(flightDto);
         assertNotNull(res);
