@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
+import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.testcontainers.containers.PostgreSQLContainer;
 import org.testcontainers.junit.jupiter.Container;
@@ -22,6 +23,9 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @Testcontainers
+@TestPropertySource(properties = {
+        "spring.jpa.hibernate.ddl-auto=create-drop"
+})
 class PassengerControllerIntegrationTest {
 
     @Container
@@ -52,8 +56,10 @@ class PassengerControllerIntegrationTest {
     void shouldCreatePassenger() throws Exception {
         String json = """
                 {
-                    "name": "John Doe",
-                    "email": "john@example.com"
+                    "firstName": "John",
+                    "lastName": "Doe",
+                    "email": "john@example.com",
+                    "passportNumber": "A1234567"
                 }
                 """;
 
@@ -61,7 +67,7 @@ class PassengerControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.name", is("John Doe")));
+                .andExpect(jsonPath("$.firstName", is("John")));
     }
 
     @Test
@@ -70,11 +76,12 @@ class PassengerControllerIntegrationTest {
         p.setFirstName("Alice");
         p.setLastName("Smith");
         p.setEmail("alice@example.com");
+        p.setPassportNumber("W1234567");
         passengerRepository.save(p);
 
         mockMvc.perform(get("/api/passengers"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$[0].email", is("alice@example.com")));
+                .andExpect(jsonPath("$.content[0].email", is("alice@example.com")));
     }
 
     @Test
@@ -83,6 +90,7 @@ class PassengerControllerIntegrationTest {
         p.setFirstName("Bob");
         p.setLastName("Brown");
         p.setEmail("bob@example.com");
+        p.setPassportNumber("M1234567");
         Passenger saved = passengerRepository.save(p);
 
         mockMvc.perform(delete("/api/passengers/" + saved.getId()))
