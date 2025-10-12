@@ -4,14 +4,16 @@ spring:
         username: airline_user
         password: airline_pass
     jpa:
-    hibernate:
-        ddl-auto: validate
-    properties:
         hibernate:
-            format_sql: true
-            dialect: org.hibernate.dialect.PostgreSQLDialect
+            ddl-auto: validate
+        properties:
+            hibernate:
+                "[format_sql]": true
+                dialect: org.hibernate.dialect.PostgreSQLDialect
     flyway:
         enabled: true
+        locations: classpath:db/migrations
+        
 
 
 server:
