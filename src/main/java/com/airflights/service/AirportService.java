@@ -31,6 +31,11 @@ public class AirportService {
         return airportMapper.toDto(airport);
     }
 
+    public Airport getByIdEntity(Long id) {
+        return airportRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Airport not found: " + id));
+    }
+
     @Transactional
     public AirportDto create(AirportDto dto) {
         if (dto.getCode() != null && airportRepository.existsByCode(dto.getCode())) {
@@ -67,14 +72,5 @@ public class AirportService {
             throw new EntityNotFoundException("Airport not found: " + id);
         }
         airportRepository.deleteById(id);
-    }
-
-    /**
-     * Удобный метод поиска по коду (используется, например, при создании рейса).
-     */
-    public AirportDto findByCode(String code) {
-        Airport airport = airportRepository.findByCode(code)
-                .orElseThrow(() -> new EntityNotFoundException("Airport not found by code: " + code));
-        return airportMapper.toDto(airport);
     }
 }
