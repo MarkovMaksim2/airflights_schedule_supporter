@@ -6,8 +6,6 @@ import com.airflights.entity.Flight;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.BookingMapper;
 import com.airflights.repository.BookingRepository;
-import com.airflights.repository.FlightRepository;
-import com.airflights.repository.PassengerRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -21,18 +19,16 @@ import java.time.LocalDateTime;
 @RequiredArgsConstructor
 public class BookingService {
 
-    private final BookingRepository bookingRepository;
-    private final PassengerRepository passengerRepository;
-    private final FlightRepository flightRepository;
     private final BookingMapper bookingMapper;
+    private final BookingRepository bookingRepository;
+    private final PassengerService passengerService;
+    private final FlightService flightService;
 
     @Transactional
     public BookingDto bookFlight(Long passengerId, Long flightId) {
-        Passenger passenger = passengerRepository.findById(passengerId)
-                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+        Passenger passenger = passengerService.getByIdEntity(passengerId);
 
-        Flight flight = flightRepository.findById(flightId)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        Flight flight = flightService.getByIdEntity(flightId);
 
         Booking booking = new Booking();
         booking.setPassenger(passenger);
@@ -43,11 +39,9 @@ public class BookingService {
 
     @Transactional
     public BookingDto create(@Valid BookingDto dto) {
-        Passenger passenger = passengerRepository.findById(dto.getPassengerId()).
-                orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+        Passenger passenger = passengerService.getByIdEntity(dto.getPassengerId());
 
-        Flight flight = flightRepository.findById(dto.getFlightId()).
-                orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+        Flight flight = flightService.getByIdEntity(dto.getFlightId());
 
         Booking booking = bookingMapper.toEntity(dto, passenger, flight);
         booking.setBookingTime(LocalDateTime.now());

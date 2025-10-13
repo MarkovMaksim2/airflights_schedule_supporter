@@ -6,9 +6,9 @@ import com.airflights.entity.Flight;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.BookingMapper;
 import com.airflights.repository.BookingRepository;
-import com.airflights.repository.FlightRepository;
-import com.airflights.repository.PassengerRepository;
 import com.airflights.service.BookingService;
+import com.airflights.service.FlightService;
+import com.airflights.service.PassengerService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -16,7 +16,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -28,13 +27,13 @@ class BookingServiceTest {
     private BookingRepository bookingRepository;
 
     @Mock
-    private PassengerRepository passengerRepository;
-
-    @Mock
-    private FlightRepository flightRepository;
-
-    @Mock
     private BookingMapper bookingMapper;
+
+    @Mock
+    private PassengerService passengerService;
+
+    @Mock
+    private FlightService flightService;
 
     @InjectMocks
     private BookingService bookingService;
@@ -69,10 +68,10 @@ class BookingServiceTest {
 
     @Test
     void bookFlight_success() {
-        when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
-        when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+        when(passengerService.getByIdEntity(1L)).thenReturn(passenger);
+        when(flightService.getByIdEntity(10L)).thenReturn(flight);
 
         BookingDto created = bookingService.bookFlight(1L, 10L);
 
@@ -83,7 +82,8 @@ class BookingServiceTest {
 
     @Test
     void bookFlight_whenPassengerMissing_throws() {
-        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
+        when(passengerService.getByIdEntity(1L)).thenThrow(new IllegalArgumentException("Passenger not found"));
+
         assertThrows(IllegalArgumentException.class, () -> bookingService.bookFlight(1L, 10L));
     }
 }
