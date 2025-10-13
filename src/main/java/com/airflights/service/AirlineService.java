@@ -2,10 +2,8 @@ package com.airflights.service;
 
 import com.airflights.dto.AirlineDto;
 import com.airflights.entity.Airline;
-import com.airflights.entity.Flight;
 import com.airflights.mapper.AirlineMapper;
 import com.airflights.repository.AirlineRepository;
-import com.airflights.repository.FlightRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -14,14 +12,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.ArrayList;
-import java.util.List;
 
 @Service
 @RequiredArgsConstructor
 public class AirlineService {
 
     private final AirlineRepository airlineRepository;
-    private final FlightRepository flightRepository;
     private final AirlineMapper airlineMapper;
 
     public Page<AirlineDto> getAll(Pageable pageable) {
@@ -33,6 +29,11 @@ public class AirlineService {
         Airline airline = airlineRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Airline not found: " + id));
         return airlineMapper.toDto(airline);
+    }
+
+    public Airline getByIdEntity(Long id) {
+        return airlineRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Airline not found: " + id));
     }
 
     @Transactional

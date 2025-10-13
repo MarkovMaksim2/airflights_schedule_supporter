@@ -6,10 +6,9 @@ import com.airflights.entity.Airport;
 import com.airflights.entity.Flight;
 import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.FlightMapper;
-import com.airflights.repository.AirlineRepository;
-import com.airflights.repository.AirportRepository;
-import com.airflights.repository.BookingRepository;
 import com.airflights.repository.FlightRepository;
+import com.airflights.service.AirlineService;
+import com.airflights.service.AirportService;
 import com.airflights.service.FlightService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -31,16 +30,13 @@ class FlightServiceTest {
     private FlightRepository flightRepository;
 
     @Mock
-    private AirlineRepository airlineRepository;
-
-    @Mock
-    private AirportRepository airportRepository;
-
-    @Mock
-    private BookingRepository bookingRepository;
-    
-    @Mock
     private FlightMapper flightMapper;
+
+    @Mock
+    private AirlineService airlineService;
+
+    @Mock
+    private AirportService airportService;
 
     @InjectMocks
     private FlightService flightService;
@@ -77,9 +73,9 @@ class FlightServiceTest {
         when(flightMapper.toEntity(flightDto, airline, departureAirport, arrivalAirport, new ArrayList<>())).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
-        when(airlineRepository.findById(flightDto.getAirlineId())).thenReturn(java.util.Optional.of(airline));
-        when(airportRepository.findById(flightDto.getDepartureAirportId())).thenReturn(java.util.Optional.of(departureAirport));
-        when(airportRepository.findById(flightDto.getArrivalAirportId())).thenReturn(java.util.Optional.of(arrivalAirport));
+        when(airlineService.getByIdEntity(flightDto.getAirlineId())).thenReturn(airline);
+        when(airportService.getByIdEntity(flightDto.getDepartureAirportId())).thenReturn(departureAirport);
+        when(airportService.getByIdEntity(flightDto.getArrivalAirportId())).thenReturn(arrivalAirport);
 
         FlightDto res = flightService.create(flightDto);
         assertNotNull(res);

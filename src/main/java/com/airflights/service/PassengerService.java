@@ -1,10 +1,8 @@
 package com.airflights.service;
 
 import com.airflights.dto.PassengerDto;
-import com.airflights.entity.Booking;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.PassengerMapper;
-import com.airflights.repository.BookingRepository;
 import com.airflights.repository.PassengerRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -22,7 +20,7 @@ public class PassengerService {
 
     private final PassengerRepository passengerRepository;
     private final PassengerMapper passengerMapper;
-    private final BookingRepository bookingRepository;
+    // private final BookingService bookingService;
 
     public Page<PassengerDto> getAll(Pageable pageable) {
         return passengerRepository.findAll(pageable)
@@ -34,10 +32,9 @@ public class PassengerService {
         if (passengerRepository.existsByPassportNumber(dto.getPassportNumber())) {
             throw new IllegalArgumentException("Passenger with this passport already exists");
         }
-        List<Booking> bookingList = bookingRepository.findAllByPassenger_Id(dto.getId()).
-                orElseThrow(() -> new IllegalArgumentException("bookings not found"));
+        // List<Booking> bookingList = bookingService.getAllBookingByPassengerId(dto.getId());
 
-        Passenger passenger = passengerMapper.toEntity(dto, bookingList);
+        Passenger passenger = passengerMapper.toEntity(dto, List.of());// bookingList);
         return passengerMapper.toDto(passengerRepository.save(passenger));
     }
 
@@ -45,6 +42,11 @@ public class PassengerService {
         Passenger passenger = passengerRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
         return passengerMapper.toDto(passenger);
+    }
+
+    public Passenger getByIdEntity(Long id) {
+        return passengerRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
     }
 
     @Transactional
