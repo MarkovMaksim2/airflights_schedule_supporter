@@ -5,47 +5,18 @@ import com.airflights.repository.AirlineRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class AirlineControllerIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("scheduler_test")
-            .withUsername("test")
-            .withPassword("test");
-
-    @Autowired
-    private MockMvc mockMvc;
+@ActiveProfiles("test")
+class AirlineControllerIntegrationTest extends BaseIntegrationTest {
 
     @Autowired
     private AirlineRepository airlineRepository;
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @BeforeEach
     void setUp() {
@@ -57,7 +28,7 @@ class AirlineControllerIntegrationTest {
         String json = """
                 {
                     "name": "Sky Airlines",
-                    "contactEmail": "contact@skyairlines.com"
+                    "contact_email": "contact@skyairlines.com"
                 }
                 """;
 
@@ -66,7 +37,7 @@ class AirlineControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Sky Airlines")))
-                .andExpect(jsonPath("$.contactEmail", is("contact@skyairlines.com")));
+                .andExpect(jsonPath("$.contact_email", is("contact@skyairlines.com")));
     }
 
     @Test
@@ -91,7 +62,7 @@ class AirlineControllerIntegrationTest {
         mockMvc.perform(get("/api/airlines/" + saved.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Mountain Airlines")))
-                .andExpect(jsonPath("$.contactEmail", is("info@mountainairlines.com")));
+                .andExpect(jsonPath("$.contact_email", is("info@mountainairlines.com")));
     }
 
     @Test
@@ -104,7 +75,7 @@ class AirlineControllerIntegrationTest {
         String json = """
                 {
                     "name": "Desert Airways Updated",
-                    "contactEmail": "new@desertairways.com"
+                    "contact_email": "new@desertairways.com"
                 }
                 """;
 
@@ -113,7 +84,7 @@ class AirlineControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.name", is("Desert Airways Updated")))
-                .andExpect(jsonPath("$.contactEmail", is("new@desertairways.com")));
+                .andExpect(jsonPath("$.contact_email", is("new@desertairways.com")));
     }
 
     @Test

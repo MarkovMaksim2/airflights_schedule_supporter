@@ -5,47 +5,17 @@ import com.airflights.repository.PassengerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class PassengerControllerIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("scheduler_test")
-            .withUsername("test")
-            .withPassword("test");
-
-    @Autowired
-    private MockMvc mockMvc;
-
+@ActiveProfiles("test")
+class PassengerControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private PassengerRepository passengerRepository;
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @BeforeEach
     void setUp() {
@@ -56,10 +26,10 @@ class PassengerControllerIntegrationTest {
     void shouldCreatePassenger() throws Exception {
         String json = """
                 {
-                    "firstName": "John",
-                    "lastName": "Doe",
+                    "first_name": "John",
+                    "last_name": "Doe",
                     "email": "john@example.com",
-                    "passportNumber": "A1234567"
+                    "passport_number": "A1234567"
                 }
                 """;
 
@@ -67,7 +37,7 @@ class PassengerControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.firstName", is("John")));
+                .andExpect(jsonPath("$.first_name", is("John")));
     }
 
     @Test

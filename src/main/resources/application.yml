@@ -13,6 +13,9 @@ spring:
     flyway:
         enabled: true
         locations: classpath:db/migrations
+    jackson:
+        property-naming-strategy: SNAKE_CASE
+        default-property-inclusion: NON_NULL
         
 
 

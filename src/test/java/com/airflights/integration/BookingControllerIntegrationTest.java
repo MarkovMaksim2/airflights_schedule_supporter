@@ -13,16 +13,8 @@ import com.airflights.repository.PassengerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
@@ -30,23 +22,8 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class BookingControllerIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("scheduler_test")
-            .withUsername("test")
-            .withPassword("test");
-
-    @Autowired
-    private MockMvc mockMvc;
-
+@ActiveProfiles("test")
+class BookingControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private BookingRepository bookingRepository;
 
@@ -61,13 +38,6 @@ class BookingControllerIntegrationTest {
 
     @Autowired
     private AirportRepository airportRepository;
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @BeforeEach
     void setUp() {
@@ -116,9 +86,9 @@ class BookingControllerIntegrationTest {
 
         String json = """
                 {
-                    "passengerId": %d,
-                    "flightId": %d,
-                    "bookingTime": "2025-12-20T10:00:00"
+                    "passenger_id": %d,
+                    "flight_id": %d,
+                    "booking_time": "2025-12-20T10:00:00"
                 }
                 """.formatted(savedPassenger.getId(), savedFlight.getId());
 
@@ -126,8 +96,8 @@ class BookingControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.passengerId", is(savedPassenger.getId().intValue())))
-                .andExpect(jsonPath("$.flightId", is(savedFlight.getId().intValue())));
+                .andExpect(jsonPath("$.passenger_id", is(savedPassenger.getId().intValue())))
+                .andExpect(jsonPath("$.flight_id", is(savedFlight.getId().intValue())));
     }
 
     @Test
@@ -174,7 +144,7 @@ class BookingControllerIntegrationTest {
 
         mockMvc.perform(get("/api/bookings"))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.content[0].passengerId", is(savedPassenger.getId().intValue())));
+                .andExpect(jsonPath("$.content[0].passenger_id", is(savedPassenger.getId().intValue())));
     }
 
     @Test
@@ -221,8 +191,8 @@ class BookingControllerIntegrationTest {
 
         mockMvc.perform(get("/api/bookings/" + savedBooking.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.passengerId", is(savedPassenger.getId().intValue())))
-                .andExpect(jsonPath("$.flightId", is(savedFlight.getId().intValue())));
+                .andExpect(jsonPath("$.passenger_id", is(savedPassenger.getId().intValue())))
+                .andExpect(jsonPath("$.flight_id", is(savedFlight.getId().intValue())));
     }
 
     @Test

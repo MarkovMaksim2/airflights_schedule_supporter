@@ -9,16 +9,8 @@ import com.airflights.repository.FlightRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
-import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 
 import java.time.LocalDateTime;
 
@@ -26,23 +18,8 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class FlightControllerIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("scheduler_test")
-            .withUsername("test")
-            .withPassword("test");
-
-    @Autowired
-    private MockMvc mockMvc;
-
+@ActiveProfiles("test")
+class FlightControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private FlightRepository flightRepository;
 
@@ -51,13 +28,6 @@ class FlightControllerIntegrationTest {
 
     @Autowired
     private AirportRepository airportRepository;
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @BeforeEach
     void setUp() {
@@ -88,11 +58,11 @@ class FlightControllerIntegrationTest {
 
         String json = """
                 {
-                    "airlineId": %d,
-                    "departureAirportId": %d,
-                    "arrivalAirportId": %d,
-                    "departureTime": "2025-12-25T10:00:00",
-                    "arrivalTime": "2025-12-25T12:00:00",
+                    "airline_id": %d,
+                    "departure_airport_id": %d,
+                    "arrival_airport_id": %d,
+                    "departure_time": "2025-12-25T10:00:00",
+                    "arrival_time": "2025-12-25T12:00:00",
                     "status": "SCHEDULED"
                 }
                 """.formatted(savedAirline.getId(), savedDepartureAirport.getId(), savedArrivalAirport.getId());
@@ -101,9 +71,9 @@ class FlightControllerIntegrationTest {
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
                 .andExpect(status().isCreated())
-                .andExpect(jsonPath("$.airlineId", is(savedAirline.getId().intValue())))
-                .andExpect(jsonPath("$.departureAirportId", is(savedDepartureAirport.getId().intValue())))
-                .andExpect(jsonPath("$.arrivalAirportId", is(savedArrivalAirport.getId().intValue())))
+                .andExpect(jsonPath("$.airline_id", is(savedAirline.getId().intValue())))
+                .andExpect(jsonPath("$.departure_airport_id", is(savedDepartureAirport.getId().intValue())))
+                .andExpect(jsonPath("$.arrival_airport_id", is(savedArrivalAirport.getId().intValue())))
                 .andExpect(jsonPath("$.status", is("SCHEDULED")));
     }
 
@@ -172,7 +142,7 @@ class FlightControllerIntegrationTest {
 
         mockMvc.perform(get("/api/flights/" + savedFlight.getId()))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.airlineId", is(savedAirline.getId().intValue())))
+                .andExpect(jsonPath("$.airline_id", is(savedAirline.getId().intValue())))
                 .andExpect(jsonPath("$.status", is("SCHEDULED")));
     }
 
@@ -207,11 +177,11 @@ class FlightControllerIntegrationTest {
 
         String json = """
                 {
-                    "airlineId": %d,
-                    "departureAirportId": %d,
-                    "arrivalAirportId": %d,
-                    "departureTime": "2025-12-28T16:00:00",
-                    "arrivalTime": "2025-12-28T19:00:00",
+                    "airline_id": %d,
+                    "departure_airport_id": %d,
+                    "arrival_airport_id": %d,
+                    "departure_time": "2025-12-28T16:00:00",
+                    "arrival_time": "2025-12-28T19:00:00",
                     "status": "DELAYED"
                 }
                 """.formatted(savedAirline.getId(), savedDepartureAirport.getId(), savedArrivalAirport.getId());
@@ -221,7 +191,7 @@ class FlightControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status", is("DELAYED")))
-                .andExpect(jsonPath("$.departureTime", is("2025-12-28T16:00:00")));
+                .andExpect(jsonPath("$.departure_time", is("2025-12-28T16:00:00")));
     }
 
     @Test

@@ -5,16 +5,9 @@ import com.airflights.repository.RestrictedZoneRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
-import org.springframework.test.context.TestPropertySource;
+import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
-import org.testcontainers.containers.PostgreSQLContainer;
-import org.testcontainers.junit.jupiter.Container;
-import org.testcontainers.junit.jupiter.Testcontainers;
-import org.springframework.test.context.DynamicPropertyRegistry;
-import org.springframework.test.context.DynamicPropertySource;
 
 import java.time.LocalDateTime;
 
@@ -22,32 +15,13 @@ import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
-@SpringBootTest
-@AutoConfigureMockMvc
-@Testcontainers
-@TestPropertySource(properties = {
-        "spring.jpa.hibernate.ddl-auto=create-drop"
-})
-class RestrictedZoneControllerIntegrationTest {
-
-    @Container
-    static PostgreSQLContainer<?> postgres = new PostgreSQLContainer<>("postgres:15-alpine")
-            .withDatabaseName("scheduler_test")
-            .withUsername("test")
-            .withPassword("test");
-
+@ActiveProfiles("test")
+class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
     private MockMvc mockMvc;
 
     @Autowired
     private RestrictedZoneRepository restrictedZoneRepository;
-
-    @DynamicPropertySource
-    static void configureProperties(DynamicPropertyRegistry registry) {
-        registry.add("spring.datasource.url", postgres::getJdbcUrl);
-        registry.add("spring.datasource.username", postgres::getUsername);
-        registry.add("spring.datasource.password", postgres::getPassword);
-    }
 
     @BeforeEach
     void setUp() {
@@ -59,8 +33,8 @@ class RestrictedZoneControllerIntegrationTest {
         String json = """
                 {
                     "region": "Military Zone Alpha",
-                    "startTime": "2025-12-25T08:00:00",
-                    "endTime": "2025-12-25T18:00:00"
+                    "start_time": "2025-12-25T08:00:00",
+                    "end_time": "2025-12-25T18:00:00"
                 }
                 """;
 
@@ -69,8 +43,8 @@ class RestrictedZoneControllerIntegrationTest {
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.region", is("Military Zone Alpha")))
-                .andExpect(jsonPath("$.startTime", is("2025-12-25T08:00:00")))
-                .andExpect(jsonPath("$.endTime", is("2025-12-25T18:00:00")));
+                .andExpect(jsonPath("$.start_time", is("2025-12-25T08:00:00")))
+                .andExpect(jsonPath("$.end_time", is("2025-12-25T18:00:00")));
     }
 
     @Test
@@ -97,8 +71,8 @@ class RestrictedZoneControllerIntegrationTest {
         mockMvc.perform(get("/api/restricted-zones/" + saved.getId()))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.region", is("Military Zone Gamma")))
-                .andExpect(jsonPath("$.startTime", is("2025-12-27T10:00:00")))
-                .andExpect(jsonPath("$.endTime", is("2025-12-27T20:00:00")));
+                .andExpect(jsonPath("$.start_time", is("2025-12-27T10:00:00")))
+                .andExpect(jsonPath("$.end_time", is("2025-12-27T20:00:00")));
     }
 
     @Test
