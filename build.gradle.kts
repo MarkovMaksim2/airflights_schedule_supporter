@@ -52,10 +52,8 @@ dependencies {
 }
 
 
-
 tasks.withType<Test> {
     useJUnitPlatform()
-
     // Убираем предупреждения ByteBuddy/Mockito для JDK 21+
     jvmArgs(
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
