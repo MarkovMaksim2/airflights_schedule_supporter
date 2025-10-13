@@ -27,7 +27,6 @@ public class PassengerController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Page<PassengerDto>> getAll(Pageable pageable) {
         return ResponseEntity.ok(passengerService.getAll(pageable));
@@ -38,7 +37,6 @@ public class PassengerController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved passenger"),
         @ApiResponse(responseCode = "404", description = "Passenger not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<PassengerDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(passengerService.getById(id));
@@ -49,7 +47,6 @@ public class PassengerController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Passenger created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<PassengerDto> create(@Valid @RequestBody PassengerDto dto) {
         PassengerDto created = passengerService.create(dto);
@@ -62,7 +59,6 @@ public class PassengerController {
         @ApiResponse(responseCode = "200", description = "Passenger updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
         @ApiResponse(responseCode = "404", description = "Passenger not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<PassengerDto> update(@PathVariable Long id, @Valid @RequestBody PassengerDto dto) {
         return ResponseEntity.ok(passengerService.update(id, dto));
@@ -73,7 +69,6 @@ public class PassengerController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Passenger deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Passenger not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         passengerService.delete(id);

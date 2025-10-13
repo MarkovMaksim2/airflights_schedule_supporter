@@ -29,7 +29,6 @@ public class BookingController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Page<BookingDto>> getAll(Pageable pageable) {
         Page<BookingDto> page = bookingService.getAll(pageable);
@@ -45,7 +44,6 @@ public class BookingController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved booking"),
         @ApiResponse(responseCode = "404", description = "Booking not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<BookingDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(bookingService.getById(id));
@@ -56,7 +54,6 @@ public class BookingController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Booking created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<BookingDto> create(@Valid @RequestBody BookingDto dto) {
         BookingDto created = bookingService.create(dto);
@@ -68,7 +65,6 @@ public class BookingController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Booking deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Booking not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         bookingService.delete(id);

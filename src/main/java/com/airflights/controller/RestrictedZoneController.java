@@ -27,7 +27,6 @@ public class RestrictedZoneController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Page<RestrictedZoneDto>> getAll(Pageable pageable) {
         return ResponseEntity.ok(restrictedZoneService.getAll(pageable));
@@ -38,7 +37,6 @@ public class RestrictedZoneController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved restricted zone"),
         @ApiResponse(responseCode = "404", description = "Restricted zone not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<RestrictedZoneDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(restrictedZoneService.getById(id));
@@ -49,7 +47,6 @@ public class RestrictedZoneController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Restricted zone created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<RestrictedZoneDto> create(@Valid @RequestBody RestrictedZoneDto dto) {
         RestrictedZoneDto created = restrictedZoneService.create(dto);
@@ -61,7 +58,6 @@ public class RestrictedZoneController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Restricted zone deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Restricted zone not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         restrictedZoneService.delete(id);

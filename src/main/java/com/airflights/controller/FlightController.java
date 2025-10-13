@@ -28,7 +28,6 @@ public class FlightController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Page<FlightDto>> getAll(Pageable pageable) {
         return ResponseEntity.ok(flightService.getAll(pageable));
@@ -39,7 +38,6 @@ public class FlightController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved flight"),
         @ApiResponse(responseCode = "404", description = "Flight not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<FlightDto> getById(@PathVariable Long id) {
         return ResponseEntity.ok(flightService.getById(id));
@@ -50,7 +48,6 @@ public class FlightController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Flight created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<FlightDto> create(@Valid @RequestBody FlightDto dto) {
         FlightDto created = flightService.create(dto);
@@ -63,7 +60,6 @@ public class FlightController {
         @ApiResponse(responseCode = "200", description = "Flight updated successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
         @ApiResponse(responseCode = "404", description = "Flight not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<FlightDto> update(@PathVariable Long id, @Valid @RequestBody FlightDto dto) {
         return ResponseEntity.ok(flightService.update(id, dto));
@@ -74,7 +70,6 @@ public class FlightController {
     @ApiResponses(value = {
         @ApiResponse(responseCode = "204", description = "Flight deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Flight not found"),
-        @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public ResponseEntity<Void> delete(@PathVariable Long id) {
         flightService.delete(id);
