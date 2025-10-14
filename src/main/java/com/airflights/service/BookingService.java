@@ -6,6 +6,7 @@ import com.airflights.entity.Flight;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.BookingMapper;
 import com.airflights.repository.BookingRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -59,6 +60,6 @@ public class BookingService {
 
     public BookingDto getById(Long id) {
         return bookingMapper.toDto(bookingRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found")));
+                .orElseThrow(() -> new EntityNotFoundException("Booking not found")));
     }
 }

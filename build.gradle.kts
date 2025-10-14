@@ -25,7 +25,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
 
     // OpenAPI
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
@@ -57,6 +57,13 @@ tasks.withType<Test> {
     // Убираем предупреждения ByteBuddy/Mockito для JDK 21+
     jvmArgs(
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-        "--add-opens", "java.base/java.util=ALL-UNNAMED"
+        "--add-opens", "java.base/java.util=ALL-UNNAMED",
+        "-XX:+EnableDynamicAgentLoading"
+    )
+}
+
+tasks.named<org.springframework.boot.gradle.tasks.run.BootRun>("bootRun") {
+    jvmArgs = listOf(
+        "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005"
     )
 }

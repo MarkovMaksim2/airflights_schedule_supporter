@@ -2,7 +2,6 @@ package com.airflights.mapper;
 
 import com.airflights.dto.RestrictedZoneDto;
 import com.airflights.entity.RestrictedZone;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
 
 @Component

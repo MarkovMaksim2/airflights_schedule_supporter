@@ -6,13 +6,13 @@ import com.airflights.mapper.PassengerMapper;
 import com.airflights.repository.PassengerRepository;
 import com.airflights.service.PassengerService;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +52,7 @@ class PassengerServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(passengerMapper.toEntity(passengerDto, new ArrayList<>())).thenReturn(passenger);
+        when(passengerMapper.toEntity(passengerDto)).thenReturn(passenger);
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
         when(passengerRepository.existsByPassportNumber(passengerDto.getPassportNumber())).thenReturn(false);
@@ -82,7 +82,7 @@ class PassengerServiceTest {
     void getById_whenNotFound_throws() {
         when(passengerRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> passengerService.getById(2L));
+        assertThrows(EntityNotFoundException.class, () -> passengerService.getById(2L));
         verify(passengerRepository, times(1)).findById(2L);
     }
 
