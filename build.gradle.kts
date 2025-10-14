@@ -42,8 +42,8 @@ dependencies {
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    testImplementation("org.testcontainers:junit-jupiter:1.26")
-    testImplementation("org.testcontainers:postgresql:1.26")
+    testImplementation("org.testcontainers:junit-jupiter:1.20.3")
+    testImplementation("org.testcontainers:postgresql:1.20.3")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
@@ -57,7 +57,8 @@ tasks.withType<Test> {
     // Убираем предупреждения ByteBuddy/Mockito для JDK 21+
     jvmArgs(
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
-        "--add-opens", "java.base/java.util=ALL-UNNAMED"
+        "--add-opens", "java.base/java.util=ALL-UNNAMED",
+        "-XX:+EnableDynamicAgentLoading"
     )
 }
 

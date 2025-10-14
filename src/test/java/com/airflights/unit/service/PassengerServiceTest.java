@@ -6,6 +6,7 @@ import com.airflights.mapper.PassengerMapper;
 import com.airflights.repository.PassengerRepository;
 import com.airflights.service.PassengerService;
 
+import jakarta.persistence.EntityNotFoundException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -81,7 +82,7 @@ class PassengerServiceTest {
     void getById_whenNotFound_throws() {
         when(passengerRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(IllegalArgumentException.class, () -> passengerService.getById(2L));
+        assertThrows(EntityNotFoundException.class, () -> passengerService.getById(2L));
         verify(passengerRepository, times(1)).findById(2L);
     }
 
