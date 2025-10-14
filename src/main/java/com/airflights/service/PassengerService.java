@@ -7,8 +7,6 @@ import com.airflights.repository.PassengerRepository;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
-import java.util.List;
-
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
@@ -20,7 +18,6 @@ public class PassengerService {
 
     private final PassengerRepository passengerRepository;
     private final PassengerMapper passengerMapper;
-    // private final BookingService bookingService;
 
     public Page<PassengerDto> getAll(Pageable pageable) {
         return passengerRepository.findAll(pageable)
@@ -32,9 +29,8 @@ public class PassengerService {
         if (passengerRepository.existsByPassportNumber(dto.getPassportNumber())) {
             throw new IllegalArgumentException("Passenger with this passport already exists");
         }
-        // List<Booking> bookingList = bookingService.getAllBookingByPassengerId(dto.getId());
 
-        Passenger passenger = passengerMapper.toEntity(dto, List.of());// bookingList);
+        Passenger passenger = passengerMapper.toEntity(dto);
         return passengerMapper.toDto(passengerRepository.save(passenger));
     }
 

@@ -2,11 +2,7 @@ package com.airflights.mapper;
 
 import com.airflights.dto.AirportDto;
 import com.airflights.entity.Airport;
-import com.airflights.entity.Flight;
-import org.mapstruct.Mapper;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class AirportMapper {
@@ -18,13 +14,11 @@ public class AirportMapper {
                 airport.getCity()
         );
     }
-    public Airport toEntity(AirportDto airportDto, List<Flight> departures, List<Flight> arrivals) {
+    public Airport toEntity(AirportDto airportDto) {
         return new Airport(
                 airportDto.getId(),
                 airportDto.getCode(),
                 airportDto.getCity(),
-                departures,
-                arrivals,
                 airportDto.getName()
         );
     }

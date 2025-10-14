@@ -12,7 +12,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -52,7 +51,7 @@ class PassengerServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(passengerMapper.toEntity(passengerDto, new ArrayList<>())).thenReturn(passenger);
+        when(passengerMapper.toEntity(passengerDto)).thenReturn(passenger);
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
         when(passengerRepository.existsByPassportNumber(passengerDto.getPassportNumber())).thenReturn(false);

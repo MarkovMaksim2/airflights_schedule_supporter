@@ -17,7 +17,6 @@ import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -70,7 +69,7 @@ class FlightServiceTest {
         Airport departureAirport = new Airport();
         Airport arrivalAirport = new Airport();
         
-        when(flightMapper.toEntity(flightDto, airline, departureAirport, arrivalAirport, new ArrayList<>())).thenReturn(flight);
+        when(flightMapper.toEntity(flightDto, airline, departureAirport, arrivalAirport)).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
         when(airlineService.getByIdEntity(flightDto.getAirlineId())).thenReturn(airline);

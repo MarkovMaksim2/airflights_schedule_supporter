@@ -10,9 +10,6 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import jakarta.persistence.EntityNotFoundException.*;
-
-import java.util.ArrayList;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -58,7 +55,7 @@ class AirportServiceTest {
     @Test
     void create_shouldSave() {
         when(airportRepository.existsByCode("SVO")).thenReturn(false);
-        when(airportMapper.toEntity(airportDto, new ArrayList<>(), new ArrayList<>())).thenReturn(airport);
+        when(airportMapper.toEntity(airportDto)).thenReturn(airport);
         when(airportRepository.save(airport)).thenReturn(airport);
         when(airportMapper.toDto(airport)).thenReturn(airportDto);
 

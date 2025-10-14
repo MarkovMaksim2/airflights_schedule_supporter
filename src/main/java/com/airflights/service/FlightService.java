@@ -12,7 +12,6 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Service
@@ -23,7 +22,6 @@ public class FlightService {
     private final FlightMapper flightMapper;
     private final AirlineService airlineService;
     private final AirportService airportService;
-    // private final BookingService bookingService;
 
     public Page<FlightDto> getAll(Pageable pageable) {
         return flightRepository.findAll(pageable)
@@ -36,9 +34,7 @@ public class FlightService {
         Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
         Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
 
-        List<Booking> bookingList = new ArrayList<>();
-
-        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport, bookingList);
+        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
@@ -63,9 +59,8 @@ public class FlightService {
         Airline airline = airlineService.getByIdEntity(dto.getAirlineId());
         Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
         Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
-        // List<Booking> bookingList = bookingService.getAllByFlightId(id);
 
-        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport, List.of());//bookingList);
+        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 

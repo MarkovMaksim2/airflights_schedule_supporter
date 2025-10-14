@@ -5,7 +5,6 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.util.List;
 
 @Entity
 @Table(name = "passengers")
@@ -32,8 +31,4 @@ public class Passenger {
 
     @Column(nullable = false, unique = true)
     private String passportNumber;
-
-
-    @OneToMany(mappedBy = "passenger", cascade = CascadeType.ALL)
-    private List<Booking> bookings;
 }
