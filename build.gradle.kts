@@ -25,10 +25,7 @@ dependencies {
     implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
 
     // OpenAPI
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.8.0")
-    implementation("org.hibernate.validator:hibernate-validator:8.0.1.Final")
-    implementation("jakarta.validation:jakarta.validation-api:3.1.0")
-
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
 
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")

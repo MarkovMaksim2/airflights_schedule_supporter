@@ -4,6 +4,7 @@ import com.airflights.dto.RestrictedZoneDto;
 import com.airflights.entity.RestrictedZone;
 import com.airflights.mapper.RestrictedZoneMapper;
 import com.airflights.repository.RestrictedZoneRepository;
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -41,6 +42,6 @@ public class RestrictedZoneService {
     public RestrictedZoneDto getById(Long id) {
         return restrictedZoneRepository.findById(id)
                 .map(restrictedZoneMapper::toDto)
-                .orElseThrow(() -> new IllegalArgumentException("Restricted zone not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Restricted zone not found"));
     }
 }

@@ -4,6 +4,7 @@ import com.airflights.dto.PassengerDto;
 import com.airflights.entity.Passenger;
 import com.airflights.mapper.PassengerMapper;
 import com.airflights.repository.PassengerRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 
@@ -36,13 +37,13 @@ public class PassengerService {
 
     public PassengerDto getById(Long id) {
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
         return passengerMapper.toDto(passenger);
     }
 
     public Passenger getByIdEntity(Long id) {
         return passengerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
     }
 
     @Transactional
@@ -53,7 +54,7 @@ public class PassengerService {
     @Transactional
     public PassengerDto update(Long id, @Valid PassengerDto dto) {
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
         passenger.setFirstName(dto.getFirstName());
         passenger.setLastName(dto.getLastName());
         passenger.setPassportNumber(dto.getPassportNumber());

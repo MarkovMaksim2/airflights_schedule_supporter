@@ -4,6 +4,7 @@ import com.airflights.dto.FlightDto;
 import com.airflights.entity.*;
 import com.airflights.mapper.FlightMapper;
 import com.airflights.repository.FlightRepository;
+import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -53,7 +54,7 @@ public class FlightService {
     @Transactional
     public FlightDto update(Long id, @Valid FlightDto dto) {
         if (id == null || !flightRepository.existsById(id)) {
-            throw new IllegalArgumentException("flight not found");
+            throw new EntityNotFoundException("flight not found");
         }
 
         Airline airline = airlineService.getByIdEntity(dto.getAirlineId());
@@ -66,12 +67,12 @@ public class FlightService {
 
     public FlightDto getById(Long id) {
         return flightMapper.toDto(flightRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found")));
+                .orElseThrow(() -> new EntityNotFoundException("Flight not found")));
     }
 
     public Flight getByIdEntity(Long id) {
         return flightRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Flight not found"));
+                .orElseThrow(() -> new EntityNotFoundException("Flight not found"));
     }
 
     @Transactional
