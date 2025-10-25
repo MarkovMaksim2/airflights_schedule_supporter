@@ -1,6 +1,7 @@
 package com.airflights.flight.controller;
 
 import com.airflights.flight.dto.FlightDto;
+import com.airflights.flight.dto.RestrictedZoneDto;
 import com.airflights.flight.service.FlightService;
 
 import io.swagger.v3.oas.annotations.Operation;
@@ -94,5 +95,11 @@ public class FlightController {
     public ResponseEntity<Iterable<FlightDto>> infiniteScroll(@RequestParam(required = false, defaultValue = "0") int offset,
                                                               @RequestParam(required = false, defaultValue = "20") int limit) {
         return ResponseEntity.ok(flightService.getInfiniteScroll(offset, limit));
+    }
+
+    @PatchMapping("/update-due-to-restriction")
+    public ResponseEntity<Void> updateDueToRestriction(@Valid @RequestBody RestrictedZoneDto dto) {
+        flightService.updateFlightsDueToRestriction(dto);
+        return  ResponseEntity.noContent().build();
     }
 }

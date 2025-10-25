@@ -9,9 +9,6 @@ spring:
     config:
       server:
         git:
-          #         uri: ${CONFIG_URL:http://github.com/leomag/config-server.git}
-          uri: file:///Users//MarkovMaksim2//Desktop//config-server//configs-repo
-          username: ${REPO_USER:leo}
-          password: ${REPO_PASSWORD:leo}
+          uri: http://github. com/MarkovMaksim2/config-server.git
           default-label: main
           search-paths: "{application}"

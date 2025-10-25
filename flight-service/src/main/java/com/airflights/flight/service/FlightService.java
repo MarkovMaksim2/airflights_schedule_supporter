@@ -1,9 +1,13 @@
 package com.airflights.flight.service;
 
 import com.airflights.flight.dto.FlightDto;
+import com.airflights.flight.dto.RestrictedZoneDto;
 import com.airflights.flight.entity.*;
+import com.airflights.flight.feign.AirlineClient;
+import com.airflights.flight.feign.AirportClient;
 import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -21,8 +25,8 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final FlightMapper flightMapper;
-    private final AirlineService airlineService;
-    private final AirportService airportService;
+    private final AirlineClient airlineClient;
+    private final AirportClient airportClient;
 
     public Page<FlightDto> getAll(Pageable pageable) {
         return flightRepository.findAll(pageable)
@@ -31,17 +35,16 @@ public class FlightService {
 
     @Transactional
     public FlightDto create(FlightDto dto) {
-        Airline airline = airlineService.getByIdEntity(dto.getAirlineId());
-        Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
-        Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
+        ensureAirlineExists(dto.getAirlineId());
+        ensureAirportExists(dto.getDepartureAirportId());
+        ensureAirportExists(dto.getArrivalAirportId());
 
         Flight flight = flightMapper.toEntity(dto);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
     @Transactional
-    public void updateFlightsDueToRestriction(RestrictedZone zone) {
-        // транзакционно обновляем статус рейсов, попавших в зону ограничения
+    public void updateFlightsDueToRestriction(RestrictedZoneDto zone) {
         flightRepository.findAll().stream()
                 .filter(f -> f.getDepartureTime().isAfter(zone.getStartTime()) &&
                         f.getDepartureTime().isBefore(zone.getEndTime()))
@@ -57,9 +60,9 @@ public class FlightService {
             throw new EntityNotFoundException("flight not found");
         }
 
-        Airline airline = airlineService.getByIdEntity(dto.getAirlineId());
-        Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
-        Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
+        ensureAirlineExists(dto.getAirlineId());
+        ensureAirportExists(dto.getDepartureAirportId());
+        ensureAirportExists(dto.getArrivalAirportId());
 
         Flight flight = flightMapper.toEntity(dto);
         return flightMapper.toDto(flightRepository.save(flight));
@@ -88,4 +91,10 @@ public class FlightService {
                 .map(flightMapper::toDto)
                 .toList();
     }
+
+    @CircuitBreaker(name = "airlineClient")
+    void ensureAirlineExists(Long id) { airlineClient.airlineExists(id); }
+
+    @CircuitBreaker(name = "airportClient")
+    void ensureAirportExists(Long id)   { airportClient.airportExists(id); }
 }
