@@ -1,6 +1,13 @@
 spring:
   application:
     name: booking-service
+  profiles:
+    active: dev
+
+  config:
+    active:
+      on-profile: dev
+    import: optional:configserver:http://config-server:9991
 eureka:
   client:
     service-url:

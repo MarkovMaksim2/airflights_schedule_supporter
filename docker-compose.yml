@@ -1,6 +1,8 @@
+version: '3.9'
+
 services:
   postgres:
-    image: postgres:16
+    image: postgres:15
     environment:
       POSTGRES_DB: airflights
       POSTGRES_USER: postgres
@@ -13,45 +15,101 @@ services:
       interval: 5s
       timeout: 3s
       retries: 20
+    container_name: postgres
 
+  # ===== INFRASTRUCTURE =====
   eureka-server:
-    build: ./eureka-server
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
     ports: ["8761:8761"]
-    depends_on: [postgres]
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: eureka-server
 
   config-server:
-    build: ./config-server
-    ports: [ "9991:9991" ]
-    depends_on: [ postgres ]
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports: ["9991:9991"]
+    depends_on: [postgres]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9991/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    container_name: config-server
 
   gateway-server:
-    build: ./gateway-server
+    build:
+      context: ./gateway-server
+      dockerfile: Dockerfile
     ports: ["8080:8080"]
     depends_on: [eureka-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: gateway-server
 
+  # ===== MICROSERVICES =====
   airline-service:
-    build: ./airline-service
-    depends_on: [postgres, eureka-server]
+    build:
+      context: ./airline-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: airline-service
 
   airport-service:
-    build: ./airport-service
-    depends_on: [postgres, eureka-server]
+    build:
+      context: ./airport-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: airport-service
 
   booking-service:
-    build: ./booking-service
-    depends_on: [postgres, eureka-server]
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: booking-service
 
   flight-service:
-    build: ./flight-service
-    depends_on: [postgres, eureka-server]
+    build:
+      context: ./flight-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: flight-service
 
   passenger-service:
-    build: ./passenger-service
-    depends_on: [postgres, eureka-server]
+    build:
+      context: ./passenger-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: passenger-service
 
   restrictedzone-service:
-    build: ./restrictedZone-service
-    depends_on: [ postgres, eureka-server ]
+    build:
+      context: ./restrictedzone-service
+      dockerfile: Dockerfile
+    depends_on: [postgres, eureka-server, config-server]
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: restrictedzone-service
 
 volumes:
   pg-data:
+  gradle-cache:

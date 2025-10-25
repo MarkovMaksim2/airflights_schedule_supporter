@@ -1,5 +1,5 @@
 server:
-  port: ${PORT:9991}
+  port: 9991
 
 spring:
   application:
@@ -9,6 +9,14 @@ spring:
     config:
       server:
         git:
-          uri: http://github. com/MarkovMaksim2/config-server.git
+          uri: http://github.com/MarkovMaksim2/config-server.git
           default-label: main
-          search-paths: "{application}"
+          search-paths: .
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: always
