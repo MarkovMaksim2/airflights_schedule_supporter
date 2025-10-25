@@ -1,10 +1,7 @@
-package com.airflights.repository;
+package com.airflights.airline.repository;
 
-import com.airflights.entity.Airline;
-import com.airflights.entity.Flight;
+import com.airflights.airline.entity.Airline;
 import org.springframework.data.jpa.repository.JpaRepository;
-
-import java.util.List;
 
 public interface AirlineRepository extends JpaRepository<Airline, Long> {
     boolean existsByName(String name);

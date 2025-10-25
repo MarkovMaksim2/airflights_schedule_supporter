@@ -1,9 +1,9 @@
-package com.airflights.service;
+package com.airflights.airline.service;
 
-import com.airflights.dto.AirlineDto;
-import com.airflights.entity.Airline;
-import com.airflights.mapper.AirlineMapper;
-import com.airflights.repository.AirlineRepository;
+import com.airflights.airline.dto.AirlineDto;
+import com.airflights.airline.entity.Airline;
+import com.airflights.airline.mapper.AirlineMapper;
+import com.airflights.airline.repository.AirlineRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -42,7 +42,7 @@ public class AirlineService {
             throw new IllegalArgumentException("Airline with name '" + dto.getName() + "' already exists");
         }
 
-        Airline entity = airlineMapper.toEntity(dto, new ArrayList<>());
+        Airline entity = airlineMapper.toEntity(dto);
         Airline saved = airlineRepository.save(entity);
         return airlineMapper.toDto(saved);
     }

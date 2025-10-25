@@ -3,8 +3,11 @@ pluginManagement {
         mavenCentral()
         gradlePluginPortal()
         maven { url = uri("https://repo.spring.io/release") }
+        maven { url = uri("https://repo.spring.io/milestone") }
     }
 }
 
 
-rootProject.name = "airline-scheduler"
+rootProject.name = "airflights-microservices"
+
+include("config-server", "eureka-server", "gateway", "airline-service")

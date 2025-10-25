@@ -1,11 +1,8 @@
-package com.airflights.mapper;
+package com.airflights.airline.mapper;
 
-import com.airflights.dto.AirlineDto;
-import com.airflights.entity.Airline;
-import com.airflights.entity.Flight;
+import com.airflights.airline.dto.AirlineDto;
+import com.airflights.airline.entity.Airline;
 import org.springframework.stereotype.Component;
-
-import java.util.List;
 
 @Component
 public class AirlineMapper {
@@ -16,11 +13,10 @@ public class AirlineMapper {
                 airline.getContactEmail()
         );
     }
-    public Airline toEntity(AirlineDto airlineDto, List<Flight> flightsList) {
+    public Airline toEntity(AirlineDto airlineDto) {
         return new Airline(
                 airlineDto.getId(),
                 airlineDto.getName(),
-                flightsList,
                 airlineDto.getContactEmail()
         );
     }
