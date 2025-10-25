@@ -6,16 +6,16 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class RestrictedZoneMapper {
-    public com.airflights.restrictedZone.dto.RestrictedZoneDto toDto(com.airflights.restrictedZone.entity.RestrictedZone restrictedZone) {
-        return new com.airflights.restrictedZone.dto.RestrictedZoneDto(
+    public RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
+        return new RestrictedZoneDto(
                 restrictedZone.getId(),
                 restrictedZone.getRegion(),
                 restrictedZone.getStartTime(),
                 restrictedZone.getEndTime()
         );
     }
-    public com.airflights.restrictedZone.entity.RestrictedZone toEntity(com.airflights.restrictedZone.dto.RestrictedZoneDto restrictedZoneDto) {
-        return new com.airflights.restrictedZone.entity.RestrictedZone(
+    public RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto) {
+        return new RestrictedZone(
                 restrictedZoneDto.getId(),
                 restrictedZoneDto.getRegion(),
                 restrictedZoneDto.getStartTime(),

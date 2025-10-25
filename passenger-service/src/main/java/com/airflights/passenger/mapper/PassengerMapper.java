@@ -6,8 +6,8 @@ import org.springframework.stereotype.Component;
 
 @Component
 public class PassengerMapper {
-    public com.airflights.passenger.dto.PassengerDto toDto(com.airflights.passenger.entity.Passenger passenger) {
-        return new com.airflights.passenger.dto.PassengerDto(
+    public PassengerDto toDto(Passenger passenger) {
+        return new PassengerDto(
                 passenger.getId(),
                 passenger.getFirstName(),
                 passenger.getLastName(),
@@ -15,8 +15,8 @@ public class PassengerMapper {
                 passenger.getPassportNumber()
         );
     }
-    public com.airflights.passenger.entity.Passenger toEntity(com.airflights.passenger.dto.PassengerDto passengerDto) {
-        return new com.airflights.passenger.entity.Passenger(
+    public Passenger toEntity(PassengerDto passengerDto) {
+        return new Passenger(
                 passengerDto.getId(),
                 passengerDto.getFirstName(),
                 passengerDto.getLastName(),

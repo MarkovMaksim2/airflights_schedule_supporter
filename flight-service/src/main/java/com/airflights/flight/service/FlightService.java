@@ -35,7 +35,7 @@ public class FlightService {
         Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
         Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
 
-        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport);
+        Flight flight = flightMapper.toEntity(dto);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
@@ -61,7 +61,7 @@ public class FlightService {
         Airport departureAirport = airportService.getByIdEntity(dto.getDepartureAirportId());
         Airport arrivalAirport = airportService.getByIdEntity(dto.getArrivalAirportId());
 
-        Flight flight = flightMapper.toEntity(dto, airline, departureAirport, arrivalAirport);
+        Flight flight = flightMapper.toEntity(dto);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 

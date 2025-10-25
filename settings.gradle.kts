@@ -10,4 +10,7 @@ pluginManagement {
 
 rootProject.name = "airflights-microservices"
 
-include("config-server", "eureka-server", "gateway", "airline-service", "airport-service", "passenger-service", "booking-service", "flight-service", "restricktedZone-service")
+include("config-server", "eureka-server", "gateway-server",
+    "airline-service", "airport-service", "passenger-service",
+    "booking-service", "flight-service", "restrictedZone-service"
+)

@@ -2,8 +2,6 @@ package com.airflights.booking.service;
 
 import com.airflights.booking.dto.BookingDto;
 import com.airflights.booking.entity.Booking;
-import com.airflights.flight.entity.Flight;
-import com.airflights.passenger.entity.Passenger;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import jakarta.persistence.EntityNotFoundException;
@@ -32,8 +30,8 @@ public class BookingService {
         Flight flight = flightService.getByIdEntity(flightId);
 
         Booking booking = new Booking();
-        booking.setPassenger(passenger);
-        booking.setFlight(flight);
+        booking.setPassengerId(passenger);
+        booking.setFlightId(flight);
         booking.setBookingTime(LocalDateTime.now());
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
@@ -44,7 +42,7 @@ public class BookingService {
 
         Flight flight = flightService.getByIdEntity(dto.getFlightId());
 
-        Booking booking = bookingMapper.toEntity(dto, passenger, flight);
+        Booking booking = bookingMapper.toEntity(dto);
         booking.setBookingTime(LocalDateTime.now());
         return bookingMapper.toDto(bookingRepository.save(booking));
     }

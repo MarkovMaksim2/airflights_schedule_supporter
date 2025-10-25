@@ -20,11 +20,11 @@ public class Booking {
 
 
     @ManyToOne(optional = false)
-    private Passenger passenger;
+    private Long passengerId;
 
 
     @ManyToOne(optional = false)
-    private Flight flight;
+    private Long flightId;
 
 
     @Column(nullable = false)

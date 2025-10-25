@@ -19,17 +19,17 @@ public class Flight {
 
 
     @ManyToOne(optional = false)
-    private Airline airline;
+    private Long airlineId;
 
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "departure_airport_id")
-    private Airport departureAirport;
+    private Long departureAirportId;
 
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "arrival_airport_id")
-    private Airport arrivalAirport;
+    private Long arrivalAirportId;
 
 
     @Column(nullable = false)

@@ -1,0 +1,33 @@
+server:
+  port: ${PORT:8765}
+spring:
+
+
+  application:
+    name: gateway-server
+    #  server:
+  cloud:
+    gateway:
+      discovery:
+        locator:
+          enabled: true
+          lower-case-service-id: true
+      routes:
+        - id: gateway-server
+          uri: lb://gateway-server
+          predicates:
+            - Path=/gateway-server/**
+
+  eureka:
+    client:
+      service-url:
+        defaultZone: http://localhost:8761/eureka-server/
+        register-with-eureka: true
+        fetch-registry: true
+  profiles:
+    active: ${PROFILE:dev}
+
+  config:
+    active:
+      on-profile: dev
+    import: optional:config-server:http://localhost:9991
