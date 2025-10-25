@@ -2,8 +2,11 @@ package com.airflights.booking.service;
 
 import com.airflights.booking.dto.BookingDto;
 import com.airflights.booking.entity.Booking;
+import com.airflights.booking.feign.FlightClient;
+import com.airflights.booking.feign.PassengerClient;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
+import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -20,27 +23,24 @@ public class BookingService {
 
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
-    private final PassengerService passengerService;
-    private final FlightService flightService;
+    private final FlightClient flightClient;
+    private final PassengerClient passengerClient;
 
     @Transactional
     public BookingDto bookFlight(Long passengerId, Long flightId) {
-        Passenger passenger = passengerService.getByIdEntity(passengerId);
-
-        Flight flight = flightService.getByIdEntity(flightId);
-
+        ensurePassengerExists(passengerId);
+        ensureFlightExists(flightId);
         Booking booking = new Booking();
-        booking.setPassengerId(passenger);
-        booking.setFlightId(flight);
+        booking.setPassengerId(passengerId);
+        booking.setFlightId(flightId);
         booking.setBookingTime(LocalDateTime.now());
         return bookingMapper.toDto(bookingRepository.save(booking));
     }
 
     @Transactional
     public BookingDto create(@Valid BookingDto dto) {
-        Passenger passenger = passengerService.getByIdEntity(dto.getPassengerId());
-
-        Flight flight = flightService.getByIdEntity(dto.getFlightId());
+        ensurePassengerExists(dto.getPassengerId());
+        ensureFlightExists(dto.getFlightId());
 
         Booking booking = bookingMapper.toEntity(dto);
         booking.setBookingTime(LocalDateTime.now());
@@ -60,4 +60,10 @@ public class BookingService {
         return bookingMapper.toDto(bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking not found")));
     }
+
+    @CircuitBreaker(name = "flightClient")
+    void ensureFlightExists(Long id) { flightClient.flightExists(id); }
+
+    @CircuitBreaker(name = "passengerClient")
+    void ensurePassengerExists(Long id)   { passengerClient.passengerExists(id); }
 }

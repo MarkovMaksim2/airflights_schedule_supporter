@@ -1,31 +1,57 @@
-version: '3.9'
-
 services:
-  db:
-    image: postgres:15
-    container_name: airline_db
-    restart: always
+  postgres:
+    image: postgres:16
     environment:
-      POSTGRES_USER: airline_user
-      POSTGRES_PASSWORD: airline_pass
-      POSTGRES_DB: airline_db
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: airflights
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d airflights"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
 
-  app:
-    build: .
-    container_name: airline_app
-    depends_on:
-      - db
-    environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/airline_db
-      SPRING_DATASOURCE_USERNAME: airline_user
-      SPRING_DATASOURCE_PASSWORD: airline_pass
-    ports:
-      - "8080:8080"
-      - "5005:5005"
+  eureka-server:
+    build: ./eureka-server
+    ports: ["8761:8761"]
+    depends_on: [postgres]
+
+  config-server:
+    build: ./config-server
+    ports: [ "9991:9991" ]
+    depends_on: [ postgres ]
+
+  gateway-server:
+    build: ./gateway-server
+    ports: ["8080:8080"]
+    depends_on: [eureka-server]
+
+  airline-service:
+    build: ./airline-service
+    depends_on: [postgres, eureka-server]
+
+  airport-service:
+    build: ./airport-service
+    depends_on: [postgres, eureka-server]
+
+  booking-service:
+    build: ./booking-service
+    depends_on: [postgres, eureka-server]
+
+  flight-service:
+    build: ./flight-service
+    depends_on: [postgres, eureka-server]
+
+  passenger-service:
+    build: ./passenger-service
+    depends_on: [postgres, eureka-server]
+
+  restrictedzone-service:
+    build: ./restrictedZone-service
+    depends_on: [ postgres, eureka-server ]
 
 volumes:
-  postgres_data:
+  pg-data:

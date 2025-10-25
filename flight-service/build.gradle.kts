@@ -5,7 +5,7 @@ plugins {
 }
 
 
-group = "com.airflights.flight"
+group = "com.airflights"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
