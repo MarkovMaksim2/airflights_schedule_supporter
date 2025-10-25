@@ -1,7 +1,7 @@
-package com.airflights.mapper;
+package com.airflights.airport.mapper;
 
-import com.airflights.dto.AirportDto;
-import com.airflights.entity.Airport;
+import com.airflights.airport.dto.AirportDto;
+import com.airflights.airport.entity.Airport;
 import org.springframework.stereotype.Component;
 
 @Component

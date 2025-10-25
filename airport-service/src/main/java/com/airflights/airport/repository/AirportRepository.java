@@ -1,6 +1,6 @@
-package com.airflights.repository;
+package com.airflights.airport.repository;
 
-import com.airflights.entity.Airport;
+import com.airflights.airport.entity.Airport;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 import java.util.Optional;

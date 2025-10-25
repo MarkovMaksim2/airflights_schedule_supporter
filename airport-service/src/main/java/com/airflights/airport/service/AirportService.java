@@ -1,9 +1,9 @@
-package com.airflights.service;
+package com.airflights.airport.service;
 
-import com.airflights.dto.AirportDto;
-import com.airflights.entity.Airport;
-import com.airflights.mapper.AirportMapper;
-import com.airflights.repository.AirportRepository;
+import com.airflights.airport.dto.AirportDto;
+import com.airflights.airport.entity.Airport;
+import com.airflights.airport.mapper.AirportMapper;
+import com.airflights.airport.repository.AirportRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
