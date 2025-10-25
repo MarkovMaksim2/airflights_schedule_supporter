@@ -1,13 +1,13 @@
-package com.airflights.mapper;
+package com.airflights.passenger.mapper;
 
-import com.airflights.dto.PassengerDto;
-import com.airflights.entity.Passenger;
+import com.airflights.passenger.dto.PassengerDto;
+import com.airflights.passenger.entity.Passenger;
 import org.springframework.stereotype.Component;
 
 @Component
 public class PassengerMapper {
-    public PassengerDto toDto(Passenger passenger) {
-        return new PassengerDto(
+    public com.airflights.passenger.dto.PassengerDto toDto(com.airflights.passenger.entity.Passenger passenger) {
+        return new com.airflights.passenger.dto.PassengerDto(
                 passenger.getId(),
                 passenger.getFirstName(),
                 passenger.getLastName(),
@@ -15,8 +15,8 @@ public class PassengerMapper {
                 passenger.getPassportNumber()
         );
     }
-    public Passenger toEntity(PassengerDto passengerDto) {
-        return new Passenger(
+    public com.airflights.passenger.entity.Passenger toEntity(com.airflights.passenger.dto.PassengerDto passengerDto) {
+        return new com.airflights.passenger.entity.Passenger(
                 passengerDto.getId(),
                 passengerDto.getFirstName(),
                 passengerDto.getLastName(),

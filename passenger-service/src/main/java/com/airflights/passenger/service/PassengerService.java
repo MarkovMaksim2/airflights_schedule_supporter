@@ -1,9 +1,9 @@
-package com.airflights.service;
+package com.airflights.passenger.service;
 
-import com.airflights.dto.PassengerDto;
-import com.airflights.entity.Passenger;
-import com.airflights.mapper.PassengerMapper;
-import com.airflights.repository.PassengerRepository;
+import com.airflights.passenger.dto.PassengerDto;
+import com.airflights.passenger.entity.Passenger;
+import com.airflights.passenger.mapper.PassengerMapper;
+import com.airflights.passenger.repository.PassengerRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

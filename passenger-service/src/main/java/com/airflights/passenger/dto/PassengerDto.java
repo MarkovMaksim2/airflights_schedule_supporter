@@ -1,4 +1,4 @@
-package com.airflights.dto;
+package com.airflights.passenger.dto;
 
 import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
