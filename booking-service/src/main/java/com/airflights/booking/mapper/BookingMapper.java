@@ -1,9 +1,11 @@
-package com.airflights.mapper;
+package com.airflights.booking.mapper;
 
-import com.airflights.dto.BookingDto;
-import com.airflights.entity.Booking;
-import com.airflights.entity.Flight;
-import com.airflights.entity.Passenger;
+import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.entity.Booking;
+import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.entity.Booking;
+import com.airflights.flight.entity.Flight;
+import com.airflights.passenger.entity.Passenger;
 import org.springframework.stereotype.Component;
 
 @Component

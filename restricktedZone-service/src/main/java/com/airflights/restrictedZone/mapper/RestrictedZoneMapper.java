@@ -1,21 +1,21 @@
-package com.airflights.mapper;
+package com.airflights.restrictedZone.mapper;
 
-import com.airflights.dto.RestrictedZoneDto;
-import com.airflights.entity.RestrictedZone;
+import com.airflights.restrictedZone.dto.RestrictedZoneDto;
+import com.airflights.restrictedZone.entity.RestrictedZone;
 import org.springframework.stereotype.Component;
 
 @Component
 public class RestrictedZoneMapper {
-    public RestrictedZoneDto toDto(RestrictedZone restrictedZone) {
-        return new RestrictedZoneDto(
+    public com.airflights.restrictedZone.dto.RestrictedZoneDto toDto(com.airflights.restrictedZone.entity.RestrictedZone restrictedZone) {
+        return new com.airflights.restrictedZone.dto.RestrictedZoneDto(
                 restrictedZone.getId(),
                 restrictedZone.getRegion(),
                 restrictedZone.getStartTime(),
                 restrictedZone.getEndTime()
         );
     }
-    public RestrictedZone toEntity(RestrictedZoneDto restrictedZoneDto) {
-        return new RestrictedZone(
+    public com.airflights.restrictedZone.entity.RestrictedZone toEntity(com.airflights.restrictedZone.dto.RestrictedZoneDto restrictedZoneDto) {
+        return new com.airflights.restrictedZone.entity.RestrictedZone(
                 restrictedZoneDto.getId(),
                 restrictedZoneDto.getRegion(),
                 restrictedZoneDto.getStartTime(),

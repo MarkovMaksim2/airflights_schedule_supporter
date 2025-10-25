@@ -1,6 +1,6 @@
-package com.airflights.repository;
+package com.airflights.flight.repository;
 
-import com.airflights.entity.Flight;
+import com.airflights.flight.entity.Flight;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;

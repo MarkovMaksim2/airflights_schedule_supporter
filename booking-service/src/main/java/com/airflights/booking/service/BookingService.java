@@ -1,11 +1,11 @@
-package com.airflights.service;
+package com.airflights.booking.service;
 
-import com.airflights.dto.BookingDto;
-import com.airflights.entity.Booking;
-import com.airflights.entity.Flight;
-import com.airflights.entity.Passenger;
-import com.airflights.mapper.BookingMapper;
-import com.airflights.repository.BookingRepository;
+import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.entity.Booking;
+import com.airflights.flight.entity.Flight;
+import com.airflights.passenger.entity.Passenger;
+import com.airflights.booking.mapper.BookingMapper;
+import com.airflights.booking.repository.BookingRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;

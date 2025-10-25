@@ -1,7 +1,7 @@
-package com.airflights.controller;
+package com.airflights.restrictedZone.controller;
 
-import com.airflights.dto.RestrictedZoneDto;
-import com.airflights.service.RestrictedZoneService;
+import com.airflights.restrictedZone.dto.RestrictedZoneDto;
+import com.airflights.restrictedZone.service.RestrictedZoneService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;

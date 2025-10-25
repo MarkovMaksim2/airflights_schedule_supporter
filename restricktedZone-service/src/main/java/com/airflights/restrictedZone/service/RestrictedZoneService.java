@@ -1,9 +1,9 @@
-package com.airflights.service;
+package com.airflights.restrictedZone.service;
 
-import com.airflights.dto.RestrictedZoneDto;
-import com.airflights.entity.RestrictedZone;
-import com.airflights.mapper.RestrictedZoneMapper;
-import com.airflights.repository.RestrictedZoneRepository;
+import com.airflights.restrictedZone.dto.RestrictedZoneDto;
+import com.airflights.restrictedZone.entity.RestrictedZone;
+import com.airflights.restrictedZone.mapper.RestrictedZoneMapper;
+import com.airflights.restrictedZone.repository.RestrictedZoneRepository;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;

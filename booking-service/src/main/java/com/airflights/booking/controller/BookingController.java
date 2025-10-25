@@ -1,7 +1,7 @@
-package com.airflights.controller;
+package com.airflights.booking.controller;
 
-import com.airflights.dto.BookingDto;
-import com.airflights.service.BookingService;
+import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.service.BookingService;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
