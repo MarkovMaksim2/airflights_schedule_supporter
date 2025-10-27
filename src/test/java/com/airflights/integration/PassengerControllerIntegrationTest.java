@@ -41,6 +41,33 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
     }
 
     @Test
+    void shouldUpdatePassenger() throws Exception {
+        Passenger p = new Passenger();
+        p.setFirstName("John");
+        p.setLastName("Doe");
+        p.setEmail("john@example.com");
+        p.setPassportNumber("A1234567");
+        Passenger saved = passengerRepository.save(p);
+
+        String updateJson = """
+            {
+                  "first_name": "Johnny",
+                  "last_name": "Doe",
+                  "email": "john@example.com",
+                  "passport_number": "B7654321"
+            }
+            """;
+
+        mockMvc.perform(put("/api/passengers/" + saved.getId())
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(updateJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.first_name", is("Johnny")))
+                .andExpect(jsonPath("$.passport_number", is("B7654321")));
+    }
+
+
+    @Test
     void shouldGetAllPassengers() throws Exception {
         Passenger p = new Passenger();
         p.setFirstName("Alice");
