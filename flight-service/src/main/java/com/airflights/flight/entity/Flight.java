@@ -17,18 +17,13 @@ public class Flight {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @ManyToOne(optional = false)
+    @Column(nullable = false)
     private Long airlineId;
 
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "departure_airport_id")
+    @Column(nullable = false)
     private Long departureAirportId;
 
-
-    @ManyToOne(optional = false)
-    @JoinColumn(name = "arrival_airport_id")
+    @Column(nullable = false)
     private Long arrivalAirportId;
 
 

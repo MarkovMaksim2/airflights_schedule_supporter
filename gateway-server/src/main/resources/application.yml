@@ -3,13 +3,11 @@ spring:
     name: gateway-server
   profiles:
     active: dev
-
   config:
-    active:
-      on-profile: dev
     import: optional:configserver:http://config-server:9991
   cloud:
     config:
+      profile: dev
       request-connect-timeout: 5000
       request-read-timeout: 15000
       retry:
@@ -17,8 +15,10 @@ spring:
         initial-interval: 1000
         multiplier: 1.5
         max-interval: 5000
+
 server:
-  port: 8080
+  port: 0
+
 eureka:
   client:
     service-url:

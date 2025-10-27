@@ -19,11 +19,11 @@ public class Booking {
     private Long id;
 
 
-    @ManyToOne(optional = false)
+    @Column(nullable = false)
     private Long passengerId;
 
 
-    @ManyToOne(optional = false)
+    @Column(nullable = false)
     private Long flightId;
 
 

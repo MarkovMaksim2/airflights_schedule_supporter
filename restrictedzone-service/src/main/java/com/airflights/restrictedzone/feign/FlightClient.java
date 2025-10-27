@@ -8,7 +8,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 
 @FeignClient(
         name = "flight-service",
-        path = "/api/v1/flight"
+        path = "/api/flights"
 )
 public interface FlightClient {
 

@@ -9,11 +9,18 @@ spring:
     config:
       server:
         git:
-          uri: http://github.com/MarkovMaksim2/config-server.git
+          uri: https://github.com/MarkovMaksim2/config-server
           default-label: main
-          search-paths: .
-          clone-on-start: true // ЭТО ВАЖНО
-          force-pull: true
+          search-paths: /
+          clone-on-start: true
+
+  profiles:
+    active: git
+
+logging:
+  level:
+    org.springframework.cloud: DEBUG
+    org.springframework.boot: INFO
 management:
   endpoints:
     web:
@@ -22,3 +29,7 @@ management:
   endpoint:
     health:
       show-details: always
+eureka:
+  client:
+    service-url:
+      defaultZone: http://eureka-server:8761/eureka

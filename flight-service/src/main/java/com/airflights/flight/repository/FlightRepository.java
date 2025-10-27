@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Optional;
 
 public interface FlightRepository extends JpaRepository<Flight, Long>, JpaSpecificationExecutor<Flight> {
-    Optional<List<Flight>> findAllByAirline_Id(Long id);
+    Optional<List<Flight>> findAllByAirlineId(Long id);
 
     Page<Flight> findAllByOrderByDepartureTimeAsc(Pageable pageable);
 }

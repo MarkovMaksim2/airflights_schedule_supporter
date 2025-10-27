@@ -27,6 +27,7 @@ dependencies {
 //	implementation("org.springframework.cloud:spring-cloud-gateway-server-webflux")
     implementation("org.springframework.boot:spring-boot-starter-webflux")
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
+    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4")
 }
 
 tasks.test {

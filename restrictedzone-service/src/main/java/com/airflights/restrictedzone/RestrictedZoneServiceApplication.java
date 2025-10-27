@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.airflights.restrictedZone.feign")
+@EnableFeignClients(basePackages = "com.airflights.restrictedzone.feign")
 public class RestrictedZoneServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(RestrictedZoneServiceApplication.class, args);
