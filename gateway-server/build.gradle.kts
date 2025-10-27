@@ -21,6 +21,8 @@ dependencies {
     testImplementation(platform("org.junit:junit-bom:5.10.0"))
     testImplementation("org.junit.jupiter:junit-jupiter")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
+    implementation("org.springframework.retry:spring-retry")
+    implementation("org.springframework.boot:spring-boot-starter-aop")
     implementation("org.springframework.cloud:spring-cloud-starter-gateway")
 //	implementation("org.springframework.cloud:spring-cloud-gateway-server-webflux")
     implementation("org.springframework.boot:spring-boot-starter-webflux")

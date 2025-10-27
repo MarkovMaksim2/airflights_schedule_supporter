@@ -12,6 +12,8 @@ spring:
           uri: http://github.com/MarkovMaksim2/config-server.git
           default-label: main
           search-paths: .
+          clone-on-start: true // ЭТО ВАЖНО
+          force-pull: true
 management:
   endpoints:
     web:

@@ -8,6 +8,15 @@ spring:
     active: dev
   config:
     import: optional:configserver:http://config-server:9991
+  cloud:
+    config:
+      request-connect-timeout: 5000
+      request-read-timeout: 15000
+      retry:
+        max-attempts: 12
+        initial-interval: 1000
+        multiplier: 1.5
+        max-interval: 5000
     fail-fast: false
 
 eureka:
