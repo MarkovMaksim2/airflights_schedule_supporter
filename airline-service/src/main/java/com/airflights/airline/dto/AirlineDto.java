@@ -7,11 +7,12 @@ import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Data
 @AllArgsConstructor
 public class AirlineDto {
-    @JsonAlias("id")
-    @JsonProperty("id")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotBlank

@@ -8,12 +8,13 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class RestrictedZoneDto {
-    @JsonAlias("id")
-    @JsonProperty("id")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @JsonAlias("region")

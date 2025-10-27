@@ -8,12 +8,14 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import io.swagger.v3.oas.annotations.media.Schema;
+
 
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class PassengerDto {
-    @JsonAlias("id")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     private Long id;
 
     @NotBlank
