@@ -40,6 +40,10 @@ public class AirportService {
             throw new IllegalArgumentException("Airport with code '" + dto.getCode() + "' already exists");
         }
 
+        if (dto.getName() != null && airportRepository.existsByName(dto.getName())) {
+            throw new IllegalArgumentException("Airport with name '" + dto.getName() + "' already exists");
+        }
+
         Airport entity = airportMapper.toEntity(dto);
         Airport saved = airportRepository.save(entity);
         return airportMapper.toDto(saved);

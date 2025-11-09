@@ -42,6 +42,10 @@ public class AirlineService {
             throw new IllegalArgumentException("Airline with name '" + dto.getName() + "' already exists");
         }
 
+        if (dto.getContactEmail() != null && airlineRepository.existsByContactEmail(dto.getContactEmail())) {
+            throw new IllegalArgumentException("Airline with contact_email '" + dto.getContactEmail() + "' already exists");
+        }
+
         Airline entity = airlineMapper.toEntity(dto, new ArrayList<>());
         Airline saved = airlineRepository.save(entity);
         return airlineMapper.toDto(saved);

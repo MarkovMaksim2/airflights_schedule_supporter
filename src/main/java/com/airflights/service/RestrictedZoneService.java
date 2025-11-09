@@ -21,6 +21,10 @@ public class RestrictedZoneService {
 
     @Transactional
     public RestrictedZoneDto create(RestrictedZoneDto dto) {
+        if (dto.getRegion() != null && restrictedZoneRepository.existsByRegion(dto.getRegion())) {
+            throw new IllegalArgumentException("RestrictedZone with region '" + dto.getRegion() + "' already exists");
+        }
+
         RestrictedZone zone = restrictedZoneMapper.toEntity(dto);
         RestrictedZone saved = restrictedZoneRepository.save(zone);
 

@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
@@ -29,7 +30,7 @@ public class FlightController {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
     })
-    public ResponseEntity<Page<FlightDto>> getAll(Pageable pageable) {
+    public ResponseEntity<Page<FlightDto>> getAll(@ParameterObject Pageable pageable) {
         return ResponseEntity.ok(flightService.getAll(pageable));
     }
 

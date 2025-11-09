@@ -30,10 +30,14 @@ public class PassengerService {
         if (passengerRepository.existsByPassportNumber(dto.getPassportNumber())) {
             throw new IllegalArgumentException("Passenger with this passport already exists");
         }
+        if (passengerRepository.existsByEmail(dto.getEmail())) {
+            throw new IllegalArgumentException("Passenger with this email already exists");
+        }
 
         Passenger passenger = passengerMapper.toEntity(dto);
         return passengerMapper.toDto(passengerRepository.save(passenger));
     }
+
 
     public PassengerDto getById(Long id) {
         Passenger passenger = passengerRepository.findById(id)

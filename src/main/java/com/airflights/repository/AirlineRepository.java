@@ -8,4 +8,5 @@ import java.util.List;
 
 public interface AirlineRepository extends JpaRepository<Airline, Long> {
     boolean existsByName(String name);
+    boolean existsByContactEmail(String contactEmail);
 }

@@ -8,6 +8,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -38,6 +39,27 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.name", is("Sky Airlines")))
                 .andExpect(jsonPath("$.contact_email", is("contact@skyairlines.com")));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingDuplicateAirline() throws Exception {
+        String json = """
+                {
+                    "name": "Sky Airlines",
+                    "contact_email": "contact@skyairlines.com"
+                }
+                """;
+        mockMvc.perform(post("/api/airlines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.contact_email", is("contact@skyairlines.com")));
+
+        mockMvc.perform(post("/api/airlines")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("already exists")));
     }
 
     @Test

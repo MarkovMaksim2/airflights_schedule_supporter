@@ -17,6 +17,7 @@ import org.testcontainers.junit.jupiter.Testcontainers;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -48,6 +49,29 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.code", is("SFO")))
                 .andExpect(jsonPath("$.city", is("San Francisco")))
                 .andExpect(jsonPath("$.name", is("San Francisco International Airport")));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingDuplicateAirport() throws Exception {
+        String json = """
+                {
+                    "code": "SFO",
+                    "city": "San Francisco",
+                    "name": "San Francisco International Airport"
+                }
+                """;
+
+        mockMvc.perform(post("/api/airports")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.code", is("SFO")));
+
+        mockMvc.perform(post("/api/airports")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("already exists")));
     }
 
     @Test

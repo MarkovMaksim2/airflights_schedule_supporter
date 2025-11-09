@@ -11,6 +11,7 @@ import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
 
+import static org.hamcrest.Matchers.containsString;
 import static org.hamcrest.Matchers.is;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
@@ -45,6 +46,29 @@ class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
                 .andExpect(jsonPath("$.region", is("Military Zone Alpha")))
                 .andExpect(jsonPath("$.start_time", is("2025-12-25T08:00:00")))
                 .andExpect(jsonPath("$.end_time", is("2025-12-25T18:00:00")));
+    }
+
+    @Test
+    void shouldReturnBadRequestWhenCreatingDuplicateRestrictedZone() throws Exception {
+        String json = """
+                {
+                    "region": "Military Zone Alpha",
+                    "start_time": "2025-12-25T08:00:00",
+                    "end_time": "2025-12-25T18:00:00"
+                }
+                """;
+
+        mockMvc.perform(post("/api/restricted-zones")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isCreated())
+                .andExpect(jsonPath("$.region", is("Military Zone Alpha")));
+
+        mockMvc.perform(post("/api/restricted-zones")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.message", containsString("already exists")));
     }
 
     @Test
