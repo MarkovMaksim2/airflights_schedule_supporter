@@ -4,62 +4,90 @@ plugins {
     id("java")
 }
 
-
 group = "com.airflights"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
-
 repositories {
     mavenCentral()
-
 }
 
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0") // актуальная версия на 2025
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
+        mavenBom("org.springframework.boot:spring-boot-dependencies:3.5.7")
     }
 }
 
 dependencies {
+    // Reactor Web
     implementation("org.springframework.boot:spring-boot-starter-webflux")
-    implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.postgresql:postgresql:42.7.4")
+
+    // R2DBC (заменяем JPA)
+    implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
+    runtimeOnly("org.postgresql:r2dbc-postgresql")
+
+    // Реактивный драйвер для базы данных (важно!)
+    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
+
+    // Cloud компоненты
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // Реактивный Feign (WebClient based)
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
+
+    // Реактивный Circuit Breaker
+    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
+
+    // Swagger для Reactive
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4")
+
+    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    // Flyway
-    implementation("org.flywaydb:flyway-core:11.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
+    // Flyway (для миграций - работает с блокирующим JDBC, но можно использовать)
+    implementation("org.flywaydb:flyway-core")
+    implementation("org.flywaydb:flyway-database-postgresql")
+
+    // JDBC драйвер для Flyway (обязательно)
+    runtimeOnly("org.postgresql:postgresql")
 
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
+    // Валидация
+    implementation("org.springframework.boot:spring-boot-starter-validation")
+
     // Тесты
     testImplementation("org.springframework.boot:spring-boot-starter-test") {
         exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
     }
-    testImplementation("org.testcontainers:junit-jupiter:1.20.3")
-    testImplementation("org.testcontainers:postgresql:1.20.3")
+    testImplementation("io.projectreactor:reactor-test")
+    testImplementation("io.r2dbc:r2dbc-h2")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+    testImplementation("org.testcontainers:r2dbc")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.mockito:mockito-core")
     testImplementation("org.mockito:mockito-junit-jupiter")
     testImplementation("org.assertj:assertj-core")
-    testImplementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
 }
 
+// Конфигурация для MapStruct + Lombok
+tasks.withType<JavaCompile> {
+    options.compilerArgs.addAll(listOf(
+        "-Amapstruct.defaultComponentModel=spring",
+        "-Amapstruct.unmappedTargetPolicy=IGNORE"
+    ))
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    // Убираем предупреждения ByteBuddy/Mockito для JDK 21+
     jvmArgs(
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",

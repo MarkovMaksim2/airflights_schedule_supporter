@@ -1,24 +1,23 @@
 package com.airflights.airline.entity;
 
-import jakarta.persistence.*;
+import org.springframework.data.annotation.Id;
+import org.springframework.data.relational.core.mapping.Column;
+import org.springframework.data.relational.core.mapping.Table;
 import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-@Entity
-@Table(name = "airlines")
+@Table("airlines")
 @Data
 @AllArgsConstructor
 @NoArgsConstructor
 public class Airline {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-
-    @Column(nullable = false, unique = true)
+    @Column("name")
     private String name;
 
-    @Column(nullable = false, unique = true, name = "contact_email")
+    @Column("contact_email")
     private String contactEmail;
 }

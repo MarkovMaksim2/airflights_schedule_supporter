@@ -4,62 +4,69 @@ plugins {
     id("java")
 }
 
-
 group = "com.airflights"
 version = "0.0.1"
 java.sourceCompatibility = JavaVersion.VERSION_21
 
-
 repositories {
     mavenCentral()
-
 }
 
+// ВАЖНО: Используйте совместимую версию Spring Cloud
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0") // актуальная версия на 2025
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0") // Совместимо с Spring Boot 3.2.x+
     }
 }
 
 dependencies {
-    implementation("org.springframework.boot:spring-boot-starter-webflux")
+    // ВАЖНО: Для JPA используйте блокирующий стек Web, а не WebFlux
+    implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.postgresql:postgresql:42.7.4")
+
+    // PostgreSQL драйвер
+    runtimeOnly("org.postgresql:postgresql")
+
+    // Cloud компоненты (обновленные версии)
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
     implementation("org.springframework.retry:spring-retry")
     implementation("org.springframework.boot:spring-boot-starter-aop")
+
+    // OpenFeign (блокирующая версия)
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
+
+    // Circuit Breaker (блокирующая версия для JPA)
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4")
+
+    // Swagger для Spring MVC (не WebFlux)
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+
+    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
     // Flyway
-    implementation("org.flywaydb:flyway-core:11.7.2")
-    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
-
+    implementation("org.flywaydb:flyway-core:10.15.2") // Совместимая версия
+    implementation("org.flywaydb:flyway-database-postgresql:10.15.2")
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
-    // Тесты
-    testImplementation("org.springframework.boot:spring-boot-starter-test") {
-        exclude(group = "org.junit.vintage", module = "junit-vintage-engine")
-    }
-    testImplementation("org.testcontainers:junit-jupiter:1.20.3")
-    testImplementation("org.testcontainers:postgresql:1.20.3")
-    testImplementation("org.springframework.boot:spring-boot-testcontainers")
-    testImplementation("org.mockito:mockito-core")
-    testImplementation("org.mockito:mockito-junit-jupiter")
-    testImplementation("org.assertj:assertj-core")
-    testImplementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
-}
+    // Валидация
+    implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    // Actuator для health checks
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
+
+    // Тесты
+    testImplementation("org.springframework.boot:spring-boot-starter-test")
+    testImplementation("org.testcontainers:junit-jupiter")
+    testImplementation("org.testcontainers:postgresql")
+}
 
 tasks.withType<Test> {
     useJUnitPlatform()
-    // Убираем предупреждения ByteBuddy/Mockito для JDK 21+
     jvmArgs(
         "--add-opens", "java.base/java.lang=ALL-UNNAMED",
         "--add-opens", "java.base/java.util=ALL-UNNAMED",
