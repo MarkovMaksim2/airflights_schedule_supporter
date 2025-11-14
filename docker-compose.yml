@@ -1,31 +1,134 @@
 version: '3.9'
 
 services:
-  db:
+  postgres:
     image: postgres:15
-    container_name: airline_db
-    restart: always
     environment:
-      POSTGRES_USER: airline_user
-      POSTGRES_PASSWORD: airline_pass
-      POSTGRES_DB: airline_db
-    ports:
-      - "5432:5432"
+      POSTGRES_DB: airflights
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    ports: ["5432:5432"]
     volumes:
-      - postgres_data:/var/lib/postgresql/data
+      - pg-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d airflights"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    container_name: postgres
 
-  app:
-    build: .
-    container_name: airline_app
-    depends_on:
-      - db
+  # ===== INFRASTRUCTURE =====
+  eureka-server:
+    build:
+      context: ./eureka-server
+      dockerfile: Dockerfile
+    ports: ["8761:8761"]
+    depends_on: [postgres]
     environment:
-      SPRING_DATASOURCE_URL: jdbc:postgresql://db:5432/airline_db
-      SPRING_DATASOURCE_USERNAME: airline_user
-      SPRING_DATASOURCE_PASSWORD: airline_pass
-    ports:
-      - "8080:8080"
-      - "5005:5005"
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health" ]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    container_name: eureka-server
+
+  config-server:
+    build:
+      context: ./config-server
+      dockerfile: Dockerfile
+    ports: ["9991:9991"]
+    depends_on:
+      eureka-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:9991/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    container_name: config-server
+
+  gateway-server:
+    build:
+      context: ./gateway-server
+      dockerfile: Dockerfile
+    ports: ["8080:8080"]
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: gateway-server
+
+  # ===== MICROSERVICES =====
+  airline-service:
+    build:
+      context: ./airline-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: airline-service
+
+  airport-service:
+    build:
+      context: ./airport-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: airport-service
+
+  booking-service:
+    build:
+      context: ./booking-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: booking-service
+
+  flight-service:
+    build:
+      context: ./flight-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: flight-service
+
+  passenger-service:
+    build:
+      context: ./passenger-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: passenger-service
+
+  restrictedzone-service:
+    build:
+      context: ./restrictedzone-service
+      dockerfile: Dockerfile
+    depends_on:
+      config-server:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+    container_name: restrictedzone-service
 
 volumes:
-  postgres_data:
+  pg-data:
+  gradle-cache:
