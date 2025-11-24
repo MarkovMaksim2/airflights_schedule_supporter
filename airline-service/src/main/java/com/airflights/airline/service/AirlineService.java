@@ -36,12 +36,6 @@ public class AirlineService {
                 .doOnError(error -> log.error("Error finding airline by id {}: {}", id, error.getMessage()));
     }
 
-    public Mono<Airline> getByIdEntity(Long id) {
-        return airlineRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Airline not found: " + id)))
-                .doOnSuccess(airline -> log.debug("Found airline entity by id: {}", id));
-    }
-
     public Mono<AirlineDto> create(AirlineDto dto) {
         return Mono.just(dto)
                 .flatMap(airlineDto -> {
