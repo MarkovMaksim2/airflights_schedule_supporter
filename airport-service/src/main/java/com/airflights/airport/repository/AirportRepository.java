@@ -8,6 +8,7 @@ import java.util.Optional;
 public interface AirportRepository extends JpaRepository<Airport, Long> {
 
     boolean existsByCode(String code);
+    boolean existsByName(String name);
 
     Optional<Airport> findByCode(String code);
 }

@@ -2,7 +2,7 @@ package com.airflights.flight.service;
 
 import com.airflights.flight.dto.FlightDto;
 import com.airflights.flight.dto.RestrictedZoneDto;
-import com.airflights.flight.entity.*;
+import com.airflights.flight.entity.Flight;
 import com.airflights.flight.feign.AirlineClient;
 import com.airflights.flight.feign.AirportClient;
 import com.airflights.flight.mapper.FlightMapper;

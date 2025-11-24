@@ -56,6 +56,11 @@ public class AirportService {
                                         "Airport with code '" + dto.getCode() + "' already exists");
                             }
 
+                            if (dto.getName() != null && airportRepository.existsByName(dto.getName())) {
+                                throw new IllegalArgumentException(
+                                        "Airport with name '" + dto.getName() + "' already exists");
+                            }
+
                             Airport saved = airportRepository.save(airportMapper.toEntity(dto));
                             return airportMapper.toDto(saved);
                         })
@@ -80,7 +85,14 @@ public class AirportService {
                                 existing.setCode(dto.getCode());
                             }
 
-                            if (dto.getName() != null) existing.setName(dto.getName());
+                            if (dto.getName() != null && !dto.getName().equals(existing.getName())) {
+                                if (airportRepository.existsByName(dto.getName())) {
+                                    throw new IllegalArgumentException(
+                                            "Airport with name '" + dto.getName() + "' already exists");
+                                }
+                                existing.setName(dto.getName());
+                            }
+
                             if (dto.getCity() != null) existing.setCity(dto.getCity());
 
                             Airport saved = airportRepository.save(existing);

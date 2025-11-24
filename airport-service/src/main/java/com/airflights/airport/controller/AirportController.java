@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
+import org.springdoc.core.annotations.ParameterObject;
 
 @RestController
 @RequestMapping("/api/airports")
@@ -31,7 +32,7 @@ public class AirportController {
             @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Flux<AirportDto> getAll(Pageable pageable) {
+    public Flux<AirportDto> getAll(@ParameterObject Pageable pageable) {
         return airportService.getAll(pageable);
     }
 

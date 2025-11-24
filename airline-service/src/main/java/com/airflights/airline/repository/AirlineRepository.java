@@ -6,4 +6,5 @@ import reactor.core.publisher.Mono;
 
 public interface AirlineRepository extends R2dbcRepository<Airline, Long> {
     Mono<Boolean> existsByName(String name);
+    Mono<Boolean> existsByContactEmail(String contactEmail);
 }

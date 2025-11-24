@@ -50,6 +50,18 @@ public class AirlineService {
                     }
                     return Mono.just(dto);
                 })
+                .flatMap(airlineDto -> {
+                    if (dto.getContactEmail() != null) {
+                        return airlineRepository.existsByContactEmail(dto.getContactEmail())
+                                .flatMap(exists -> {
+                                    if (exists) {
+                                        return Mono.error(new IllegalArgumentException("Airline with contact_email '" + dto.getContactEmail() + "' already exists"));
+                                    }
+                                    return Mono.just(dto);
+                                });
+                    }
+                    return Mono.just(dto);
+                })
                 .map(airlineMapper::toEntity)
                 .doOnNext(entity -> entity.setId(null))
                 .flatMap(airlineRepository::save)

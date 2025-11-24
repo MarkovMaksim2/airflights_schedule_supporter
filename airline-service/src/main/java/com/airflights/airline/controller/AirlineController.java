@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +24,7 @@ public class AirlineController {
 
     @GetMapping
     @Operation(summary = "Get all airlines")
-    public Flux<AirlineDto> getAll(Pageable pageable) {
+    public Flux<AirlineDto> getAll(@ParameterObject Pageable pageable) {
         return airlineService.getAll(pageable);
     }
 
