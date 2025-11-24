@@ -13,6 +13,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 @RestController
@@ -30,10 +31,8 @@ public class AirportController {
             @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Mono<ResponseEntity<Page<AirportDto>>> getAll(Pageable pageable) {
-        return airportService.getAll(pageable)
-                .map(ResponseEntity::ok)
-                .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().build()));
+    public Flux<AirportDto> getAll(Pageable pageable) {
+        return airportService.getAll(pageable);
     }
 
     @GetMapping("/{id}")
@@ -43,23 +42,14 @@ public class AirportController {
             @ApiResponse(responseCode = "404", description = "Airport not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Mono<ResponseEntity<AirportDto>> getById(@PathVariable Long id) {
-        return airportService.getById(id)
-                .map(ResponseEntity::ok)
-                .onErrorResume(error -> {
-                    if (error.getMessage().contains("not found")) {
-                        return Mono.just(ResponseEntity.notFound().build());
-                    }
-                    return Mono.just(ResponseEntity.badRequest().build());
-                });
+    public Mono<AirportDto> getById(@PathVariable Long id) {
+        return airportService.getById(id);
     }
 
     @GetMapping("/code/{code}")
     @Operation(summary = "Get airport by code", description = "Retrieve a specific airport by its code")
-    public Mono<ResponseEntity<AirportDto>> getByCode(@PathVariable String code) {
-        return airportService.findByCode(code)
-                .map(ResponseEntity::ok)
-                .onErrorResume(error -> Mono.just(ResponseEntity.notFound().build()));
+    public Mono<AirportDto> getByCode(@PathVariable String code) {
+        return airportService.findByCode(code);
     }
 
     @PostMapping
@@ -69,15 +59,8 @@ public class AirportController {
             @ApiResponse(responseCode = "400", description = "Invalid input data"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Mono<ResponseEntity<AirportDto>> create(@Valid @RequestBody AirportDto dto) {
-        return airportService.create(dto)
-                .map(created -> ResponseEntity.status(HttpStatus.CREATED).body(created))
-                .onErrorResume(error -> {
-                    if (error instanceof IllegalArgumentException) {
-                        return Mono.just(ResponseEntity.badRequest().build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
+    public Mono<AirportDto> create(@Valid @RequestBody AirportDto dto) {
+        return airportService.create(dto);
     }
 
     @PutMapping("/{id}")
@@ -88,18 +71,8 @@ public class AirportController {
             @ApiResponse(responseCode = "404", description = "Airport not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Mono<ResponseEntity<AirportDto>> update(@PathVariable Long id, @Valid @RequestBody AirportDto dto) {
-        return airportService.update(id, dto)
-                .map(ResponseEntity::ok)
-                .onErrorResume(error -> {
-                    if (error.getMessage().contains("not found")) {
-                        return Mono.just(ResponseEntity.notFound().build());
-                    }
-                    if (error instanceof IllegalArgumentException) {
-                        return Mono.just(ResponseEntity.badRequest().build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
+    public Mono<AirportDto> update(@PathVariable Long id, @Valid @RequestBody AirportDto dto) {
+        return airportService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
@@ -109,22 +82,13 @@ public class AirportController {
             @ApiResponse(responseCode = "404", description = "Airport not found"),
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
-    public Mono<ResponseEntity<Void>> delete(@PathVariable Long id) {
-        return airportService.delete(id)
-                .then(Mono.just(ResponseEntity.noContent().<Void>build()))
-                .onErrorResume(error -> {
-                    if (error.getMessage().contains("not found")) {
-                        return Mono.just(ResponseEntity.notFound().build());
-                    }
-                    return Mono.just(ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build());
-                });
+    public Mono<Void> delete(@PathVariable Long id) {
+        return airportService.delete(id);
     }
 
     @GetMapping("/count")
     @Operation(summary = "Get airports count", description = "Get total number of airports")
-    public Mono<ResponseEntity<Long>> count() {
-        return airportService.count()
-                .map(ResponseEntity::ok)
-                .onErrorResume(error -> Mono.just(ResponseEntity.badRequest().build()));
+    public Mono<Long> count() {
+        return airportService.count();
     }
 }
