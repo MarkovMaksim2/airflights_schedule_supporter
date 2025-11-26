@@ -55,15 +55,20 @@ public class FlightService {
 
     @Transactional
     public FlightDto update(Long id, @Valid FlightDto dto) {
-        if (id == null || !flightRepository.existsById(id)) {
-            throw new EntityNotFoundException("flight not found");
-        }
+        Flight flight = flightRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Flight not found"));
 
         ensureAirlineExists(dto.getAirlineId());
         ensureAirportExists(dto.getDepartureAirportId());
         ensureAirportExists(dto.getArrivalAirportId());
 
-        Flight flight = flightMapper.toEntity(dto);
+        flight.setAirlineId(dto.getAirlineId());
+        flight.setDepartureAirportId(dto.getDepartureAirportId());
+        flight.setArrivalAirportId(dto.getArrivalAirportId());
+        flight.setDepartureTime(dto.getDepartureTime());
+        flight.setArrivalTime(dto.getArrivalTime());
+        flight.setStatus(dto.getStatus());
+
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
