@@ -2,10 +2,8 @@ package com.airflights.restrictedzone.service;
 
 import com.airflights.restrictedzone.dto.RestrictedZoneDto;
 import com.airflights.restrictedzone.entity.RestrictedZone;
-import com.airflights.restrictedzone.feign.FlightClient;
 import com.airflights.restrictedzone.mapper.RestrictedZoneMapper;
 import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -19,7 +17,6 @@ public class RestrictedZoneService {
 
     private final RestrictedZoneRepository restrictedZoneRepository;
     private final RestrictedZoneMapper restrictedZoneMapper;
-    private final FlightClient flightClient;
 
     @Transactional
     public RestrictedZoneDto create(RestrictedZoneDto dto) {
@@ -30,7 +27,6 @@ public class RestrictedZoneService {
         RestrictedZone zone = restrictedZoneMapper.toEntity(dto);
         RestrictedZone saved = restrictedZoneRepository.save(zone);
 
-        ensureChangeTimings(dto);
         return restrictedZoneMapper.toDto(saved);
     }
 
@@ -49,7 +45,4 @@ public class RestrictedZoneService {
                 .map(restrictedZoneMapper::toDto)
                 .orElseThrow(() -> new EntityNotFoundException("Restricted zone not found"));
     }
-
-    @CircuitBreaker(name = "flightClient")
-    void ensureChangeTimings(RestrictedZoneDto dto) { flightClient.updateFlightsDueToRestriction(dto); }
 }

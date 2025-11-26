@@ -3,7 +3,9 @@ package com.airflights.booking.service;
 import com.airflights.booking.dto.BookingDto;
 import com.airflights.booking.entity.Booking;
 import com.airflights.booking.feign.FlightClient;
+import com.airflights.booking.feign.FlightVerifier;
 import com.airflights.booking.feign.PassengerClient;
+import com.airflights.booking.feign.PassengerVerifier;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
@@ -25,6 +27,8 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final FlightClient flightClient;
     private final PassengerClient passengerClient;
+    private final FlightVerifier flightVerifier;
+    private final PassengerVerifier passengerVerifier;
 
     @Transactional
     public BookingDto bookFlight(Long passengerId, Long flightId) {
@@ -61,9 +65,7 @@ public class BookingService {
                 .orElseThrow(() -> new EntityNotFoundException("Booking not found")));
     }
 
-    @CircuitBreaker(name = "flightClient")
-    void ensureFlightExists(Long id) { flightClient.flightExists(id); }
+    void ensureFlightExists(Long id) { flightVerifier.ensureFlightExists(id); }
 
-    @CircuitBreaker(name = "passengerClient")
-    void ensurePassengerExists(Long id)   { passengerClient.passengerExists(id); }
+    void ensurePassengerExists(Long id)   { passengerVerifier.ensurePassengerExists(id); }
 }
