@@ -1,7 +1,7 @@
 package com.airflights.booking.feign;
 
 import com.airflights.booking.exception.ResourceNotFoundException;
-import com.airflights.flight.exception.RemoteServiceUnavailableException;
+import com.airflights.booking.exception.RemoteServiceUnavailableException;
 import feign.FeignException;
 import feign.RetryableException;
 import java.net.ConnectException;
