@@ -24,16 +24,18 @@ dependencyManagement {
 dependencies {
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-    implementation("org.postgresql:postgresql:42.7.4")
+    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
+
     implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
     implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
-    implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
+
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
+
+    runtimeOnly("org.postgresql:postgresql")
 
     // Flyway
     implementation("org.flywaydb:flyway-core:11.7.2")

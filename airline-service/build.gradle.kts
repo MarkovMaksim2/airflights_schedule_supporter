@@ -32,14 +32,6 @@ dependencies {
     // Cloud компоненты
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-
-    // Реактивный Feign (WebClient based)
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-
-    // Реактивный Circuit Breaker
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-reactor-resilience4j")
 
     // Swagger для Reactive
     implementation("org.springdoc:springdoc-openapi-starter-webflux-ui:2.8.4")

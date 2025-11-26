@@ -12,10 +12,9 @@ repositories {
     mavenCentral()
 }
 
-// ВАЖНО: Используйте совместимую версию Spring Cloud
 dependencyManagement {
     imports {
-        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0") // Совместимо с Spring Boot 3.2.x+
+        mavenBom("org.springframework.cloud:spring-cloud-dependencies:2025.0.0")
     }
 }
 
@@ -30,14 +29,6 @@ dependencies {
     // Cloud компоненты (обновленные версии)
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
-    implementation("org.springframework.retry:spring-retry")
-    implementation("org.springframework.boot:spring-boot-starter-aop")
-
-    // OpenFeign (блокирующая версия)
-    implementation("org.springframework.cloud:spring-cloud-starter-openfeign")
-
-    // Circuit Breaker (блокирующая версия для JPA)
-    implementation("org.springframework.cloud:spring-cloud-starter-circuitbreaker-resilience4j")
 
     // Swagger для Spring MVC (не WebFlux)
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
@@ -47,17 +38,15 @@ dependencies {
     annotationProcessor("org.projectlombok:lombok")
 
     // Flyway
-    implementation("org.flywaydb:flyway-core:10.15.2") // Совместимая версия
-    implementation("org.flywaydb:flyway-database-postgresql:10.15.2")
+    implementation("org.flywaydb:flyway-core:11.7.2")
+    implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
+
     // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
     // Валидация
     implementation("org.springframework.boot:spring-boot-starter-validation")
-
-    // Actuator для health checks
-    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // Тесты
     testImplementation("org.springframework.boot:spring-boot-starter-test")
