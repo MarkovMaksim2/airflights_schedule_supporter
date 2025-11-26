@@ -32,6 +32,9 @@ public class BookingController {
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
     })
     public ResponseEntity<Page<BookingDto>> getAll(@ParameterObject Pageable pageable) {
+        if (pageable.getPageSize() > 50) {
+            throw new IllegalArgumentException("Page size cannot exceed 50. Maximum allowed is 50, but received: " + pageable.getPageSize());
+        }
         Page<BookingDto> page = bookingService.getAll(pageable);
 
         HttpHeaders headers = new HttpHeaders();

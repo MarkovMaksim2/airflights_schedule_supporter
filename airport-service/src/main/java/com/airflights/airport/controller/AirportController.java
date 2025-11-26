@@ -33,6 +33,9 @@ public class AirportController {
             @ApiResponse(responseCode = "500", description = "Internal server error")
     })
     public Flux<AirportDto> getAll(@ParameterObject Pageable pageable) {
+        if (pageable.getPageSize() > 50) {
+            throw new IllegalArgumentException("Page size cannot exceed 50. Maximum allowed is 50, but received: " + pageable.getPageSize());
+        }
         return airportService.getAll(pageable);
     }
 

@@ -32,6 +32,9 @@ public class FlightController {
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
     })
     public ResponseEntity<Page<FlightDto>> getAll(@ParameterObject Pageable pageable) {
+        if (pageable.getPageSize() > 50) {
+            throw new IllegalArgumentException("Page size cannot exceed 50. Maximum allowed is 50, but received: " + pageable.getPageSize());
+        }
         return ResponseEntity.ok(flightService.getAll(pageable));
     }
 

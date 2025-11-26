@@ -79,7 +79,7 @@ public class FlightService {
 
     @Transactional(readOnly = true)
     public List<FlightDto> getInfiniteScroll(int offset, int limit) {
-        Pageable pageable = PageRequest.of(offset / limit, limit); // вычисляем номер страницы
+        Pageable pageable = PageRequest.of(offset / limit, limit);
         Page<Flight> flights = flightRepository.findAllByOrderByDepartureTimeAsc(pageable);
         return flights.stream()
                 .map(flightMapper::toDto)
