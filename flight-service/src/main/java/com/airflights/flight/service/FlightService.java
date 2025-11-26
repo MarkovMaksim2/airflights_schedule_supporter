@@ -3,11 +3,10 @@ package com.airflights.flight.service;
 import com.airflights.flight.dto.FlightDto;
 import com.airflights.flight.dto.RestrictedZoneDto;
 import com.airflights.flight.entity.Flight;
-import com.airflights.flight.feign.AirlineClient;
-import com.airflights.flight.feign.AirportClient;
+import com.airflights.flight.feign.AirlineVerifier;
+import com.airflights.flight.feign.AirportVerifier;
 import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +24,8 @@ public class FlightService {
 
     private final FlightRepository flightRepository;
     private final FlightMapper flightMapper;
-    private final AirlineClient airlineClient;
-    private final AirportClient airportClient;
+    private final AirlineVerifier airlineVerifier;
+    private final AirportVerifier airportVerifier;
 
     public Page<FlightDto> getAll(Pageable pageable) {
         return flightRepository.findAll(pageable)
@@ -73,11 +72,6 @@ public class FlightService {
                 .orElseThrow(() -> new EntityNotFoundException("Flight not found")));
     }
 
-    public Flight getByIdEntity(Long id) {
-        return flightRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Flight not found"));
-    }
-
     @Transactional
     public void delete(Long id) {
         flightRepository.deleteById(id);
@@ -92,9 +86,7 @@ public class FlightService {
                 .toList();
     }
 
-    @CircuitBreaker(name = "airlineClient")
-    void ensureAirlineExists(Long id) { airlineClient.airlineExists(id); }
+    void ensureAirlineExists(Long id) { airlineVerifier.ensureAirlineExists(id); }
 
-    @CircuitBreaker(name = "airportClient")
-    void ensureAirportExists(Long id)   { airportClient.airportExists(id); }
+    void ensureAirportExists(Long id)   { airportVerifier.ensureAirportExists(id); }
 }
