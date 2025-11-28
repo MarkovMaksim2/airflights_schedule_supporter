@@ -24,6 +24,7 @@ public class AirlineController {
 
     @GetMapping
     @Operation(summary = "Get all airlines")
+    @ResponseStatus(HttpStatus.OK)
     public Flux<AirlineDto> getAll(@ParameterObject Pageable pageable) {
         if (pageable.getPageSize() > 50) {
             return Flux.error(new IllegalArgumentException(
@@ -35,24 +36,28 @@ public class AirlineController {
 
     @GetMapping("/{id}")
     @Operation(summary = "Get airline by ID")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<AirlineDto> getById(@PathVariable Long id) {
         return airlineService.getById(id);
     }
 
     @PostMapping
     @Operation(summary = "Create new airline")
+    @ResponseStatus(HttpStatus.CREATED)
     public Mono<AirlineDto> create(@Valid @RequestBody AirlineDto dto) {
         return airlineService.create(dto);
     }
 
     @PutMapping("/{id}")
     @Operation(summary = "Update airline")
+    @ResponseStatus(HttpStatus.OK)
     public Mono<AirlineDto> update(@PathVariable Long id, @Valid @RequestBody AirlineDto dto) {
         return airlineService.update(id, dto);
     }
 
     @DeleteMapping("/{id}")
     @Operation(summary = "Delete airline")
+    @ResponseStatus(HttpStatus.NO_CONTENT)
     public Mono<Void> delete(@PathVariable Long id) {
         return airlineService.delete(id);
     }

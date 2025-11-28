@@ -1,0 +1,8 @@
+spring:
+  jackson:
+    property-naming-strategy: SNAKE_CASE
+  flyway:
+    enabled: true
+  r2dbc:
+    username: postgres
+    password: postgres

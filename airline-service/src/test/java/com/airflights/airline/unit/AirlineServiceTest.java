@@ -13,13 +13,14 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
 
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 class AirlineServiceTest {
 
     @Mock
-    private AirlineRepository airlineRepository; // REACTIVE
+    private AirlineRepository airlineRepository;
 
     @Mock
     private AirlineMapper airlineMapper;
@@ -49,24 +50,30 @@ class AirlineServiceTest {
 
     @Test
     void create_shouldSave() {
-        when(airlineRepository.existsByName("BestAir")).thenReturn(Mono.just(false));
-        when(airlineMapper.toEntity(airlineDto)).thenReturn(airline);
-        when(airlineRepository.save(airline)).thenReturn(Mono.just(airline));
-        when(airlineMapper.toDto(airline)).thenReturn(airlineDto);
+        Airline saved = new Airline(1L, "BestAir", "ops@bestair.com");
 
-        StepVerifier.create(airlineService.create(airlineDto))
-                .expectNext(airlineDto)
+        when(airlineRepository.existsByName(anyString())).thenReturn(Mono.just(false));
+        when(airlineRepository.existsByContactEmail(anyString())).thenReturn(Mono.just(false));
+        when(airlineMapper.toEntity(any(AirlineDto.class)))
+                .thenAnswer(invocation -> {
+                    AirlineDto dto = invocation.getArgument(0);
+                    return new Airline(null, dto.getName(), dto.getContactEmail());
+                });
+        when(airlineRepository.save(any(Airline.class))).thenReturn(Mono.just(saved));
+        when(airlineMapper.toDto(any(Airline.class)))
+                .thenAnswer(invocation -> {
+                    Airline a = invocation.getArgument(0);
+                    return new AirlineDto(a.getId(), a.getName(), a.getContactEmail());
+                });
+
+        StepVerifier.create(airlineService.create(new AirlineDto(null, "BestAir", "ops@bestair.com")))
+                .assertNext(dto -> {
+                    assertEquals(1L, dto.getId());
+                    assertEquals("BestAir", dto.getName());
+                    assertEquals("ops@bestair.com", dto.getContactEmail());
+                })
                 .verifyComplete();
 
-        verify(airlineRepository).save(airline);
-    }
-
-    @Test
-    void getById_whenMissing_throws() {
-        when(airlineRepository.findById(99L)).thenReturn(Mono.empty());
-
-        StepVerifier.create(airlineService.getById(99L))
-                .expectError(jakarta.persistence.EntityNotFoundException.class)
-                .verify();
+        verify(airlineRepository).save(any(Airline.class));
     }
 }

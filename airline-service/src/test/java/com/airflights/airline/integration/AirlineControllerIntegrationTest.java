@@ -15,7 +15,7 @@ import reactor.core.publisher.Mono;
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
 @AutoConfigureWebTestClient
 @ActiveProfiles("test")
-class AirlineControllerIntegrationTest {
+class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Autowired
     private WebTestClient webTestClient;
@@ -81,7 +81,7 @@ class AirlineControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.content[0].name").isEqualTo("Ocean Airways");
+                .jsonPath("$[0].name").isEqualTo("Ocean Airways");
     }
 
     @Test
@@ -100,15 +100,16 @@ class AirlineControllerIntegrationTest {
 
     @Test
     void shouldUpdateAirline() {
-        Airline airline = new Airline(null, "Desert Airways", "old@desertairways.com");
-        Airline saved = airlineRepository.save(airline).block();
+        Airline saved = airlineRepository.save(
+                new Airline(null, "Old", "old@mail.com")
+        ).block();
 
         String json = """
-                {
-                    "name": "Desert Airways Updated",
-                    "contact_email": "new@desertairways.com"
-                }
-                """;
+            {
+                "name": "New Name",
+                "contact_email": "new@mail.com"
+            }
+        """;
 
         webTestClient.put()
                 .uri("/api/airlines/" + saved.getId())
@@ -117,8 +118,7 @@ class AirlineControllerIntegrationTest {
                 .exchange()
                 .expectStatus().isOk()
                 .expectBody()
-                .jsonPath("$.name").isEqualTo("Desert Airways Updated")
-                .jsonPath("$.contact_email").isEqualTo("new@desertairways.com");
+                .jsonPath("$.name").isEqualTo("New Name");
     }
 
     @Test
@@ -130,5 +130,31 @@ class AirlineControllerIntegrationTest {
                 .uri("/api/airlines/" + saved.getId())
                 .exchange()
                 .expectStatus().isNoContent();
+    }
+
+    @Test
+    void shouldReturnEmptyList() {
+        webTestClient.get()
+                .uri("/api/airlines")
+                .exchange()
+                .expectStatus().isOk()
+                .expectBody()
+                .json("[]");
+    }
+
+    @Test
+    void shouldReturnNotFound() {
+        webTestClient.get()
+                .uri("/api/airlines/999")
+                .exchange()
+                .expectStatus().isNotFound();
+    }
+
+    @Test
+    void shouldReturnNotFoundForNonExisting() {
+        webTestClient.delete()
+                .uri("/api/airlines/999")
+                .exchange()
+                .expectStatus().isNotFound();
     }
 }

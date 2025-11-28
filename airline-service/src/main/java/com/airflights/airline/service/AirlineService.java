@@ -63,7 +63,7 @@ public class AirlineService {
                     return Mono.just(dto);
                 })
                 .map(airlineMapper::toEntity)
-                .doOnNext(entity -> entity.setId(null))
+                // .doOnNext(entity -> entity.setId(null))
                 .flatMap(airlineRepository::save)
                 .map(airlineMapper::toDto)
                 .doOnSuccess(saved -> log.info("Created new airline: {}", saved))
