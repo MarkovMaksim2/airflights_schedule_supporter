@@ -53,6 +53,8 @@ dependencies {
     testImplementation("org.mockito:mockito-junit-jupiter")
     testImplementation("org.assertj:assertj-core")
     testImplementation("jakarta.persistence:jakarta.persistence-api:3.1.0")
+
+    testImplementation(project(":flight-service"))
 }
 
 
