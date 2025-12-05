@@ -8,8 +8,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 import io.swagger.v3.oas.annotations.media.Schema;
 
-import io.swagger.v3.oas.annotations.media.Schema;
-
 @Data
 @AllArgsConstructor
 @NoArgsConstructor

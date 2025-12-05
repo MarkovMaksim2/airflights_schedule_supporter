@@ -2,13 +2,10 @@ package com.airflights.booking.service;
 
 import com.airflights.booking.dto.BookingDto;
 import com.airflights.booking.entity.Booking;
-import com.airflights.booking.feign.FlightClient;
 import com.airflights.booking.feign.FlightVerifier;
-import com.airflights.booking.feign.PassengerClient;
 import com.airflights.booking.feign.PassengerVerifier;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
-import io.github.resilience4j.circuitbreaker.annotation.CircuitBreaker;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -25,8 +22,6 @@ public class BookingService {
 
     private final BookingMapper bookingMapper;
     private final BookingRepository bookingRepository;
-    private final FlightClient flightClient;
-    private final PassengerClient passengerClient;
     private final FlightVerifier flightVerifier;
     private final PassengerVerifier passengerVerifier;
 

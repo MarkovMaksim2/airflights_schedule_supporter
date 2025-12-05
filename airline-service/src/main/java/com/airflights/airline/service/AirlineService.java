@@ -1,7 +1,6 @@
 package com.airflights.airline.service;
 
 import com.airflights.airline.dto.AirlineDto;
-import com.airflights.airline.entity.Airline;
 import com.airflights.airline.exception.ResourceNotFoundException;
 import com.airflights.airline.mapper.AirlineMapper;
 import com.airflights.airline.repository.AirlineRepository;
@@ -16,7 +15,8 @@ import reactor.core.publisher.Mono;
 @Service
 @RequiredArgsConstructor
 public class AirlineService {
-
+    private static final String NOT_FOUND = "Airline not found: "; 
+    private static final String ALREADY_EXISTS = "' already exists"; 
     private final AirlineRepository airlineRepository;
     private final AirlineMapper airlineMapper;
 
@@ -30,7 +30,7 @@ public class AirlineService {
 
     public Mono<AirlineDto> getById(Long id) {
         return airlineRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Airline not found: " + id)))
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException(NOT_FOUND + id)))
                 .map(airlineMapper::toDto)
                 .doOnSuccess(airline -> log.debug("Found airline by id {}: {}", id, airline))
                 .doOnError(error -> log.error("Error finding airline by id {}: {}", id, error.getMessage()));
@@ -42,8 +42,8 @@ public class AirlineService {
                     if (dto.getName() != null) {
                         return airlineRepository.existsByName(dto.getName())
                                 .flatMap(exists -> {
-                                    if (exists) {
-                                        return Mono.error(new IllegalArgumentException("Airline with name '" + dto.getName() + "' already exists"));
+                                    if (Boolean.TRUE.equals(exists)) {
+                                        return Mono.error(new IllegalArgumentException("Airline with name '" + dto.getName() + ALREADY_EXISTS));
                                     }
                                     return Mono.just(dto);
                                 });
@@ -54,8 +54,8 @@ public class AirlineService {
                     if (dto.getContactEmail() != null) {
                         return airlineRepository.existsByContactEmail(dto.getContactEmail())
                                 .flatMap(exists -> {
-                                    if (exists) {
-                                        return Mono.error(new IllegalArgumentException("Airline with contact_email '" + dto.getContactEmail() + "' already exists"));
+                                    if (Boolean.TRUE.equals(exists)) {
+                                        return Mono.error(new IllegalArgumentException("Airline with contact_email '" + dto.getContactEmail() + ALREADY_EXISTS));
                                     }
                                     return Mono.just(dto);
                                 });
@@ -72,13 +72,13 @@ public class AirlineService {
 
     public Mono<AirlineDto> update(Long id, AirlineDto dto) {
         return airlineRepository.findById(id)
-                .switchIfEmpty(Mono.error(new ResourceNotFoundException("Airline not found: " + id)))
+                .switchIfEmpty(Mono.error(new ResourceNotFoundException(NOT_FOUND + id)))
                 .flatMap(existingAirline -> {
                     if (dto.getName() != null && !dto.getName().equals(existingAirline.getName())) {
                         return airlineRepository.existsByName(dto.getName())
                                 .flatMap(nameExists -> {
-                                    if (nameExists) {
-                                        return Mono.error(new IllegalArgumentException("Airline with name '" + dto.getName() + "' already exists"));
+                                    if (Boolean.TRUE.equals(nameExists)) {
+                                        return Mono.error(new IllegalArgumentException("Airline with name '" + dto.getName() + ALREADY_EXISTS));
                                     }
                                     existingAirline.setName(dto.getName());
                                     if (dto.getContactEmail() != null) {
@@ -102,8 +102,8 @@ public class AirlineService {
     public Mono<Void> delete(Long id) {
         return airlineRepository.existsById(id)
                 .flatMap(exists -> {
-                    if (!exists) {
-                        return Mono.error(new ResourceNotFoundException("Airline not found: " + id));
+                    if (Boolean.FALSE.equals(exists)) {
+                        return Mono.error(new ResourceNotFoundException(NOT_FOUND + id));
                     }
                     return airlineRepository.deleteById(id);
                 })

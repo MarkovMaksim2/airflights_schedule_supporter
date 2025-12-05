@@ -1,5 +1,5 @@
 plugins {
-    id("org.springframework.boot") version "3.5.7"
+    id("org.springframework.boot") version "3.5.8"
     id("io.spring.dependency-management") version "1.1.7"
     id("java")
 }
@@ -19,36 +19,27 @@ dependencyManagement {
 }
 
 dependencies {
-    // ВАЖНО: Для JPA используйте блокирующий стек Web, а не WebFlux
     implementation("org.springframework.boot:spring-boot-starter-web")
     implementation("org.springframework.boot:spring-boot-starter-data-jpa")
 
-    // PostgreSQL драйвер
     runtimeOnly("org.postgresql:postgresql")
 
-    // Cloud компоненты (обновленные версии)
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")
     implementation("org.springframework.cloud:spring-cloud-starter-config")
 
-    // Swagger для Spring MVC (не WebFlux)
     implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.4")
 
-    // Lombok
     compileOnly("org.projectlombok:lombok")
     annotationProcessor("org.projectlombok:lombok")
 
-    // Flyway
     implementation("org.flywaydb:flyway-core:11.7.2")
     implementation("org.flywaydb:flyway-database-postgresql:11.7.2")
 
-    // MapStruct
     implementation("org.mapstruct:mapstruct:1.5.5.Final")
     annotationProcessor("org.mapstruct:mapstruct-processor:1.5.5.Final")
 
-    // Валидация
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
-    // Тесты
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")

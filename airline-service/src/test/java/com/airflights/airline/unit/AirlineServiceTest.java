@@ -28,12 +28,10 @@ class AirlineServiceTest {
     @InjectMocks
     private AirlineService airlineService;
 
-    private Airline airline;
     private AirlineDto airlineDto;
 
     @BeforeEach
     void setUp() {
-        airline = new Airline(1L, "BestAir", "ops@bestair.com");
         airlineDto = new AirlineDto(1L, "BestAir", "ops@bestair.com");
     }
 

@@ -5,7 +5,6 @@ import com.airflights.airport.entity.Airport;
 import com.airflights.airport.exception.ResourceNotFoundException;
 import com.airflights.airport.mapper.AirportMapper;
 import com.airflights.airport.repository.AirportRepository;
-import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Pageable;
@@ -72,32 +71,7 @@ public class AirportService {
 
     public Mono<AirportDto> update(Long id, AirportDto dto) {
         return Mono.fromCallable(() ->
-                        tx.execute(status -> {
-
-                            Airport existing = airportRepository.findById(id)
-                                    .orElseThrow(() -> new ResourceNotFoundException("Airport not found: " + id));
-
-                            if (dto.getCode() != null && !dto.getCode().equals(existing.getCode())) {
-                                if (airportRepository.existsByCode(dto.getCode())) {
-                                    throw new IllegalArgumentException(
-                                            "Airport with code '" + dto.getCode() + "' already exists");
-                                }
-                                existing.setCode(dto.getCode());
-                            }
-
-                            if (dto.getName() != null && !dto.getName().equals(existing.getName())) {
-                                if (airportRepository.existsByName(dto.getName())) {
-                                    throw new IllegalArgumentException(
-                                            "Airport with name '" + dto.getName() + "' already exists");
-                                }
-                                existing.setName(dto.getName());
-                            }
-
-                            if (dto.getCity() != null) existing.setCity(dto.getCity());
-
-                            Airport saved = airportRepository.save(existing);
-                            return airportMapper.toDto(saved);
-                        })
+                        tx.execute(status -> updateAirport(id, dto))
                 )
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnSuccess(a -> log.info("Updated airport {}: {}", id, a))
@@ -135,5 +109,41 @@ public class AirportService {
                         )
                 .map(airportMapper::toDto)
                 .subscribeOn(Schedulers.boundedElastic());
+    }
+
+    private AirportDto updateAirport(Long id, AirportDto dto) {
+        Airport existing = airportRepository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Airport not found: " + id));
+
+        updateCodeIfNeeded(existing, dto);
+        updateNameIfNeeded(existing, dto);
+        updateCityIfNeeded(existing, dto);
+
+        Airport saved = airportRepository.save(existing);
+        return airportMapper.toDto(saved);
+    }
+
+    private void updateCodeIfNeeded(Airport existing, AirportDto dto) {
+        if (dto.getCode() != null && !dto.getCode().equals(existing.getCode())) {
+            if (airportRepository.existsByCode(dto.getCode())) {
+                throw new IllegalArgumentException("Airport with code '" + dto.getCode() + "' already exists");
+            }
+            existing.setCode(dto.getCode());
+        }
+    }
+
+    private void updateNameIfNeeded(Airport existing, AirportDto dto) {
+        if (dto.getName() != null && !dto.getName().equals(existing.getName())) {
+            if (airportRepository.existsByName(dto.getName())) {
+                throw new IllegalArgumentException("Airport with name '" + dto.getName() + "' already exists");
+            }
+            existing.setName(dto.getName());
+        }
+    }
+
+    private void updateCityIfNeeded(Airport existing, AirportDto dto) {
+        if (dto.getCity() != null) {
+            existing.setCity(dto.getCity());
+        }
     }
 }
