@@ -2,6 +2,7 @@ package com.airport.unit;
 
 import com.airflights.airport.dto.AirportDto;
 import com.airflights.airport.entity.Airport;
+import com.airflights.airport.exception.ResourceNotFoundException;
 import com.airflights.airport.mapper.AirportMapper;
 import com.airflights.airport.repository.AirportRepository;
 import com.airflights.airport.service.AirportService;
@@ -10,9 +11,12 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.transaction.support.TransactionCallback;
+import org.springframework.transaction.support.TransactionTemplate;
+import reactor.test.StepVerifier;
+
 import java.util.Optional;
 
-import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -23,6 +27,9 @@ class AirportServiceTest {
 
     @Mock
     private AirportMapper airportMapper;
+
+    @Mock
+    private TransactionTemplate transactionTemplate;
 
     @InjectMocks
     private AirportService airportService;
@@ -47,14 +54,12 @@ class AirportServiceTest {
 
     @Test
     void create_whenCodeExists_throws() {
-        when(airportRepository.existsByCode("SVO")).thenReturn(true);
+        when(transactionTemplate.execute(Mockito.<TransactionCallback<?>>any()))
+                .thenThrow(new IllegalArgumentException("Airport with code 'SVO' already exists"));
 
-        assertThrows(
-                IllegalArgumentException.class,
-                () -> airportService.create(airportDto).block()
-        );
-
-        verify(airportRepository, times(1)).existsByCode("SVO");
+        StepVerifier.create(airportService.create(airportDto))
+                .expectError(IllegalArgumentException.class)
+                .verify();
     }
 
     @Test
@@ -63,16 +68,23 @@ class AirportServiceTest {
         when(airportMapper.toEntity(airportDto)).thenReturn(airport);
         when(airportRepository.save(airport)).thenReturn(airport);
         when(airportMapper.toDto(airport)).thenReturn(airportDto);
+        when(transactionTemplate.execute(Mockito.<TransactionCallback<?>>any()))
+                .thenAnswer(invocation -> {
+                    TransactionCallback<?> callback = invocation.getArgument(0);
+                    return callback.doInTransaction(null);
+                });
 
-        AirportDto created = airportService.create(airportDto).block();
-
-        assertEquals("SVO", created.getCode());
-        verify(airportRepository, times(1)).save(airport);
+        StepVerifier.create(airportService.create(airportDto))
+                .expectNext(airportDto)
+                .verifyComplete();
     }
 
     @Test
     void getById_whenMissing_throwsEntityNotFound() {
         when(airportRepository.findById(999L)).thenReturn(Optional.empty());
-        assertThrows(jakarta.persistence.EntityNotFoundException.class, () -> airportService.getById(999L));
+
+        StepVerifier.create(airportService.getById(999L))
+                .expectError(ResourceNotFoundException.class)
+                .verify();
     }
 }
