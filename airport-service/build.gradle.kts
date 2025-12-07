@@ -40,6 +40,7 @@ dependencies {
 
     implementation("org.springframework.boot:spring-boot-starter-validation")
 
+    testImplementation("io.projectreactor:reactor-test:3.6.8")
     testImplementation("org.springframework.boot:spring-boot-starter-test")
     testImplementation("org.springframework.boot:spring-boot-testcontainers")
     testImplementation("org.testcontainers:junit-jupiter")
