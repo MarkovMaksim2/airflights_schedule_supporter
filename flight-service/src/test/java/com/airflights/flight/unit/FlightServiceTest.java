@@ -1,15 +1,13 @@
 package com.airflights.flight.unit;
 
-import com.airflights.airline.entity.Airline;
-import com.airflights.airline.service.AirlineService;
-import com.airflights.airport.entity.Airport;
-import com.airflights.airport.service.AirportService;
 import com.airflights.flight.dto.FlightDto;
+import com.airflights.flight.dto.RestrictedZoneDto;
 import com.airflights.flight.entity.Flight;
 import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
 import com.airflights.flight.service.FlightService;
-import com.airflights.restrictedzone.entity.RestrictedZone;
+import com.airflights.flight.feign.AirlineVerifier;
+import com.airflights.flight.feign.AirportVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -32,10 +30,10 @@ class FlightServiceTest {
     private FlightMapper flightMapper;
 
     @Mock
-    private AirlineService airlineService;
+    private AirlineVerifier airlineVerifier;
 
     @Mock
-    private AirportService airportService;
+    private AirportVerifier airportVerifier;
 
     @InjectMocks
     private FlightService flightService;
@@ -65,27 +63,26 @@ class FlightServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        Airline airline = new Airline();
-        Airport departureAirport = new Airport();
-        Airport arrivalAirport = new Airport();
-
-        when(flightMapper.toEntity(flightDto, airline, departureAirport, arrivalAirport)).thenReturn(flight);
+        when(flightMapper.toEntity(flightDto)).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
-        when(airlineService.getByIdEntity(flightDto.getAirlineId())).thenReturn(airline);
-        when(airportService.getByIdEntity(flightDto.getDepartureAirportId())).thenReturn(departureAirport);
-        when(airportService.getByIdEntity(flightDto.getArrivalAirportId())).thenReturn(arrivalAirport);
+        doNothing().when(airlineVerifier).ensureAirlineExists(1L);
+        doNothing().when(airportVerifier).ensureAirportExists(1L);
+        doNothing().when(airportVerifier).ensureAirportExists(2L);
 
         FlightDto res = flightService.create(flightDto);
         assertNotNull(res);
         assertEquals(flightDto.getId(), res.getId());
         verify(flightRepository).save(flight);
+        verify(airlineVerifier).ensureAirlineExists(1L);
+        verify(airportVerifier).ensureAirportExists(1L);
+        verify(airportVerifier).ensureAirportExists(2L);
     }
 
     @Test
     void updateFlightsDueToRestriction_updatesAffectedFlights() {
         // prepare a zone that overlaps with flight departure
-        RestrictedZone zone = new RestrictedZone();
+        RestrictedZoneDto zone = new RestrictedZoneDto();
         zone.setStartTime(LocalDateTime.now());
         zone.setEndTime(LocalDateTime.now().plusDays(2));
 
@@ -95,5 +92,6 @@ class FlightServiceTest {
 
         // flightRepository.save called for the affected flight
         verify(flightRepository, atLeastOnce()).save(any(Flight.class));
+        assertEquals("CANCELED", flight.getStatus());
     }
 }

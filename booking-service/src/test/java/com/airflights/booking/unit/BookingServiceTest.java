@@ -5,17 +5,13 @@ import com.airflights.booking.entity.Booking;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import com.airflights.booking.service.BookingService;
-import com.airflights.flight.entity.Flight;
-import com.airflights.flight.service.FlightService;
-import com.airflights.passenger.entity.Passenger;
-import com.airflights.passenger.service.PassengerService;
+import com.airflights.booking.feign.FlightVerifier;
+import com.airflights.booking.feign.PassengerVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-
-import java.time.LocalDateTime;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
@@ -30,35 +26,23 @@ class BookingServiceTest {
     private BookingMapper bookingMapper;
 
     @Mock
-    private PassengerService passengerService;
+    private PassengerVerifier passengerVerifier;
 
     @Mock
-    private FlightService flightService;
+    private FlightVerifier flightVerifier;
 
     @InjectMocks
     private BookingService bookingService;
 
-    private Passenger passenger;
-    private Flight flight;
     private Booking booking;
     private BookingDto bookingDto;
 
     @BeforeEach
     void setUp() {
-        passenger = new Passenger();
-        passenger.setId(1L);
-        passenger.setFirstName("Egor");
-        passenger.setLastName("Aganin");
-
-        flight = new Flight();
-        flight.setId(10L);
-        flight.setStatus("SCHEDULED");
-        flight.setDepartureTime(LocalDateTime.now().plusDays(1));
-
         booking = new Booking();
         booking.setId(100L);
-        booking.setPassenger(passenger);
-        booking.setFlight(flight);
+        booking.setPassengerId(1L);
+        booking.setFlightId(10L);
 
         bookingDto = new BookingDto();
         bookingDto.setId(100L);
@@ -70,20 +54,25 @@ class BookingServiceTest {
     void bookFlight_success() {
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
-        when(passengerService.getByIdEntity(1L)).thenReturn(passenger);
-        when(flightService.getByIdEntity(10L)).thenReturn(flight);
+        doNothing().when(passengerVerifier).ensurePassengerExists(1L);
+        doNothing().when(flightVerifier).ensureFlightExists(10L);
 
         BookingDto created = bookingService.bookFlight(1L, 10L);
 
         assertNotNull(created);
         assertEquals(100L, created.getId());
         verify(bookingRepository).save(any(Booking.class));
+        verify(passengerVerifier).ensurePassengerExists(1L);
+        verify(flightVerifier).ensureFlightExists(10L);
     }
 
     @Test
     void bookFlight_whenPassengerMissing_throws() {
-        when(passengerService.getByIdEntity(1L)).thenThrow(new IllegalArgumentException("Passenger not found"));
+        doThrow(new IllegalArgumentException("Passenger not found")).when(passengerVerifier).ensurePassengerExists(1L);
 
         assertThrows(IllegalArgumentException.class, () -> bookingService.bookFlight(1L, 10L));
+        verify(passengerVerifier).ensurePassengerExists(1L);
+        verify(flightVerifier, never()).ensureFlightExists(anyLong());
+        verify(bookingRepository, never()).save(any(Booking.class));
     }
 }
