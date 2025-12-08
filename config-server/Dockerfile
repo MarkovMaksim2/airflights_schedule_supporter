@@ -19,3 +19,5 @@ WORKDIR /app
 COPY --from=builder /app/build/libs/*.jar app.jar
 
 EXPOSE 9991
+
+ENTRYPOINT ["java", "-jar", "app.jar"]
