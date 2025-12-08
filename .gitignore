@@ -29,6 +29,3 @@ build/
 .vscode/
 bin/
 gradle/
-
-gradlew
-gradlew.bat

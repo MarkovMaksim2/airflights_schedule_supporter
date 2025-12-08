@@ -1,23 +1,26 @@
-FROM gradle:9.1.0-jdk21-alpine AS builder
+FROM gradle:jdk21-ubi9 AS builder
+
+#WORKDIR /app
+
+#COPY . .
+#
+#RUN gradle dependencies --no-daemon
+#
+#RUN gradle clean build -x test --no-daemon
+
+#FROM eclipse-temurin:21-jdk-alpine
 
 WORKDIR /app
 
-COPY build.gradle.kts settings.gradle.kts ./
-# COPY gradle gradle
+COPY . .
 
-RUN gradle dependencies --no-daemon
+#
+#COPY --from=builder /app/build/libs/*.jar app.jar
+#
+#EXPOSE 8761
 
-COPY src src
+RUN gradle build -x test
 
-RUN gradle clean build -x test --no-daemon
+ENTRYPOINT ["java", "-jar", "/app/build/libs/passenger-service-0.0.1.jar"]
 
-
-FROM eclipse-temurin:21-jdk-alpine
-
-WORKDIR /app
-
-COPY --from=builder /app/build/libs/*.jar app.jar
-
-EXPOSE 8085
-
-ENTRYPOINT ["java", "-jar", "app.jar"]
+# ENTRYPOINT ["sh", "-c", "ls -l"]
