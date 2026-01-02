@@ -1,26 +1,17 @@
 FROM gradle:jdk21-ubi9 AS builder
 
-#WORKDIR /app
+WORKDIR /app
+COPY . .
+RUN gradle clean bootJar -x test --no-daemon
 
-#COPY . .
-#
-#RUN gradle dependencies --no-daemon
-#
-#RUN gradle clean build -x test --no-daemon
-
-#FROM eclipse-temurin:21-jdk-alpine
+FROM eclipse-temurin:21-jre
 
 WORKDIR /app
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && useradd -r -u 10001 appuser
+COPY --from=builder /app/build/libs/*.jar /app/app.jar
+USER appuser
 
-COPY . .
-
-#
-#COPY --from=builder /app/build/libs/*.jar app.jar
-#
-#EXPOSE 8761
-
-RUN gradle build -x test
-
-ENTRYPOINT ["java", "-jar", "/app/build/libs/gateway-server-0.0.1.jar"]
-
-# ENTRYPOINT ["sh", "-c", "ls -l"]
+ENTRYPOINT ["java", "-jar", "/app/app.jar"]

@@ -1,16 +1,12 @@
 spring:
   application:
     name: airport-service
-  profiles:
-    active: dev
 
   config:
-    active:
-      on-profile: dev
     import: optional:configserver:http://config-server:9991
   cloud:
     config:
-      profile: dev
+      profile: ${SPRING_CLOUD_CONFIG_PROFILE:${SPRING_PROFILES_ACTIVE:default}}
       request-connect-timeout: 5000
       request-read-timeout: 15000
       retry:

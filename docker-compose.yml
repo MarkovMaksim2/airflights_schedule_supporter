@@ -4,14 +4,14 @@ services:
   postgres:
     image: postgres:15
     environment:
-      POSTGRES_DB: airflights
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-airflights}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     ports: ["5432:5432"]
     volumes:
       - pg-data:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U postgres -d airflights"]
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres} -d ${POSTGRES_DB:-airflights}"]
       interval: 5s
       timeout: 3s
       retries: 20
@@ -26,9 +26,6 @@ services:
     depends_on: [postgres]
     environment:
       SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./eureka-server:/app
-      - gradle-cache:/root/.gradle
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health" ]
       interval: 5s
@@ -45,10 +42,10 @@ services:
       eureka-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
+      SPRING_PROFILES_ACTIVE: native
+      SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:/cfgs
     volumes:
-      - ./config-server:/app
-      - gradle-cache:/root/.gradle
+      - ./cfgs/config-server-main:/cfgs:ro
     healthcheck:
       test: ["CMD-SHELL", "curl -f http://localhost:9991/actuator/health"]
       interval: 5s
@@ -65,10 +62,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./gateway-server:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: gateway-server
 
   # ===== MICROSERVICES =====
@@ -80,10 +79,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./airline-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: airline-service
 
   airport-service:
@@ -94,10 +95,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./airport-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: airport-service
 
   booking-service:
@@ -108,10 +111,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./booking-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: booking-service
 
   flight-service:
@@ -122,10 +127,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./flight-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: flight-service
 
   passenger-service:
@@ -136,10 +143,12 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./passenger-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: passenger-service
 
   restrictedzone-service:
@@ -150,12 +159,13 @@ services:
       config-server:
         condition: service_healthy
     environment:
-      SPRING_PROFILES_ACTIVE: docker
-    volumes:
-      - ./restrictedzone-service:/app
-      - gradle-cache:/root/.gradle
+      SPRING_PROFILES_ACTIVE: dev
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
     container_name: restrictedzone-service
 
 volumes:
   pg-data:
-  gradle-cache:

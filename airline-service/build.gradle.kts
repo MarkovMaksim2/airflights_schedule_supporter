@@ -21,13 +21,11 @@ dependencyManagement {
 dependencies {
     // Reactor Web
     implementation("org.springframework.boot:spring-boot-starter-webflux")
+    implementation("org.springframework.boot:spring-boot-starter-actuator")
 
     // R2DBC (заменяем JPA)
     implementation("org.springframework.boot:spring-boot-starter-data-r2dbc")
     runtimeOnly("org.postgresql:r2dbc-postgresql")
-
-    // Реактивный драйвер для базы данных (важно!)
-    implementation("org.postgresql:r2dbc-postgresql:1.0.7.RELEASE")
 
     // Cloud компоненты
     implementation("org.springframework.cloud:spring-cloud-starter-netflix-eureka-client")

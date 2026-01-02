@@ -25,8 +25,8 @@ public class AirportService {
 
     public Flux<AirportDto> getAll(Pageable pageable) {
         return Mono.fromCallable(() ->
-                        tx.execute( status -> airportRepository.findAll(pageable)
-                                            .map(airportMapper::toDto)
+                        tx.execute(status -> airportRepository.findAll(pageable)
+                                .map(airportMapper::toDto)
                         )
                 )
                 .flatMapMany(pg -> Flux.fromIterable(pg.getContent()))
@@ -37,9 +37,9 @@ public class AirportService {
 
     public Mono<AirportDto> getById(Long id) {
         return Mono.fromCallable(() ->
-                            airportRepository.findById(id)
-                                    .orElseThrow(() -> new ResourceNotFoundException("Airport not found: " + id))
-                        )
+                        airportRepository.findById(id)
+                                .orElseThrow(() -> new ResourceNotFoundException("Airport not found: " + id))
+                )
                 .map(airportMapper::toDto)
                 .subscribeOn(Schedulers.boundedElastic())
                 .doOnSuccess(a -> log.debug("Found airport {}: {}", id, a))
@@ -102,11 +102,11 @@ public class AirportService {
 
     public Mono<AirportDto> findByCode(String code) {
         return Mono.fromCallable(() ->
-                            airportRepository.findByCode(code)
-                                    .orElseThrow(() ->
-                                            new ResourceNotFoundException("Airport not found with code: " + code))
+                        airportRepository.findByCode(code)
+                                .orElseThrow(() ->
+                                        new ResourceNotFoundException("Airport not found with code: " + code))
 
-                        )
+                )
                 .map(airportMapper::toDto)
                 .subscribeOn(Schedulers.boundedElastic());
     }

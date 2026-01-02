@@ -44,8 +44,8 @@
 Сервисы взаимодействуют друг с другом с использованием Feign Clients с интегрированным Circuit Breaker для обеспечения отказоустойчивости.
 
 ### Реактивное программирование
-- **Airport Service** реализует реактивное программирование с использованием Reactor и R2DBC для неблокирующих операций с базой данных
-- **Airline Service** использует реактивное программирование с Reactor и Spring Data JPA для улучшенной масштабируемости
+- **Airline Service** реализует реактивное программирование с использованием Reactor и R2DBC для неблокирующих операций с базой данных
+- Остальные сервисы используют Spring MVC + JPA
 
 ### Хранение данных
 - Традиционные сервисы используют Spring Data JPA с PostgreSQL
@@ -54,7 +54,7 @@
 ## Требования
 
 - Docker и Docker Compose
-- Java 17+
+- Java 21+
 - Gradle
 
 ## Запуск приложения
@@ -114,7 +114,7 @@ airflights_schedule_supporter/
 ├── flight-service/           # Расписание и управление рейсами
 ├── gateway-server/           # API шлюз
 ├── passenger-service/        # Управление пассажирами
-├── restrictedZone-service/   # Управление зонами ограничения полетов
+├── restrictedzone-service/   # Управление зонами ограничения полетов
 ├── docker-compose.yml        # Оркестрация Docker
 └── README.md                 # Этот файл
 ```
@@ -154,5 +154,4 @@ airflights_schedule_supporter/
 1. Перейдите в директорию сервиса
 2. Запустите сервис напрямую: `./gradlew bootRun`
 3. Или импортируйте в вашу IDE как Gradle проект
-
 
