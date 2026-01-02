@@ -1,6 +1,7 @@
 package com.airflights.flight.exception;
 
 import jakarta.persistence.EntityNotFoundException;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.FieldError;
@@ -17,6 +18,7 @@ import java.util.Map;
  * Возвращает человеко-читаемые ошибки в едином формате JSON.
  */
 @ControllerAdvice
+@Slf4j
 public class RestExceptionHandler {
 
     @ExceptionHandler(ResourceNotFoundException.class)
@@ -50,9 +52,15 @@ public class RestExceptionHandler {
         return buildResponse(HttpStatus.BAD_REQUEST, ex.getMessage());
     }
 
+    @ExceptionHandler(RemoteServiceUnavailableException.class)
+    public ResponseEntity<Object> handleRemoteUnavailable(RemoteServiceUnavailableException ex) {
+        return buildResponse(HttpStatus.SERVICE_UNAVAILABLE, ex.getMessage());
+    }
+
     @ExceptionHandler(Exception.class)
     public ResponseEntity<Object> handleGeneric(Exception ex) {
-        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "Unexpected error: " + ex.getMessage());
+        log.error("Unhandled exception", ex);
+        return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR);
     }
 
     private ResponseEntity<Object> buildResponse(HttpStatus status, String message) {
@@ -61,6 +69,14 @@ public class RestExceptionHandler {
         body.put("status", status.value());
         body.put("error", status.getReasonPhrase());
         body.put("message", message);
+        return new ResponseEntity<>(body, status);
+    }
+
+    private ResponseEntity<Object> buildResponse(HttpStatus status) {
+        Map<String, Object> body = new HashMap<>();
+        body.put("timestamp", LocalDateTime.now());
+        body.put("status", status.value());
+        body.put("error", status.getReasonPhrase());
         return new ResponseEntity<>(body, status);
     }
 }
