@@ -54,8 +54,12 @@ public class FlightController {
         @ApiResponse(responseCode = "201", description = "Flight created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
     })
-    public ResponseEntity<FlightDto> create(@Valid @RequestBody FlightDto dto) {
-        FlightDto created = flightService.create(dto);
+    public ResponseEntity<FlightDto> create(
+            @Valid @RequestBody FlightDto dto,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        FlightDto created = flightService.create(dto, roles, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -66,8 +70,13 @@ public class FlightController {
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
         @ApiResponse(responseCode = "404", description = "Flight not found"),
     })
-    public ResponseEntity<FlightDto> update(@PathVariable Long id, @Valid @RequestBody FlightDto dto) {
-        return ResponseEntity.ok(flightService.update(id, dto));
+    public ResponseEntity<FlightDto> update(
+            @PathVariable Long id,
+            @Valid @RequestBody FlightDto dto,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        return ResponseEntity.ok(flightService.update(id, dto, roles, userEmail));
     }
 
     @DeleteMapping("/{id}")
@@ -76,8 +85,12 @@ public class FlightController {
         @ApiResponse(responseCode = "204", description = "Flight deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Flight not found"),
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        flightService.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        flightService.delete(id, roles, userEmail);
         return ResponseEntity.noContent().build();
     }
 
@@ -100,5 +113,44 @@ public class FlightController {
     public ResponseEntity<Void> updateDueToRestriction(@Valid @RequestBody RestrictedZoneDto dto) {
         flightService.updateFlightsDueToRestriction(dto);
         return  ResponseEntity.noContent().build();
+    }
+
+    @PatchMapping("/{id}/approve")
+    @Operation(summary = "Approve flight", description = "Approve flight by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Flight approved successfully"),
+        @ApiResponse(responseCode = "404", description = "Flight not found"),
+    })
+    public ResponseEntity<FlightDto> approve(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        return ResponseEntity.ok(flightService.approve(id, userEmail));
+    }
+
+    @PatchMapping("/{id}/depart")
+    @Operation(summary = "Depart flight", description = "Mark flight as departed by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Flight departed successfully"),
+        @ApiResponse(responseCode = "404", description = "Flight not found"),
+    })
+    public ResponseEntity<FlightDto> depart(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        return ResponseEntity.ok(flightService.depart(id, userEmail));
+    }
+
+    @PatchMapping("/{id}/arrive")
+    @Operation(summary = "Arrive flight", description = "Mark flight as arrived by its ID")
+    @ApiResponses(value = {
+        @ApiResponse(responseCode = "200", description = "Flight arrived successfully"),
+        @ApiResponse(responseCode = "404", description = "Flight not found"),
+    })
+    public ResponseEntity<FlightDto> arrive(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        return ResponseEntity.ok(flightService.arrive(id, userEmail));
     }
 }

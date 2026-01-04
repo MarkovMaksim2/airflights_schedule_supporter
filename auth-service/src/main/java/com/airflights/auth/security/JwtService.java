@@ -38,13 +38,15 @@ public class JwtService {
         Instant now = Instant.now();
         Instant expiration = now.plusMillis(expirationMs);
 
-        return Jwts.builder()
+        var builder = Jwts.builder()
                 .subject(userDetails.getUsername())
                 .claim("roles", roles)
                 .issuedAt(Date.from(now))
-                .expiration(Date.from(expiration))
-                .signWith(getSigningKey())
-                .compact();
+                .expiration(Date.from(expiration));
+        if (userDetails instanceof UserPrincipal principal && principal.getEmail() != null) {
+            builder.claim("email", principal.getEmail());
+        }
+        return builder.signWith(getSigningKey()).compact();
     }
 
     public String extractUsername(String token) {

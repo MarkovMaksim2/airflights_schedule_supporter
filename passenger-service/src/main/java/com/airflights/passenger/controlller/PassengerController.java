@@ -13,7 +13,9 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.server.ResponseStatusException;
 import org.springframework.web.bind.annotation.*;
+import java.util.Arrays;
 
 @RestController
 @RequestMapping("/api/passengers")
@@ -46,15 +48,42 @@ public class PassengerController {
         return ResponseEntity.ok(passengerService.getById(id));
     }
 
+    @GetMapping("/by-email")
+    @Operation(summary = "Get passenger by email", description = "Retrieve a specific passenger by its email")
+    public ResponseEntity<PassengerDto> getByEmail(@RequestParam String email) {
+        return ResponseEntity.ok(passengerService.getByEmail(email));
+    }
+
     @PostMapping
     @Operation(summary = "Create a new passenger", description = "Create a new passenger with the provided details")
     @ApiResponses(value = {
         @ApiResponse(responseCode = "201", description = "Passenger created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
     })
-    public ResponseEntity<PassengerDto> create(@Valid @RequestBody PassengerDto dto) {
+    public ResponseEntity<PassengerDto> create(
+            @Valid @RequestBody PassengerDto dto,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String rolesHeader,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        if (hasPassengerRole(rolesHeader)) {
+            if (userEmail == null || userEmail.isBlank()) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
+            }
+            if (!userEmail.equalsIgnoreCase(dto.getEmail())) {
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
+            }
+        }
         PassengerDto created = passengerService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
+    }
+
+    private boolean hasPassengerRole(String rolesHeader) {
+        if (rolesHeader == null || rolesHeader.isBlank()) {
+            return false;
+        }
+        return Arrays.stream(rolesHeader.split(","))
+                .map(String::trim)
+                .anyMatch(value -> value.equals("ROLE_PASSENGER"));
     }
 
     @PutMapping("/{id}")

@@ -31,11 +31,15 @@ public class BookingController {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved list"),
         @ApiResponse(responseCode = "400", description = "Invalid pagination parameters"),
     })
-    public ResponseEntity<Page<BookingDto>> getAll(@ParameterObject Pageable pageable) {
+    public ResponseEntity<Page<BookingDto>> getAll(
+            @ParameterObject Pageable pageable,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
         if (pageable.getPageSize() > 50) {
             throw new IllegalArgumentException("Page size cannot exceed 50. Maximum allowed is 50, but received: " + pageable.getPageSize());
         }
-        Page<BookingDto> page = bookingService.getAll(pageable);
+        Page<BookingDto> page = bookingService.getAll(pageable, roles, userEmail);
 
         HttpHeaders headers = new HttpHeaders();
         headers.add("X-Total-Count", String.valueOf(page.getTotalElements()));
@@ -49,8 +53,12 @@ public class BookingController {
         @ApiResponse(responseCode = "200", description = "Successfully retrieved booking"),
         @ApiResponse(responseCode = "404", description = "Booking not found"),
     })
-    public ResponseEntity<BookingDto> getById(@PathVariable Long id) {
-        return ResponseEntity.ok(bookingService.getById(id));
+    public ResponseEntity<BookingDto> getById(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        return ResponseEntity.ok(bookingService.getById(id, roles, userEmail));
     }
 
     @PostMapping
@@ -59,8 +67,12 @@ public class BookingController {
         @ApiResponse(responseCode = "201", description = "Booking created successfully"),
         @ApiResponse(responseCode = "400", description = "Invalid input data"),
     })
-    public ResponseEntity<BookingDto> create(@Valid @RequestBody BookingDto dto) {
-        BookingDto created = bookingService.create(dto);
+    public ResponseEntity<BookingDto> create(
+            @Valid @RequestBody BookingDto dto,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        BookingDto created = bookingService.create(dto, roles, userEmail);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -70,8 +82,12 @@ public class BookingController {
         @ApiResponse(responseCode = "204", description = "Booking deleted successfully"),
         @ApiResponse(responseCode = "404", description = "Booking not found"),
     })
-    public ResponseEntity<Void> delete(@PathVariable Long id) {
-        bookingService.delete(id);
+    public ResponseEntity<Void> delete(
+            @PathVariable Long id,
+            @RequestHeader(value = "X-Auth-Roles", required = false) String roles,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        bookingService.delete(id, roles, userEmail);
         return ResponseEntity.noContent().build();
     }
 }

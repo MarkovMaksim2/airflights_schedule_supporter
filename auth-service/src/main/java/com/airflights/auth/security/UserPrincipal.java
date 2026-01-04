@@ -13,12 +13,14 @@ public class UserPrincipal implements UserDetails {
 
     private final Long id;
     private final String username;
+    private final String email;
     private final String password;
     private final Set<Role> roles;
 
     public UserPrincipal(User user) {
         this.id = user.getId();
         this.username = user.getUsername();
+        this.email = user.getEmail();
         this.password = user.getPasswordHash();
         this.roles = user.getRoles();
     }
@@ -38,6 +40,10 @@ public class UserPrincipal implements UserDetails {
     @Override
     public String getUsername() {
         return username;
+    }
+
+    public String getEmail() {
+        return email;
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.airflights.flight.feign;
 
+import com.airflights.flight.dto.AirlineDto;
 import com.airflights.flight.exception.ResourceNotFoundException;
 import com.airflights.flight.exception.RemoteServiceUnavailableException;
 import feign.FeignException;
@@ -20,11 +21,17 @@ public class AirlineVerifier {
 
     @CircuitBreaker(name = "airlineClient", fallbackMethod = "remoteUnavailable")
     public void ensureAirlineExists(Long airlineId) {
+        getAirline(airlineId);
+    }
+
+    @CircuitBreaker(name = "airlineClient", fallbackMethod = "remoteUnavailableAirline")
+    public AirlineDto getAirline(Long airlineId) {
         try {
-            ResponseEntity<Void> resp = airlineClient.airlineExists(airlineId);
-            if (resp == null || !resp.getStatusCode().is2xxSuccessful()) {
+            ResponseEntity<AirlineDto> resp = airlineClient.getAirline(airlineId);
+            if (resp == null || !resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
                 throw new ResourceNotFoundException("Airline not found: " + airlineId);
             }
+            return resp.getBody();
         } catch (FeignException.NotFound e) {
             throw new ResourceNotFoundException("Airline not found: " + airlineId);
         }
@@ -47,6 +54,26 @@ public class AirlineVerifier {
     }
 
     private void remoteUnavailable(Long id, UnknownHostException ex) {
+        throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
+    }
+
+    private AirlineDto remoteUnavailableAirline(Long id, CallNotPermittedException ex) {
+        throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
+    }
+
+    private AirlineDto remoteUnavailableAirline(Long id, RetryableException ex) {
+        throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
+    }
+
+    private AirlineDto remoteUnavailableAirline(Long id, ConnectException ex) {
+        throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
+    }
+
+    private AirlineDto remoteUnavailableAirline(Long id, SocketTimeoutException ex) {
+        throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
+    }
+
+    private AirlineDto remoteUnavailableAirline(Long id, UnknownHostException ex) {
         throw new RemoteServiceUnavailableException("airline-service unavailable", ex);
     }
 }

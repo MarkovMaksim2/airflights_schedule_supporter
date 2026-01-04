@@ -1,5 +1,6 @@
 package com.airflights.booking.feign;
 
+import com.airflights.booking.dto.PassengerSummary;
 import com.airflights.booking.exception.ResourceNotFoundException;
 import com.airflights.booking.exception.RemoteServiceUnavailableException;
 import feign.FeignException;
@@ -30,6 +31,19 @@ public class PassengerVerifier {
         }
     }
 
+    @CircuitBreaker(name = "passengerClient", fallbackMethod = "remoteUnavailableByEmail")
+    public PassengerSummary getPassengerByEmail(String email) {
+        try {
+            ResponseEntity<PassengerSummary> resp = passengerClient.getByEmail(email);
+            if (resp == null || !resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
+                throw new ResourceNotFoundException("Passenger not found: " + email);
+            }
+            return resp.getBody();
+        } catch (FeignException.NotFound e) {
+            throw new ResourceNotFoundException("Passenger not found: " + email);
+        }
+    }
+
     private void remoteUnavailable(Long id, CallNotPermittedException ex) {
         throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
     }
@@ -47,6 +61,26 @@ public class PassengerVerifier {
     }
 
     private void remoteUnavailable(Long id, UnknownHostException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableByEmail(String email, CallNotPermittedException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableByEmail(String email, RetryableException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableByEmail(String email, ConnectException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableByEmail(String email, SocketTimeoutException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableByEmail(String email, UnknownHostException ex) {
         throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
     }
 }

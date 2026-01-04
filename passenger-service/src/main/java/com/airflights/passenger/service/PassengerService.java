@@ -19,6 +19,7 @@ public class PassengerService {
 
     private final PassengerRepository passengerRepository;
     private final PassengerMapper passengerMapper;
+    private static final String PASSENGER_NOT_FOUND = "Passenger not found";
 
     public Page<PassengerDto> getAll(Pageable pageable) {
         return passengerRepository.findAll(pageable)
@@ -41,13 +42,19 @@ public class PassengerService {
 
     public PassengerDto getById(Long id) {
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException(PASSENGER_NOT_FOUND));
+        return passengerMapper.toDto(passenger);
+    }
+
+    public PassengerDto getByEmail(String email) {
+        Passenger passenger = passengerRepository.findByEmail(email)
+                .orElseThrow(() -> new EntityNotFoundException(PASSENGER_NOT_FOUND));
         return passengerMapper.toDto(passenger);
     }
 
     public Passenger getByIdEntity(Long id) {
         return passengerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException(PASSENGER_NOT_FOUND));
     }
 
     @Transactional
@@ -58,7 +65,7 @@ public class PassengerService {
     @Transactional
     public PassengerDto update(Long id, @Valid PassengerDto dto) {
         Passenger passenger = passengerRepository.findById(id)
-                .orElseThrow(() -> new EntityNotFoundException("Passenger not found"));
+                .orElseThrow(() -> new EntityNotFoundException(PASSENGER_NOT_FOUND));
         passenger.setFirstName(dto.getFirstName());
         passenger.setLastName(dto.getLastName());
         passenger.setPassportNumber(dto.getPassportNumber());

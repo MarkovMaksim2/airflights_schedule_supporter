@@ -29,6 +29,11 @@ public class JwtService {
                     .parseSignedClaims(token)
                     .getPayload();
             String username = claims.getSubject();
+            String email = null;
+            Object emailClaim = claims.get("email");
+            if (emailClaim != null) {
+                email = emailClaim.toString();
+            }
             Object rolesClaim = claims.get("roles");
             List<SimpleGrantedAuthority> authorities = List.of();
             if (rolesClaim instanceof List<?> list) {
@@ -37,7 +42,11 @@ public class JwtService {
                         .map(SimpleGrantedAuthority::new)
                         .toList();
             }
-            return new UsernamePasswordAuthenticationToken(username, token, authorities);
+            return new UsernamePasswordAuthenticationToken(
+                    new AuthenticatedUser(username, email),
+                    token,
+                    authorities
+            );
         } catch (Exception ex) {
             return null;
         }

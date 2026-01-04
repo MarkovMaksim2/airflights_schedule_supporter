@@ -38,7 +38,7 @@ public class UserService implements UserDetailsService {
         Set<Role> roles = request.getRoles();
         if (roles == null || roles.isEmpty()) {
             roles = new HashSet<>();
-            roles.add(Role.USER);
+            roles.add(Role.PASSENGER);
         }
 
         User user = new User();
