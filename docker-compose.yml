@@ -22,10 +22,11 @@ services:
     build:
       context: ./eureka-server
       dockerfile: Dockerfile
-    ports: ["8761:8761"]
+    ports: ["8761:8761", "5005:5005"]
     depends_on: [postgres]
     environment:
       SPRING_PROFILES_ACTIVE: docker
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5005
     healthcheck:
       test: [ "CMD-SHELL", "curl -f http://localhost:8761/actuator/health" ]
       interval: 5s
@@ -37,13 +38,14 @@ services:
     build:
       context: ./config-server
       dockerfile: Dockerfile
-    ports: ["9991:9991"]
+    ports: ["9991:9991", "5006:5006"]
     depends_on:
       eureka-server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: native
       SPRING_CLOUD_CONFIG_SERVER_NATIVE_SEARCH_LOCATIONS: file:/cfgs
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5006
     volumes:
       - ./cfgs/config-server-main:/cfgs:ro
     healthcheck:
@@ -57,17 +59,13 @@ services:
     build:
       context: ./gateway-server
       dockerfile: Dockerfile
-    ports: ["8080:8080"]
+    ports: ["8080:8080", "5007:5007"]
     depends_on:
       config-server:
         condition: service_healthy
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5007
     container_name: gateway-server
 
   # ===== MICROSERVICES =====
@@ -78,13 +76,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: ["5008:5008"]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5008
     container_name: airline-service
 
   airport-service:
@@ -94,13 +89,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: ["5009:5009"]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5009
     container_name: airport-service
 
   booking-service:
@@ -110,13 +102,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: [ "5010:5010" ]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5010
     container_name: booking-service
 
   flight-service:
@@ -126,13 +115,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: [ "5011:5011" ]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5011
     container_name: flight-service
 
   passenger-service:
@@ -142,13 +128,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: [ "5012:5012" ]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5012
     container_name: passenger-service
 
   restrictedzone-service:
@@ -158,13 +141,10 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: [ "5013:5013" ]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5013
     container_name: restrictedzone-service
 
   auth-service:
@@ -174,14 +154,28 @@ services:
     depends_on:
       config-server:
         condition: service_healthy
+    ports: [ "5014:5014" ]
     environment:
       SPRING_PROFILES_ACTIVE: dev
-    healthcheck:
-      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health"]
-      interval: 5s
-      timeout: 3s
-      retries: 20
+      AUTH_BOOTSTRAP_USERNAME: admin
+      AUTH_BOOTSTRAP_EMAIL: admin@itmo.ru
+      AUTH_BOOTSTRAP_PASSWORD: 1234
+      JAVA_TOOL_OPTIONS: -agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:5014
     container_name: auth-service
 
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: pgadmin
+    restart: unless-stopped
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
 volumes:
   pg-data:
+  pgadmin_data:

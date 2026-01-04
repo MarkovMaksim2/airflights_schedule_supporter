@@ -6,26 +6,33 @@ import org.springframework.security.config.web.server.SecurityWebFiltersOrder;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.ReactiveSecurityContextHolder;
+import org.springframework.security.core.context.SecurityContext;
 import org.springframework.stereotype.Component;
 import org.springframework.web.server.ServerWebExchange;
 import org.springframework.web.server.WebFilter;
 import org.springframework.web.server.WebFilterChain;
+import org.springframework.core.Ordered;
 import reactor.core.publisher.Mono;
 
 @Component
-@Order(9)
-public class AuthHeaderWebFilter implements WebFilter {
+public class AuthHeaderWebFilter implements WebFilter, Ordered {
 
     public static final String HEADER_USER = "X-Auth-User";
     public static final String HEADER_EMAIL = "X-Auth-Email";
     public static final String HEADER_ROLES = "X-Auth-Roles";
 
     @Override
+    public int getOrder() {
+        return SecurityWebFiltersOrder.AUTHENTICATION.getOrder() + 1;
+    }
+
+    @Override
     public Mono<Void> filter(ServerWebExchange exchange, WebFilterChain chain) {
         return ReactiveSecurityContextHolder.getContext()
-                .map(context -> context.getAuthentication())
-                .defaultIfEmpty(null)
-                .flatMap(authentication -> applyHeaders(exchange, chain, authentication));
+                .map(SecurityContext::getAuthentication)
+                .filter(auth -> auth != null && auth.isAuthenticated())
+                .flatMap(auth -> applyHeaders(exchange, chain, auth))
+                .switchIfEmpty(chain.filter(exchange));
     }
 
     private Mono<Void> applyHeaders(
