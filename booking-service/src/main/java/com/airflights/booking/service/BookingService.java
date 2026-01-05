@@ -60,10 +60,7 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
         if (hasRole(rolesHeader)) {
-            Long passengerId = resolvePassengerIdForUser(userEmail, booking.getPassengerId());
-            if (!booking.getPassengerId().equals(passengerId)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Booking access denied");
-            }
+            resolvePassengerIdForUser(userEmail, booking.getPassengerId());
         }
         bookingRepository.delete(booking);
     }
@@ -81,10 +78,7 @@ public class BookingService {
         Booking booking = bookingRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Booking not found"));
         if (hasRole(rolesHeader)) {
-            Long passengerId = resolvePassengerIdForUser(userEmail, booking.getPassengerId());
-            if (!booking.getPassengerId().equals(passengerId)) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Booking access denied");
-            }
+            resolvePassengerIdForUser(userEmail, booking.getPassengerId());
         }
         return bookingMapper.toDto(booking);
     }

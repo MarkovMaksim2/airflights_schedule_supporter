@@ -75,4 +75,15 @@ class BookingServiceTest {
         verify(flightVerifier, never()).ensureFlightExists(anyLong());
         verify(bookingRepository, never()).save(any(Booking.class));
     }
+
+    @Test
+    void bookFlight_whenFlightMissing_throws() {
+        doNothing().when(passengerVerifier).ensurePassengerExists(1L);
+        doThrow(new IllegalArgumentException("Flight not found")).when(flightVerifier).ensureFlightExists(10L);
+
+        assertThrows(IllegalArgumentException.class, () -> bookingService.bookFlight(1L, 10L));
+        verify(passengerVerifier).ensurePassengerExists(1L);
+        verify(flightVerifier).ensureFlightExists(10L);
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
 }

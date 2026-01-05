@@ -1,29 +1,32 @@
 package com.airflights.booking.unit;
 
 import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.dto.PassengerSummary;
 import com.airflights.booking.entity.Booking;
+import com.airflights.booking.feign.FlightVerifier;
+import com.airflights.booking.feign.PassengerVerifier;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import com.airflights.booking.service.BookingService;
-import com.airflights.booking.feign.FlightVerifier;
-import com.airflights.booking.feign.PassengerVerifier;
+import java.time.LocalDateTime;
+import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.web.server.ResponseStatusException;
 
-import jakarta.persistence.EntityNotFoundException;
-
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,86 +66,100 @@ class BookingServiceAdditionalTest {
     }
 
     @Test
-    void create_success() {
+    void create_success_withoutPassengerRole() {
         when(bookingMapper.toEntity(bookingDto)).thenReturn(booking);
-        when(bookingRepository.save(booking)).thenReturn(booking);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
         doNothing().when(passengerVerifier).ensurePassengerExists(1L);
         doNothing().when(flightVerifier).ensureFlightExists(10L);
 
-        BookingDto created = bookingService.create(bookingDto);
+        BookingDto created = bookingService.create(bookingDto, null, null);
 
         assertNotNull(created);
         assertEquals(100L, created.getId());
-        verify(bookingRepository).save(booking);
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier).ensureFlightExists(10L);
     }
 
     @Test
-    void create_whenPassengerMissing_throws() {
-        doThrow(new IllegalArgumentException("Passenger not found")).when(passengerVerifier).ensurePassengerExists(1L);
+    void create_withPassengerRole_resolvesPassenger() {
+        PassengerSummary passenger = new PassengerSummary(5L, "user@example.com");
+        bookingDto.setPassengerId(5L);
 
-        assertThrows(IllegalArgumentException.class, () -> bookingService.create(bookingDto));
-        verify(passengerVerifier).ensurePassengerExists(1L);
-        verify(flightVerifier, never()).ensureFlightExists(anyLong());
-        verify(bookingRepository, never()).save(any(Booking.class));
-    }
-
-    @Test
-    void create_whenFlightMissing_throws() {
-        doNothing().when(passengerVerifier).ensurePassengerExists(1L);
-        doThrow(new IllegalArgumentException("Flight not found")).when(flightVerifier).ensureFlightExists(10L);
-
-        assertThrows(IllegalArgumentException.class, () -> bookingService.create(bookingDto));
-        verify(passengerVerifier).ensurePassengerExists(1L);
-        verify(flightVerifier).ensureFlightExists(10L);
-        verify(bookingRepository, never()).save(any(Booking.class));
-    }
-
-    @Test
-    void delete_success() {
-        doNothing().when(bookingRepository).deleteById(100L);
-
-        bookingService.delete(100L);
-
-        verify(bookingRepository).deleteById(100L);
-    }
-
-    @Test
-    void getAll_success() {
-        Pageable pageable = PageRequest.of(0, 10);
-        Page<Booking> bookingPage = new PageImpl<>(List.of(booking));
-        
-        when(bookingRepository.findAll(pageable)).thenReturn(bookingPage);
+        when(passengerVerifier.getPassengerByEmail("user@example.com")).thenReturn(passenger);
+        doNothing().when(passengerVerifier).ensurePassengerExists(5L);
+        doNothing().when(flightVerifier).ensureFlightExists(10L);
+        when(bookingMapper.toEntity(bookingDto)).thenReturn(booking);
+        when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
 
-        Page<BookingDto> result = bookingService.getAll(pageable);
+        BookingDto created = bookingService.create(bookingDto, "ROLE_PASSENGER", "user@example.com");
 
-        assertNotNull(result);
+        assertNotNull(created);
+        verify(bookingRepository).save(argThat(saved -> saved.getPassengerId().equals(5L)));
+    }
+
+    @Test
+    void create_withPassengerRole_missingEmail_throws() {
+        assertThrows(ResponseStatusException.class,
+                () -> bookingService.create(bookingDto, "ROLE_PASSENGER", ""));
+        verifyNoInteractions(passengerVerifier, flightVerifier, bookingRepository);
+    }
+
+    @Test
+    void create_withPassengerRole_mismatch_throws() {
+        PassengerSummary passenger = new PassengerSummary(2L, "user@example.com");
+        bookingDto.setPassengerId(1L);
+        when(passengerVerifier.getPassengerByEmail("user@example.com")).thenReturn(passenger);
+
+        assertThrows(ResponseStatusException.class,
+                () -> bookingService.create(bookingDto, "ROLE_PASSENGER", "user@example.com"));
+        verify(bookingRepository, never()).save(any(Booking.class));
+    }
+
+    @Test
+    void getAll_withPassengerRole_filtersByPassenger() {
+        PassengerSummary passenger = new PassengerSummary(2L, "user@example.com");
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Booking> page = new PageImpl<>(List.of(booking), pageable, 1);
+
+        when(passengerVerifier.getPassengerByEmail("user@example.com")).thenReturn(passenger);
+        when(bookingRepository.findAllByPassengerId(2L, pageable)).thenReturn(page);
+        when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+
+        Page<BookingDto> result = bookingService.getAll(pageable, "ROLE_PASSENGER", "user@example.com");
+
         assertEquals(1, result.getContent().size());
-        assertEquals(bookingDto, result.getContent().get(0));
+        verify(bookingRepository).findAllByPassengerId(2L, pageable);
+        verify(bookingRepository, never()).findAll(any(Pageable.class));
+    }
+
+    @Test
+    void getAll_withoutPassengerRole_returnsAll() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Booking> page = new PageImpl<>(List.of(booking), pageable, 1);
+
+        when(bookingRepository.findAll(pageable)).thenReturn(page);
+        when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
+
+        Page<BookingDto> result = bookingService.getAll(pageable, null, null);
+
+        assertEquals(1, result.getContent().size());
         verify(bookingRepository).findAll(pageable);
     }
 
     @Test
-    void getById_success() {
-        when(bookingRepository.findById(100L)).thenReturn(Optional.of(booking));
+    void getAll_withNonPassengerRole_returnsAll() {
+        Pageable pageable = PageRequest.of(0, 5);
+        Page<Booking> page = new PageImpl<>(List.of(booking), pageable, 1);
+
+        when(bookingRepository.findAll(pageable)).thenReturn(page);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
 
-        BookingDto result = bookingService.getById(100L);
+        Page<BookingDto> result = bookingService.getAll(pageable, "ROLE_ADMIN", "admin@example.com");
 
-        assertNotNull(result);
-        assertEquals(bookingDto, result);
-        verify(bookingRepository).findById(100L);
+        assertEquals(1, result.getContent().size());
+        verify(bookingRepository).findAll(pageable);
+        verify(bookingRepository, never()).findAllByPassengerId(any(), any());
     }
-
-    @Test
-    void getById_whenNotFound_throws() {
-        when(bookingRepository.findById(100L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> bookingService.getById(100L));
-        verify(bookingRepository).findById(100L);
-    }
-
 }

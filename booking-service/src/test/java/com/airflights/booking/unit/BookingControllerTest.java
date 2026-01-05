@@ -46,60 +46,61 @@ class BookingControllerTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<BookingDto> page = new PageImpl<>(List.of(bookingDto));
 
-        when(bookingService.getAll(pageable)).thenReturn(page);
+        when(bookingService.getAll(pageable, null, null)).thenReturn(page);
 
-        ResponseEntity<Page<BookingDto>> response = bookingController.getAll(pageable);
+        ResponseEntity<Page<BookingDto>> response = bookingController.getAll(pageable, null, null);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1, response.getBody().getContent().size());
         assertEquals(1L, response.getBody().getContent().get(0).getId());
-        verify(bookingService).getAll(pageable);
+        assertEquals("1", response.getHeaders().getFirst("X-Total-Count"));
+        verify(bookingService).getAll(pageable, null, null);
     }
 
     @Test
     void getAll_withLargePageSize_throws() {
         Pageable pageable = PageRequest.of(0, 100); // больше 50
 
-        assertThrows(IllegalArgumentException.class, () -> bookingController.getAll(pageable));
-        verify(bookingService, never()).getAll(any());
+        assertThrows(IllegalArgumentException.class, () -> bookingController.getAll(pageable, null, null));
+        verify(bookingService, never()).getAll(any(), any(), any());
     }
 
     @Test
     void getById_success() {
-        when(bookingService.getById(1L)).thenReturn(bookingDto);
+        when(bookingService.getById(1L, null, null)).thenReturn(bookingDto);
 
-        ResponseEntity<BookingDto> response = bookingController.getById(1L);
+        ResponseEntity<BookingDto> response = bookingController.getById(1L, null, null);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(bookingService).getById(1L);
+        verify(bookingService).getById(1L, null, null);
     }
 
     @Test
     void create_success() {
-        when(bookingService.create(bookingDto)).thenReturn(bookingDto);
+        when(bookingService.create(bookingDto, null, null)).thenReturn(bookingDto);
 
-        ResponseEntity<BookingDto> response = bookingController.create(bookingDto);
+        ResponseEntity<BookingDto> response = bookingController.create(bookingDto, null, null);
 
         assertNotNull(response);
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(bookingService).create(bookingDto);
+        verify(bookingService).create(bookingDto, null, null);
     }
 
     @Test
     void delete_success() {
-        doNothing().when(bookingService).delete(1L);
+        doNothing().when(bookingService).delete(1L, null, null);
 
-        ResponseEntity<Void> response = bookingController.delete(1L);
+        ResponseEntity<Void> response = bookingController.delete(1L, null, null);
 
         assertNotNull(response);
         assertEquals(204, response.getStatusCode().value());
-        verify(bookingService).delete(1L);
+        verify(bookingService).delete(1L, null, null);
     }
 }
