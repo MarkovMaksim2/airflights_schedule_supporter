@@ -55,6 +55,7 @@ class PassengerServiceTest {
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
         when(passengerRepository.existsByPassportNumber(passengerDto.getPassportNumber())).thenReturn(false);
+        when(passengerRepository.existsByEmail(passengerDto.getEmail())).thenReturn(false);
         // when(bookingRepository.findAllByPassenger_Id(passengerDto.getId())).thenReturn(Optional.of(new ArrayList<>()));
 
         PassengerDto created = passengerService.create(passengerDto);
@@ -89,5 +90,25 @@ class PassengerServiceTest {
     void delete_callsRepository() {
         passengerService.delete(1L);
         verify(passengerRepository, times(1)).deleteById(1L);
+    }
+
+    @Test
+    void getByEmail_whenExists_returnsDto() {
+        when(passengerRepository.findByEmail("ivan@example.com")).thenReturn(Optional.of(passenger));
+        when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
+
+        PassengerDto found = passengerService.getByEmail("ivan@example.com");
+
+        assertNotNull(found);
+        assertEquals("ivan@example.com", found.getEmail());
+        verify(passengerRepository).findByEmail("ivan@example.com");
+    }
+
+    @Test
+    void getByEmail_whenNotFound_throws() {
+        when(passengerRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
+
+        assertThrows(EntityNotFoundException.class,
+                () -> passengerService.getByEmail("missing@example.com"));
     }
 }

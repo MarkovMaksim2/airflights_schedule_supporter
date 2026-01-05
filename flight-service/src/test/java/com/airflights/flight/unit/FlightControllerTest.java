@@ -85,39 +85,39 @@ class FlightControllerTest {
 
     @Test
     void create_success() {
-        when(flightService.create(flightDto)).thenReturn(flightDto);
+        when(flightService.create(flightDto, null, null)).thenReturn(flightDto);
 
-        ResponseEntity<FlightDto> response = flightController.create(flightDto);
+        ResponseEntity<FlightDto> response = flightController.create(flightDto, null, null);
 
         assertNotNull(response);
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(flightService).create(flightDto);
+        verify(flightService).create(flightDto, null, null);
     }
 
     @Test
     void update_success() {
-        when(flightService.update(1L, flightDto)).thenReturn(flightDto);
+        when(flightService.update(1L, flightDto, null, null)).thenReturn(flightDto);
 
-        ResponseEntity<FlightDto> response = flightController.update(1L, flightDto);
+        ResponseEntity<FlightDto> response = flightController.update(1L, flightDto, null, null);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(flightService).update(1L, flightDto);
+        verify(flightService).update(1L, flightDto, null, null);
     }
 
     @Test
     void delete_success() {
-        doNothing().when(flightService).delete(1L);
+        doNothing().when(flightService).delete(1L, null, null);
 
-        ResponseEntity<Void> response = flightController.delete(1L);
+        ResponseEntity<Void> response = flightController.delete(1L, null, null);
 
         assertNotNull(response);
         assertEquals(204, response.getStatusCode().value());
-        verify(flightService).delete(1L);
+        verify(flightService).delete(1L, null, null);
     }
 
     @Test
@@ -147,5 +147,41 @@ class FlightControllerTest {
         assertNotNull(response);
         assertEquals(204, response.getStatusCode().value());
         verify(flightService).updateFlightsDueToRestriction(zoneDto);
+    }
+
+    @Test
+    void approve_success() {
+        when(flightService.approve(1L, "manager@example.com")).thenReturn(flightDto);
+
+        ResponseEntity<FlightDto> response = flightController.approve(1L, "manager@example.com");
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        verify(flightService).approve(1L, "manager@example.com");
+    }
+
+    @Test
+    void depart_success() {
+        when(flightService.depart(1L, "manager@example.com")).thenReturn(flightDto);
+
+        ResponseEntity<FlightDto> response = flightController.depart(1L, "manager@example.com");
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        verify(flightService).depart(1L, "manager@example.com");
+    }
+
+    @Test
+    void arrive_success() {
+        when(flightService.arrive(1L, "manager@example.com")).thenReturn(flightDto);
+
+        ResponseEntity<FlightDto> response = flightController.arrive(1L, "manager@example.com");
+
+        assertNotNull(response);
+        assertEquals(200, response.getStatusCode().value());
+        assertNotNull(response.getBody());
+        verify(flightService).arrive(1L, "manager@example.com");
     }
 }

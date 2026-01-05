@@ -7,6 +7,7 @@ import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
 import com.airflights.flight.service.FlightService;
 import com.airflights.flight.feign.AirlineVerifier;
+import com.airflights.flight.feign.AirportManagerVerifier;
 import com.airflights.flight.feign.AirportVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -34,6 +35,9 @@ class FlightServiceTest {
 
     @Mock
     private AirportVerifier airportVerifier;
+
+    @Mock
+    private AirportManagerVerifier airportManagerVerifier;
 
     @InjectMocks
     private FlightService flightService;
@@ -70,9 +74,11 @@ class FlightServiceTest {
         doNothing().when(airportVerifier).ensureAirportExists(1L);
         doNothing().when(airportVerifier).ensureAirportExists(2L);
 
-        FlightDto res = flightService.create(flightDto);
+        flightDto.setStatus("");
+        FlightDto res = flightService.create(flightDto, null, null);
         assertNotNull(res);
         assertEquals(flightDto.getId(), res.getId());
+        assertEquals("WAITING_APPROVAL", flightDto.getStatus());
         verify(flightRepository).save(flight);
         verify(airlineVerifier).ensureAirlineExists(1L);
         verify(airportVerifier).ensureAirportExists(1L);

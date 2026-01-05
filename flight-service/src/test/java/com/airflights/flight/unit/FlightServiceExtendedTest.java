@@ -7,6 +7,7 @@ import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
 import com.airflights.flight.service.FlightService;
 import com.airflights.flight.feign.AirlineVerifier;
+import com.airflights.flight.feign.AirportManagerVerifier;
 import com.airflights.flight.feign.AirportVerifier;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -40,6 +41,9 @@ class FlightServiceExtendedTest {
 
     @Mock
     private AirportVerifier airportVerifier;
+
+    @Mock
+    private AirportManagerVerifier airportManagerVerifier;
 
     @InjectMocks
     private FlightService flightService;
@@ -91,7 +95,7 @@ class FlightServiceExtendedTest {
         doNothing().when(airportVerifier).ensureAirportExists(1L);
         doNothing().when(airportVerifier).ensureAirportExists(2L);
 
-        FlightDto res = flightService.create(flightDto);
+        FlightDto res = flightService.create(flightDto, null, null);
         assertNotNull(res);
         assertEquals(flightDto.getId(), res.getId());
         verify(flightRepository).save(flight);
@@ -104,7 +108,7 @@ class FlightServiceExtendedTest {
     void create_whenAirlineMissing_throws() {
         doThrow(new IllegalArgumentException("Airline not found")).when(airlineVerifier).ensureAirlineExists(1L);
 
-        assertThrows(IllegalArgumentException.class, () -> flightService.create(flightDto));
+        assertThrows(IllegalArgumentException.class, () -> flightService.create(flightDto, null, null));
         verify(airlineVerifier).ensureAirlineExists(1L);
         verify(airportVerifier, never()).ensureAirportExists(anyLong());
         verify(flightRepository, never()).save(any(Flight.class));
@@ -115,7 +119,7 @@ class FlightServiceExtendedTest {
         doNothing().when(airlineVerifier).ensureAirlineExists(1L);
         doThrow(new IllegalArgumentException("Airport not found")).when(airportVerifier).ensureAirportExists(1L);
 
-        assertThrows(IllegalArgumentException.class, () -> flightService.create(flightDto));
+        assertThrows(IllegalArgumentException.class, () -> flightService.create(flightDto, null, null));
         verify(airlineVerifier).ensureAirlineExists(1L);
         verify(airportVerifier).ensureAirportExists(1L);
         verify(airportVerifier, never()).ensureAirportExists(2L);
@@ -147,7 +151,7 @@ class FlightServiceExtendedTest {
         doNothing().when(airportVerifier).ensureAirportExists(1L);
         doNothing().when(airportVerifier).ensureAirportExists(2L);
 
-        FlightDto result = flightService.update(1L, flightDto);
+        FlightDto result = flightService.update(1L, flightDto, null, null);
 
         assertNotNull(result);
         assertEquals(1L, result.getId());
@@ -162,7 +166,7 @@ class FlightServiceExtendedTest {
     void update_whenFlightNotFound_throws() {
         when(flightRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> flightService.update(1L, flightDto));
+        assertThrows(EntityNotFoundException.class, () -> flightService.update(1L, flightDto, null, null));
         verify(flightRepository).findById(1L);
         verify(flightRepository, never()).save(any(Flight.class));
         verify(airlineVerifier, never()).ensureAirlineExists(anyLong());
@@ -191,11 +195,11 @@ class FlightServiceExtendedTest {
 
     @Test
     void delete_success() {
-        doNothing().when(flightRepository).deleteById(1L);
+        when(flightRepository.findById(1L)).thenReturn(Optional.of(flight));
 
-        flightService.delete(1L);
+        flightService.delete(1L, null, null);
 
-        verify(flightRepository).deleteById(1L);
+        verify(flightRepository).delete(flight);
     }
 
     @Test
