@@ -55,7 +55,7 @@ public class RestExceptionHandler {
 
     @ExceptionHandler(ResponseStatusException.class)
     public ResponseEntity<Object> handleResponseStatus(ResponseStatusException ex) {
-        return buildResponse(HttpStatus.valueOf(ex.getStatusCode().value()), ex.getMessage());
+        throw ex;
     }
 
     @ExceptionHandler(Exception.class)

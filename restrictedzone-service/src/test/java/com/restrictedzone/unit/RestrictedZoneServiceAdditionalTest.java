@@ -1,27 +1,28 @@
 package com.restrictedzone.unit;
 
-import com.airflights.flight.dto.RestrictedZoneDto;
-import com.airflights.flight.service.FlightService;
+import com.airflights.restrictedzone.dto.RestrictedZoneDto;
 import com.airflights.restrictedzone.entity.RestrictedZone;
 import com.airflights.restrictedzone.mapper.RestrictedZoneMapper;
 import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
 import com.airflights.restrictedzone.service.RestrictedZoneService;
 import jakarta.persistence.EntityNotFoundException;
+import java.time.LocalDateTime;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 
-import java.time.LocalDateTime;
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
@@ -32,9 +33,6 @@ class RestrictedZoneServiceAdditionalTest {
 
     @Mock
     private RestrictedZoneMapper restrictedZoneMapper;
-
-    @Mock
-    private FlightService flightService;
 
     @InjectMocks
     private RestrictedZoneService restrictedZoneService;
@@ -59,7 +57,6 @@ class RestrictedZoneServiceAdditionalTest {
 
     @Test
     void create_whenRegionAlreadyExists_throws() {
-        when(dto.getRegion()).thenReturn("region-1");
         when(restrictedZoneRepository.existsByRegion("region-1")).thenReturn(true);
 
         assertThrows(IllegalArgumentException.class, () -> restrictedZoneService.create(dto));

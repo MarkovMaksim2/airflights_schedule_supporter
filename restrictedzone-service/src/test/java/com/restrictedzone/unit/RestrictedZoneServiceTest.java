@@ -1,21 +1,21 @@
 package com.restrictedzone.unit;
 
-import com.airflights.flight.service.FlightService;
-import com.airflights.flight.dto.RestrictedZoneDto;
+import com.airflights.restrictedzone.dto.RestrictedZoneDto;
 import com.airflights.restrictedzone.entity.RestrictedZone;
 import com.airflights.restrictedzone.mapper.RestrictedZoneMapper;
 import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
 import com.airflights.restrictedzone.service.RestrictedZoneService;
+import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
-import java.time.LocalDateTime;
-
-import static org.mockito.Mockito.*;
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 class RestrictedZoneServiceTest {
@@ -25,9 +25,6 @@ class RestrictedZoneServiceTest {
 
     @Mock
     private RestrictedZoneMapper restrictedZoneMapper;
-
-    @Mock
-    private FlightService flightService;
 
     @InjectMocks
     private RestrictedZoneService restrictedZoneService;
@@ -51,7 +48,7 @@ class RestrictedZoneServiceTest {
     }
 
     @Test
-    void create_shouldSaveAndUpdateFlights() {
+    void create_shouldSave() {
         when(restrictedZoneMapper.toEntity(dto)).thenReturn(zone);
         when(restrictedZoneRepository.save(zone)).thenReturn(zone);
         when(restrictedZoneMapper.toDto(zone)).thenReturn(dto);
@@ -59,7 +56,6 @@ class RestrictedZoneServiceTest {
         RestrictedZoneDto saved = restrictedZoneService.create(dto);
 
         assertNotNull(saved);
-        verify(restrictedZoneRepository, times(1)).save(zone);
-        verify(flightService, times(1)).updateFlightsDueToRestriction(zone);
+        verify(restrictedZoneRepository).save(zone);
     }
 }
