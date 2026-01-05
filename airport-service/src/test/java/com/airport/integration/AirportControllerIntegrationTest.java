@@ -7,8 +7,11 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
+import org.springframework.test.web.servlet.MvcResult;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @ActiveProfiles("test")
@@ -31,9 +34,13 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/airports")
+        MvcResult result = mockMvc.perform(post("/api/airports")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isCreated());
     }
 
@@ -47,14 +54,22 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(post("/api/airports")
+        MvcResult created = mockMvc.perform(post("/api/airports")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(created))
                 .andExpect(status().isCreated());
 
-        mockMvc.perform(post("/api/airports")
+        MvcResult duplicate = mockMvc.perform(post("/api/airports")
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(duplicate))
                 .andExpect(status().isBadRequest());
     }
 
@@ -66,7 +81,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
         airport.setName("Los Angeles International Airport");
         airportRepository.save(airport);
 
-        mockMvc.perform(get("/api/airports"))
+        MvcResult result = mockMvc.perform(get("/api/airports"))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isOk());
     }
 
@@ -78,7 +97,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
         airport.setName("John F. Kennedy International Airport");
         Airport saved = airportRepository.save(airport);
 
-        mockMvc.perform(get("/api/airports/" + saved.getId()))
+        MvcResult result = mockMvc.perform(get("/api/airports/" + saved.getId()))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isOk());
     }
 
@@ -98,9 +121,13 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
                 }
                 """;
 
-        mockMvc.perform(put("/api/airports/" + saved.getId())
+        MvcResult result = mockMvc.perform(put("/api/airports/" + saved.getId())
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isOk());
     }
 
@@ -112,7 +139,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
         airport.setName("Dallas/Fort Worth International Airport");
         Airport saved = airportRepository.save(airport);
 
-        mockMvc.perform(delete("/api/airports/" + saved.getId()))
+        MvcResult result = mockMvc.perform(delete("/api/airports/" + saved.getId()))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc.perform(asyncDispatch(result))
                 .andExpect(status().isOk());
     }
 }
