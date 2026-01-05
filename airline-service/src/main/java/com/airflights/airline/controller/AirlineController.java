@@ -25,11 +25,6 @@ public class AirlineController {
     @Operation(summary = "Get all airlines")
     @ResponseStatus(HttpStatus.OK)
     public Flux<AirlineDto> getAll(@ParameterObject Pageable pageable) {
-        if (pageable.getPageSize() > 50) {
-            return Flux.error(new IllegalArgumentException(
-                    "Page size cannot exceed 50. Maximum allowed is 50, but received: " + pageable.getPageSize()
-            ));
-        }
         return airlineService.getAll(pageable);
     }
 
