@@ -205,11 +205,12 @@ services:
 
   # ===== KAFKA (KRaft, 3 brokers) =====
   kafka-1:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka:3.7.1-debian-12-r9
     container_name: kafka-1
     ports:
       - "9092:9094"
     environment:
+      KAFKA_KRAFT_CLUSTER_ID: qCTS2dxvQyG4y9He75UH9g
       KAFKA_CFG_NODE_ID: 1
       KAFKA_CFG_PROCESS_ROLES: controller,broker
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -218,16 +219,17 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_CFG_MIN_INSYNC_REPLICAS: 2
     volumes:
-      - kafka1_data:/bitnami/kafka
+      - kafka1_data:/bitnamilegacy/kafka
 
   kafka-2:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka:3.7.1-debian-12-r9
     container_name: kafka-2
     environment:
+      KAFKA_KRAFT_CLUSTER_ID: qCTS2dxvQyG4y9He75UH9g
       KAFKA_CFG_NODE_ID: 2
       KAFKA_CFG_PROCESS_ROLES: controller,broker
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -236,16 +238,17 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_CFG_MIN_INSYNC_REPLICAS: 2
     volumes:
-      - kafka2_data:/bitnami/kafka
+      - kafka2_data:/bitnamilegacy/kafka
 
   kafka-3:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka:3.7.1-debian-12-r9
     container_name: kafka-3
     environment:
+      KAFKA_KRAFT_CLUSTER_ID: qCTS2dxvQyG4y9He75UH9g
       KAFKA_CFG_NODE_ID: 3
       KAFKA_CFG_PROCESS_ROLES: controller,broker
       KAFKA_CFG_CONTROLLER_QUORUM_VOTERS: 1@kafka-1:9093,2@kafka-2:9093,3@kafka-3:9093
@@ -254,14 +257,14 @@ services:
       KAFKA_CFG_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,CONTROLLER:PLAINTEXT
       KAFKA_CFG_CONTROLLER_LISTENER_NAMES: CONTROLLER
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
-      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "false"
+      KAFKA_CFG_AUTO_CREATE_TOPICS_ENABLE: "true"
       KAFKA_CFG_DEFAULT_REPLICATION_FACTOR: 3
       KAFKA_CFG_MIN_INSYNC_REPLICAS: 2
     volumes:
-      - kafka3_data:/bitnami/kafka
+      - kafka3_data:/bitnamilegacy/kafka
 
   kafka-init:
-    image: bitnami/kafka:3.7
+    image: bitnamilegacy/kafka:3.7.1-debian-12-r9
     container_name: kafka-init
     depends_on:
       - kafka-1
@@ -269,21 +272,21 @@ services:
       - kafka-3
     entrypoint: ["/bin/bash", "-c"]
     command: >
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic booking.events &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic flight.events &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic file.events &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic notification.commands &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic booking.events.dlq &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic flight.events.dlq &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic file.events.dlq &&
-      kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
+      /opt/bitnami/kafka/bin/kafka-topics.sh --bootstrap-server kafka-1:9092 --create --if-not-exists
       --replication-factor 3 --partitions 3 --topic notification.commands.dlq
     restart: "no"
 
@@ -293,7 +296,7 @@ services:
     container_name: minio
     ports:
       - "9000:9000"
-      - "9001:9001"
+      - "9003:9001"
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
