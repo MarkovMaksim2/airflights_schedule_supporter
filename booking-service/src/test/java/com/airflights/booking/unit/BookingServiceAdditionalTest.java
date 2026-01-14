@@ -8,11 +8,14 @@ import com.airflights.booking.feign.PassengerVerifier;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import com.airflights.booking.service.BookingService;
+import com.airflights.booking.domain.event.BookingCreatedEvent;
+import com.airflights.booking.domain.port.BookingEventPublisher;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
@@ -44,6 +47,9 @@ class BookingServiceAdditionalTest {
     @Mock
     private FlightVerifier flightVerifier;
 
+    @Mock
+    private BookingEventPublisher bookingEventPublisher;
+
     @InjectMocks
     private BookingService bookingService;
 
@@ -72,6 +78,7 @@ class BookingServiceAdditionalTest {
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
         doNothing().when(passengerVerifier).ensurePassengerExists(1L);
         doNothing().when(flightVerifier).ensureFlightExists(10L);
+        when(passengerVerifier.getPassengerById(1L)).thenReturn(new PassengerSummary(1L, "user@example.com"));
 
         BookingDto created = bookingService.create(bookingDto, null, null);
 
@@ -79,6 +86,9 @@ class BookingServiceAdditionalTest {
         assertEquals(100L, created.getId());
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier).ensureFlightExists(10L);
+        ArgumentCaptor<BookingCreatedEvent> eventCaptor = ArgumentCaptor.forClass(BookingCreatedEvent.class);
+        verify(bookingEventPublisher).publishBookingCreated(eventCaptor.capture());
+        assertEquals("user@example.com", eventCaptor.getValue().passengerEmail());
     }
 
     @Test
@@ -97,6 +107,10 @@ class BookingServiceAdditionalTest {
 
         assertNotNull(created);
         verify(bookingRepository).save(argThat(saved -> saved.getPassengerId().equals(5L)));
+        verify(passengerVerifier, never()).getPassengerById(anyLong());
+        ArgumentCaptor<BookingCreatedEvent> eventCaptor = ArgumentCaptor.forClass(BookingCreatedEvent.class);
+        verify(bookingEventPublisher).publishBookingCreated(eventCaptor.capture());
+        assertEquals("user@example.com", eventCaptor.getValue().passengerEmail());
     }
 
     @Test
@@ -104,6 +118,7 @@ class BookingServiceAdditionalTest {
         assertThrows(ResponseStatusException.class,
                 () -> bookingService.create(bookingDto, "ROLE_PASSENGER", ""));
         verifyNoInteractions(passengerVerifier, flightVerifier, bookingRepository);
+        verifyNoInteractions(bookingEventPublisher);
     }
 
     @Test
@@ -115,6 +130,7 @@ class BookingServiceAdditionalTest {
         assertThrows(ResponseStatusException.class,
                 () -> bookingService.create(bookingDto, "ROLE_PASSENGER", "user@example.com"));
         verify(bookingRepository, never()).save(any(Booking.class));
+        verifyNoInteractions(bookingEventPublisher);
     }
 
     @Test

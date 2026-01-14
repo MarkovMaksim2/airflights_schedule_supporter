@@ -8,6 +8,7 @@ import com.airflights.booking.feign.PassengerVerifier;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import com.airflights.booking.service.BookingService;
+import com.airflights.booking.domain.port.BookingEventPublisher;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -39,6 +40,9 @@ class BookingServiceExtendedTest {
 
     @Mock
     private PassengerVerifier passengerVerifier;
+
+    @Mock
+    private BookingEventPublisher bookingEventPublisher;
 
     @InjectMocks
     private BookingService bookingService;

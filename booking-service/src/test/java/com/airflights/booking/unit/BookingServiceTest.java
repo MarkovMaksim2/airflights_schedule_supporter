@@ -1,12 +1,14 @@
 package com.airflights.booking.unit;
 
 import com.airflights.booking.dto.BookingDto;
+import com.airflights.booking.dto.PassengerSummary;
 import com.airflights.booking.entity.Booking;
 import com.airflights.booking.mapper.BookingMapper;
 import com.airflights.booking.repository.BookingRepository;
 import com.airflights.booking.service.BookingService;
 import com.airflights.booking.feign.FlightVerifier;
 import com.airflights.booking.feign.PassengerVerifier;
+import com.airflights.booking.domain.port.BookingEventPublisher;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -30,6 +32,9 @@ class BookingServiceTest {
 
     @Mock
     private FlightVerifier flightVerifier;
+
+    @Mock
+    private BookingEventPublisher bookingEventPublisher;
 
     @InjectMocks
     private BookingService bookingService;
@@ -56,6 +61,7 @@ class BookingServiceTest {
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
         doNothing().when(passengerVerifier).ensurePassengerExists(1L);
         doNothing().when(flightVerifier).ensureFlightExists(10L);
+        when(passengerVerifier.getPassengerById(1L)).thenReturn(new PassengerSummary(1L, "user@example.com"));
 
         BookingDto created = bookingService.bookFlight(1L, 10L);
 
@@ -64,6 +70,10 @@ class BookingServiceTest {
         verify(bookingRepository).save(any(Booking.class));
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier).ensureFlightExists(10L);
+        ArgumentCaptor<com.airflights.booking.domain.event.BookingCreatedEvent> eventCaptor =
+                ArgumentCaptor.forClass(com.airflights.booking.domain.event.BookingCreatedEvent.class);
+        verify(bookingEventPublisher).publishBookingCreated(eventCaptor.capture());
+        assertEquals("user@example.com", eventCaptor.getValue().passengerEmail());
     }
 
     @Test
@@ -74,6 +84,7 @@ class BookingServiceTest {
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier, never()).ensureFlightExists(anyLong());
         verify(bookingRepository, never()).save(any(Booking.class));
+        verifyNoInteractions(bookingEventPublisher);
     }
 
     @Test
@@ -85,5 +96,6 @@ class BookingServiceTest {
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier).ensureFlightExists(10L);
         verify(bookingRepository, never()).save(any(Booking.class));
+        verifyNoInteractions(bookingEventPublisher);
     }
 }

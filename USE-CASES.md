@@ -213,3 +213,128 @@ PATCH /api/flights/update-due-to-restriction
   "end_time": "2025-01-01T12:00:00"
 }
 ```
+
+## 15) Passenger: upload file (File Service + S3)
+
+POST /api/files
+Headers:
+- Authorization: Bearer <PASSENGER_TOKEN>
+- X-Auth-Email: passenger@example.com
+- Content-Type: multipart/form-data
+
+Form field:
+- file: <binary>
+
+Response (metadata):
+```json
+{
+  "fileId": "9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a",
+  "ownerId": "passenger@example.com",
+  "bucket": "airflights-files",
+  "objectKey": "user-uploads/passenger@example.com/9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a/passport.pdf",
+  "contentType": "application/pdf",
+  "sizeBytes": 483920,
+  "createdAt": "2025-01-01T12:00:00"
+}
+```
+
+## 16) Passenger: download file
+
+GET /api/files/{id}
+Headers:
+- Authorization: Bearer <PASSENGER_TOKEN>
+
+Response: binary stream with Content-Type and Content-Length.
+
+## 17) Passenger: get file metadata
+
+GET /api/files/{id}/meta
+Headers:
+- Authorization: Bearer <PASSENGER_TOKEN>
+
+Response:
+```json
+{
+  "fileId": "9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a",
+  "ownerId": "passenger@example.com",
+  "bucket": "airflights-files",
+  "objectKey": "user-uploads/passenger@example.com/9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a/passport.pdf",
+  "contentType": "application/pdf",
+  "sizeBytes": 483920,
+  "createdAt": "2025-01-01T12:00:00"
+}
+```
+
+## 18) Passenger: delete file
+
+DELETE /api/files/{id}
+Headers:
+- Authorization: Bearer <PASSENGER_TOKEN>
+
+Response: 204 No Content.
+
+## 19) Domain events (Kafka)
+
+### 19.1 Booking events
+Topic: booking.events
+
+BookingCreated payload:
+```json
+{
+  "eventId": "evt-1",
+  "bookingId": 1,
+  "passengerId": 1,
+  "flightId": 10,
+  "bookingTime": "2025-01-01T10:00:00",
+  "passengerEmail": "passenger@example.com"
+}
+```
+
+### 19.2 File events
+Topic: file.events
+
+FileUploaded payload:
+```json
+{
+  "eventId": "evt-2",
+  "eventType": "FileUploaded",
+  "fileId": "9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a",
+  "ownerId": "passenger@example.com",
+  "bucket": "airflights-files",
+  "objectKey": "user-uploads/passenger@example.com/9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a/passport.pdf",
+  "contentType": "application/pdf",
+  "sizeBytes": 483920
+}
+```
+
+FileUploadFailed payload:
+```json
+{
+  "eventId": "evt-3",
+  "eventType": "FileUploadFailed",
+  "fileId": "9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a",
+  "ownerId": "passenger@example.com",
+  "bucket": "airflights-files",
+  "objectKey": "user-uploads/passenger@example.com/9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a/passport.pdf",
+  "contentType": "application/pdf",
+  "sizeBytes": 483920,
+  "reason": "S3 down"
+}
+```
+
+FileDeleted payload:
+```json
+{
+  "eventId": "evt-4",
+  "eventType": "FileDeleted",
+  "fileId": "9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a",
+  "ownerId": "passenger@example.com",
+  "bucket": "airflights-files",
+  "objectKey": "user-uploads/passenger@example.com/9b7f5d9d-2b75-4a46-bc8d-2b7f1f79ed2a/passport.pdf"
+}
+```
+
+## 20) Notifications (internal)
+
+Notification Service subscribes to booking.events and file.events and stores notifications in its DB.
+There is no public REST API for notifications in this MVP.

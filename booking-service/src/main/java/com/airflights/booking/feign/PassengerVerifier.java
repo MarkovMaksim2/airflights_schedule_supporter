@@ -22,12 +22,25 @@ public class PassengerVerifier {
     @CircuitBreaker(name = "passengerClient", fallbackMethod = "remoteUnavailable")
     public void ensurePassengerExists(Long flightId) {
         try {
-            ResponseEntity<Void> resp = passengerClient.passengerExists(flightId);
-            if (resp == null || !resp.getStatusCode().is2xxSuccessful()) {
+            ResponseEntity<PassengerSummary> resp = passengerClient.getById(flightId);
+            if (resp == null || !resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
                 throw new ResourceNotFoundException("Passenger not found: " + flightId);
             }
         } catch (FeignException.NotFound e) {
             throw new ResourceNotFoundException("Passenger not found: " + flightId);
+        }
+    }
+
+    @CircuitBreaker(name = "passengerClient", fallbackMethod = "remoteUnavailableById")
+    public PassengerSummary getPassengerById(Long id) {
+        try {
+            ResponseEntity<PassengerSummary> resp = passengerClient.getById(id);
+            if (resp == null || !resp.getStatusCode().is2xxSuccessful() || resp.getBody() == null) {
+                throw new ResourceNotFoundException("Passenger not found: " + id);
+            }
+            return resp.getBody();
+        } catch (FeignException.NotFound e) {
+            throw new ResourceNotFoundException("Passenger not found: " + id);
         }
     }
 
@@ -81,6 +94,26 @@ public class PassengerVerifier {
     }
 
     private PassengerSummary remoteUnavailableByEmail(String email, UnknownHostException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableById(Long id, CallNotPermittedException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableById(Long id, RetryableException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableById(Long id, ConnectException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableById(Long id, SocketTimeoutException ex) {
+        throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
+    }
+
+    private PassengerSummary remoteUnavailableById(Long id, UnknownHostException ex) {
         throw new RemoteServiceUnavailableException("passenger-service unavailable", ex);
     }
 }

@@ -10,7 +10,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 @FeignClient(name = "passenger-service", path = "/api/passengers")
 public interface PassengerClient {
     @GetMapping("/{id}")
-    ResponseEntity<Void> passengerExists(@PathVariable("id") Long id);
+    ResponseEntity<PassengerSummary> getById(@PathVariable("id") Long id);
 
     @GetMapping("/by-email")
     ResponseEntity<PassengerSummary> getByEmail(@RequestParam("email") String email);

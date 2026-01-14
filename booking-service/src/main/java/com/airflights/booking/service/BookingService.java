@@ -2,6 +2,8 @@ package com.airflights.booking.service;
 
 import com.airflights.booking.dto.BookingDto;
 import com.airflights.booking.dto.PassengerSummary;
+import com.airflights.booking.domain.event.BookingCreatedEvent;
+import com.airflights.booking.domain.port.BookingEventPublisher;
 import com.airflights.booking.entity.Booking;
 import com.airflights.booking.feign.FlightVerifier;
 import com.airflights.booking.feign.PassengerVerifier;
@@ -19,6 +21,7 @@ import org.springframework.web.server.ResponseStatusException;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -28,6 +31,7 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final FlightVerifier flightVerifier;
     private final PassengerVerifier passengerVerifier;
+    private final BookingEventPublisher bookingEventPublisher;
 
     @Transactional
     public BookingDto bookFlight(Long passengerId, Long flightId) {
@@ -37,7 +41,9 @@ public class BookingService {
         booking.setPassengerId(passengerId);
         booking.setFlightId(flightId);
         booking.setBookingTime(LocalDateTime.now());
-        return bookingMapper.toDto(bookingRepository.save(booking));
+        Booking saved = bookingRepository.save(booking);
+        publishBookingCreated(saved, resolvePassengerEmail(passengerId, null, null));
+        return bookingMapper.toDto(saved);
     }
 
     @Transactional
@@ -52,7 +58,10 @@ public class BookingService {
         Booking booking = bookingMapper.toEntity(dto);
         booking.setPassengerId(passengerId);
         booking.setBookingTime(LocalDateTime.now());
-        return bookingMapper.toDto(bookingRepository.save(booking));
+        Booking saved = bookingRepository.save(booking);
+        String passengerEmail = resolvePassengerEmail(passengerId, userEmail, rolesHeader);
+        publishBookingCreated(saved, passengerEmail);
+        return bookingMapper.toDto(saved);
     }
 
     @Transactional
@@ -96,6 +105,26 @@ public class BookingService {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger mismatch");
         }
         return passenger.getId();
+    }
+
+    private String resolvePassengerEmail(Long passengerId, String userEmail, String rolesHeader) {
+        if (hasRole(rolesHeader) && userEmail != null && !userEmail.isBlank()) {
+            return userEmail;
+        }
+        PassengerSummary passenger = passengerVerifier.getPassengerById(passengerId);
+        return passenger.getEmail();
+    }
+
+    private void publishBookingCreated(Booking booking, String passengerEmail) {
+        BookingCreatedEvent event = new BookingCreatedEvent(
+                UUID.randomUUID().toString(),
+                booking.getId(),
+                booking.getPassengerId(),
+                booking.getFlightId(),
+                booking.getBookingTime(),
+                passengerEmail
+        );
+        bookingEventPublisher.publishBookingCreated(event);
     }
 
     private boolean hasRole(String rolesHeader) {

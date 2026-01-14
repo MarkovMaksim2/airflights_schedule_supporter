@@ -73,6 +73,7 @@ public class PassengerController {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
             }
         }
+        dto.setEmail(userEmail);
         PassengerDto created = passengerService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
