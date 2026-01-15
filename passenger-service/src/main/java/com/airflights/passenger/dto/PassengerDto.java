@@ -1,7 +1,7 @@
 package com.airflights.passenger.dto;
 
-import com.fasterxml.jackson.annotation.JsonAlias;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import com.fasterxml.jackson.annotation.JsonAlias;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import lombok.AllArgsConstructor;
@@ -28,9 +28,7 @@ public class PassengerDto {
     private String lastName;
 
     @Email
-    @NotBlank
     @Schema(accessMode = Schema.AccessMode.READ_ONLY)
-    @JsonAlias("email")
     @JsonProperty(value = "email", access = JsonProperty.Access.READ_ONLY)
     private String email;
 

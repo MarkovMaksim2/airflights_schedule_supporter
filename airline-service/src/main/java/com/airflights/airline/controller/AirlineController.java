@@ -46,6 +46,7 @@ public class AirlineController {
         if (userEmail == null || userEmail.isBlank()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
         }
+        dto.setContactEmail(userEmail);
 
         return airlineService.create(dto);
     }
