@@ -5,13 +5,15 @@ import com.airflights.flight.dto.FlightDto;
 import com.airflights.flight.dto.RestrictedZoneDto;
 import com.airflights.flight.entity.Flight;
 import com.airflights.flight.feign.AirlineVerifier;
-import com.airflights.flight.feign.AirportManagerVerifier;
 import com.airflights.flight.feign.AirportVerifier;
+import com.airflights.flight.messaging.dto.FlightAction;
+import com.airflights.flight.messaging.dto.FlightActionRequestedEvent;
 import com.airflights.flight.mapper.FlightMapper;
 import com.airflights.flight.repository.FlightRepository;
 import jakarta.persistence.EntityNotFoundException;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -23,6 +25,7 @@ import org.springframework.web.server.ResponseStatusException;
 import java.util.List;
 import java.util.Arrays;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class FlightService {
@@ -39,7 +42,6 @@ public class FlightService {
     private final FlightMapper flightMapper;
     private final AirlineVerifier airlineVerifier;
     private final AirportVerifier airportVerifier;
-    private final AirportManagerVerifier airportManagerVerifier;
 
     public Page<FlightDto> getAll(Pageable pageable) {
         return flightRepository.findAll(pageable)
@@ -117,19 +119,34 @@ public class FlightService {
     }
 
     @Transactional
-    public FlightDto approve(Long id, String userEmail) {
+    public void applyAirportAction(FlightActionRequestedEvent event) {
+        if (event == null) {
+            throw new IllegalArgumentException("Flight action event is required");
+        }
+        if (event.flightId() == null || event.airportId() == null || event.action() == null) {
+            throw new IllegalArgumentException("Flight action event is missing required fields");
+        }
+        FlightAction action = parseAction(event.action());
+        switch (action) {
+            case APPROVE -> approveByAirport(event.flightId(), event.airportId());
+            case DEPART -> departByAirport(event.flightId(), event.airportId());
+            case ARRIVE -> arriveByAirport(event.flightId(), event.airportId());
+        }
+        log.info("Applied flight action {} for flight {}", action, event.flightId());
+    }
+
+    @Transactional
+    public FlightDto approveByAirport(Long id, Long airportId) {
         Flight flight = flightRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(FLIGHT_NOT_FOUND));
-        Long airportId = resolveAirportIdForUser(userEmail);
         applyApprovalStatus(flight, airportId);
         return flightMapper.toDto(flightRepository.save(flight));
     }
 
     @Transactional
-    public FlightDto depart(Long id, String userEmail) {
+    public FlightDto departByAirport(Long id, Long airportId) {
         Flight flight = flightRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(FLIGHT_NOT_FOUND));
-        Long airportId = resolveAirportIdForUser(userEmail);
         if (!flight.getDepartureAirportId().equals(airportId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Departure airport mismatch");
         }
@@ -141,10 +158,9 @@ public class FlightService {
     }
 
     @Transactional
-    public FlightDto arrive(Long id, String userEmail) {
+    public FlightDto arriveByAirport(Long id, Long airportId) {
         Flight flight = flightRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException(FLIGHT_NOT_FOUND));
-        Long airportId = resolveAirportIdForUser(userEmail);
         if (!flight.getArrivalAirportId().equals(airportId)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Arrival airport mismatch");
         }
@@ -208,13 +224,6 @@ public class FlightService {
         throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Flight not eligible for approval");
     }
 
-    private Long resolveAirportIdForUser(String userEmail) {
-        if (userEmail == null || userEmail.isBlank()) {
-            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
-        }
-        return airportManagerVerifier.getAirportIdByEmail(userEmail);
-    }
-
     private boolean hasRole(String rolesHeader) {
         if (rolesHeader == null || rolesHeader.isBlank()) {
             return false;
@@ -222,5 +231,13 @@ public class FlightService {
         return Arrays.stream(rolesHeader.split(","))
                 .map(String::trim)
                 .anyMatch(value -> value.equals("ROLE_AIRLINE_COMPANY"));
+    }
+
+    private FlightAction parseAction(String action) {
+        try {
+            return FlightAction.valueOf(action);
+        } catch (IllegalArgumentException ex) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Unknown flight action: " + action, ex);
+        }
     }
 }

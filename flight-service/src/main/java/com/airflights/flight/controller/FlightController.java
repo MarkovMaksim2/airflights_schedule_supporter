@@ -115,42 +115,5 @@ public class FlightController {
         return  ResponseEntity.noContent().build();
     }
 
-    @PatchMapping("/{id}/approve")
-    @Operation(summary = "Approve flight", description = "Approve flight by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Flight approved successfully"),
-        @ApiResponse(responseCode = "404", description = "Flight not found"),
-    })
-    public ResponseEntity<FlightDto> approve(
-            @PathVariable Long id,
-            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
-    ) {
-        return ResponseEntity.ok(flightService.approve(id, userEmail));
-    }
-
-    @PatchMapping("/{id}/depart")
-    @Operation(summary = "Depart flight", description = "Mark flight as departed by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Flight departed successfully"),
-        @ApiResponse(responseCode = "404", description = "Flight not found"),
-    })
-    public ResponseEntity<FlightDto> depart(
-            @PathVariable Long id,
-            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
-    ) {
-        return ResponseEntity.ok(flightService.depart(id, userEmail));
-    }
-
-    @PatchMapping("/{id}/arrive")
-    @Operation(summary = "Arrive flight", description = "Mark flight as arrived by its ID")
-    @ApiResponses(value = {
-        @ApiResponse(responseCode = "200", description = "Flight arrived successfully"),
-        @ApiResponse(responseCode = "404", description = "Flight not found"),
-    })
-    public ResponseEntity<FlightDto> arrive(
-            @PathVariable Long id,
-            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
-    ) {
-        return ResponseEntity.ok(flightService.arrive(id, userEmail));
-    }
+    // Flight approval/arrival/departure actions are handled asynchronously via airport-service + Kafka.
 }
