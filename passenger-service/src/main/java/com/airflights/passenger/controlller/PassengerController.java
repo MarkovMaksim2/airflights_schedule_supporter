@@ -68,7 +68,7 @@ public class PassengerController {
         if (userEmail == null || userEmail.isBlank()) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
         }
-        if (hasPassengerRole(rolesHeader) && !userEmail.equalsIgnoreCase(dto.getEmail())) {
+        if (!hasPassengerRole(rolesHeader)) {
             throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
         }
         dto.setEmail(userEmail);
