@@ -10,6 +10,7 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
@@ -38,7 +39,14 @@ public class AirlineController {
     @PostMapping
     @Operation(summary = "Create new airline")
     @ResponseStatus(HttpStatus.CREATED)
-    public Mono<AirlineDto> create(@Valid @RequestBody AirlineDto dto) {
+    public Mono<AirlineDto> create(
+            @Valid @RequestBody AirlineDto dto,
+            @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
+    ) {
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
+        }
+        dto.setContactEmail(userEmail);
         return airlineService.create(dto);
     }
 

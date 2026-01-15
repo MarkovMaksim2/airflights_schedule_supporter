@@ -21,8 +21,7 @@ public class AirlineDto {
     private String name;
 
     @Email
-    @NotBlank
-    @JsonAlias("contact_email")
-    @JsonProperty("contact_email")
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
+    @JsonProperty(value = "contact_email", access = JsonProperty.Access.READ_ONLY)
     private String contactEmail;
 }

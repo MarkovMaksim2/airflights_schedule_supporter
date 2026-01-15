@@ -124,13 +124,12 @@ POST /api/airport-managers
 }
 ```
 
-## 5) Airline company: create airline (email must match user email)
+## 5) Airline company: create airline (email bound from X-Auth-Email)
 
 POST /api/airlines
 ```json
 {
-  "name": "Example Air",
-  "contact_email": "airline@example.com"
+  "name": "Example Air"
 }
 ```
 
@@ -166,14 +165,13 @@ PATCH /api/flights/1/depart
 
 PATCH /api/flights/1/arrive
 
-## 10) Passenger: create passenger record (email must match user email)
+## 10) Passenger: create passenger record (email bound from X-Auth-Email)
 
 POST /api/passengers
 ```json
 {
   "first_name": "Jane",
   "last_name": "Doe",
-  "email": "passenger@example.com",
   "passport_number": "AA1234567"
 }
 ```

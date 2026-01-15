@@ -65,14 +65,13 @@ public class PassengerController {
             @RequestHeader(value = "X-Auth-Roles", required = false) String rolesHeader,
             @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
     ) {
-        if (hasPassengerRole(rolesHeader)) {
-            if (userEmail == null || userEmail.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
-            }
-            if (!userEmail.equalsIgnoreCase(dto.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
-            }
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
         }
+        if (hasPassengerRole(rolesHeader) && !userEmail.equalsIgnoreCase(dto.getEmail())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
+        }
+        dto.setEmail(userEmail);
         PassengerDto created = passengerService.create(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
