@@ -131,8 +131,14 @@ public class BookingService {
         if (rolesHeader == null || rolesHeader.isBlank()) {
             return false;
         }
-        return Arrays.stream(rolesHeader.split(","))
+        return hasSupervisorRole(rolesHeader) || Arrays.stream(rolesHeader.split(","))
                 .map(String::trim)
                 .anyMatch(value -> value.equals("ROLE_PASSENGER"));
+    }
+
+    private boolean hasSupervisorRole(String rolesHeader) {
+        return Arrays.stream(rolesHeader.split(","))
+                .map(String::trim)
+                .anyMatch(value -> value.equals("ROLE_SUPERVISOR"));
     }
 }

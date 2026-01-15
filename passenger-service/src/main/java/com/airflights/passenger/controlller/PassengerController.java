@@ -65,13 +65,11 @@ public class PassengerController {
             @RequestHeader(value = "X-Auth-Roles", required = false) String rolesHeader,
             @RequestHeader(value = "X-Auth-Email", required = false) String userEmail
     ) {
-        if (hasPassengerRole(rolesHeader)) {
-            if (userEmail == null || userEmail.isBlank()) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
-            }
-            if (!userEmail.equalsIgnoreCase(dto.getEmail())) {
-                throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
-            }
+        if (userEmail == null || userEmail.isBlank()) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "User email required");
+        }
+        if (!hasPassengerRole(rolesHeader)) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "Passenger email mismatch");
         }
         dto.setEmail(userEmail);
         PassengerDto created = passengerService.create(dto);
@@ -82,9 +80,15 @@ public class PassengerController {
         if (rolesHeader == null || rolesHeader.isBlank()) {
             return false;
         }
-        return Arrays.stream(rolesHeader.split(","))
+        return hasSupervisorRole(rolesHeader) || Arrays.stream(rolesHeader.split(","))
                 .map(String::trim)
                 .anyMatch(value -> value.equals("ROLE_PASSENGER"));
+    }
+
+    private boolean hasSupervisorRole(String rolesHeader) {
+        return Arrays.stream(rolesHeader.split(","))
+                .map(String::trim)
+                .anyMatch(value -> value.equals("ROLE_SUPERVISOR"));
     }
 
     @PutMapping("/{id}")

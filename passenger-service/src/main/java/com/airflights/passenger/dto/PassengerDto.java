@@ -29,8 +29,9 @@ public class PassengerDto {
 
     @Email
     @NotBlank
+    @Schema(accessMode = Schema.AccessMode.READ_ONLY)
     @JsonAlias("email")
-    @JsonProperty("email")
+    @JsonProperty(value = "email", access = JsonProperty.Access.READ_ONLY)
     private String email;
 
     @NotBlank
