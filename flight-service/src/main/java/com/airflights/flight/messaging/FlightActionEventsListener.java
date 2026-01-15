@@ -17,7 +17,10 @@ public class FlightActionEventsListener {
     private final FlightService flightService;
     private final ObjectMapper objectMapper;
 
-    @KafkaListener(topics = "${flight.events.topic:flight.events}")
+    @KafkaListener(
+            topics = "${flight.events.topic:flight.events}",
+            groupId = "${flight.events.group-id:flight-service}"
+    )
     public void onFlightActionRequested(String payload) {
         FlightActionRequestedEvent event = fromJson(payload, FlightActionRequestedEvent.class);
         flightService.applyAirportAction(event);
