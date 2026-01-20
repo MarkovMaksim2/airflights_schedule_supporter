@@ -1,17 +1,16 @@
 package com.airflights.airline.unit;
 
-import com.airflights.airline.dto.AirlineDto;
-import com.airflights.airline.entity.Airline;
-import com.airflights.airline.exception.ResourceNotFoundException;
-import com.airflights.airline.mapper.AirlineMapper;
-import com.airflights.airline.repository.AirlineRepository;
-import com.airflights.airline.service.AirlineService;
+import com.airflights.airline.application.dto.AirlineDto;
+import com.airflights.airline.application.exception.ResourceNotFoundException;
+import com.airflights.airline.application.mapper.AirlineMapper;
+import com.airflights.airline.application.port.out.AirlineRepository;
+import com.airflights.airline.application.service.AirlineService;
+import com.airflights.airline.domain.model.Airline;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageRequest;
 import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 import reactor.test.StepVerifier;
@@ -52,7 +51,7 @@ class AirlineServiceTest {
                     return new AirlineDto(airline.getId(), airline.getName(), airline.getContactEmail());
                 });
 
-        StepVerifier.create(airlineService.getAll(PageRequest.of(1, 2)))
+        StepVerifier.create(airlineService.getAll(1, 2))
                 .assertNext(dto -> assertEquals(3L, dto.getId()))
                 .assertNext(dto -> assertEquals(4L, dto.getId()))
                 .verifyComplete();
@@ -114,7 +113,7 @@ class AirlineServiceTest {
 
         when(airlineRepository.existsByName(anyString())).thenReturn(Mono.just(false));
         when(airlineRepository.existsByContactEmail(anyString())).thenReturn(Mono.just(false));
-        when(airlineMapper.toEntity(any(AirlineDto.class)))
+        when(airlineMapper.toDomain(any(AirlineDto.class)))
                 .thenAnswer(invocation -> {
                     AirlineDto dto = invocation.getArgument(0);
                     return new Airline(null, dto.getName(), dto.getContactEmail());
@@ -142,7 +141,7 @@ class AirlineServiceTest {
         AirlineDto empty = new AirlineDto(null, null, null);
         Airline saved = new Airline(5L, null, null);
 
-        when(airlineMapper.toEntity(any(AirlineDto.class))).thenReturn(new Airline(null, null, null));
+        when(airlineMapper.toDomain(any(AirlineDto.class))).thenReturn(new Airline(null, null, null));
         when(airlineRepository.save(any(Airline.class))).thenReturn(Mono.just(saved));
         when(airlineMapper.toDto(any(Airline.class))).thenReturn(new AirlineDto(5L, null, null));
 

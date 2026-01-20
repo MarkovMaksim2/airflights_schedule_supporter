@@ -1,9 +1,8 @@
 package com.airflights.auth.unit;
 
-import com.airflights.auth.dto.LoginRequest;
-import com.airflights.auth.dto.TokenResponse;
-import com.airflights.auth.security.JwtService;
-import com.airflights.auth.service.AuthService;
+import com.airflights.auth.application.dto.TokenDto;
+import com.airflights.auth.application.service.AuthService;
+import com.airflights.auth.infrastructure.security.JwtService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
@@ -38,17 +37,13 @@ class AuthServiceTest {
 
     @Test
     void login_returnsTokenResponse() {
-        LoginRequest request = new LoginRequest();
-        request.setUsername("user1");
-        request.setPassword("password123");
-
         when(authenticationManager.authenticate(any(UsernamePasswordAuthenticationToken.class)))
                 .thenReturn(authentication);
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(jwtService.generateToken(userDetails)).thenReturn("token-value");
         when(jwtService.getExpirationMs()).thenReturn(3600L);
 
-        TokenResponse response = authService.login(request);
+        TokenDto response = authService.login("user1", "password123");
 
         assertEquals("token-value", response.token());
         assertEquals("Bearer", response.tokenType());

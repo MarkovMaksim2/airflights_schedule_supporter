@@ -1,11 +1,12 @@
 package com.airport.unit;
 
-import com.airflights.airport.dto.AirportManagerDto;
-import com.airflights.airport.entity.AirportManager;
-import com.airflights.airport.exception.ResourceNotFoundException;
-import com.airflights.airport.repository.AirportManagerRepository;
-import com.airflights.airport.repository.AirportRepository;
-import com.airflights.airport.service.AirportManagerService;
+import com.airflights.airport.application.dto.AirportManagerDto;
+import com.airflights.airport.application.exception.ResourceNotFoundException;
+import com.airflights.airport.application.mapper.AirportManagerMapper;
+import com.airflights.airport.application.port.out.AirportManagerRepository;
+import com.airflights.airport.application.port.out.AirportRepository;
+import com.airflights.airport.application.service.AirportManagerService;
+import com.airflights.airport.domain.model.AirportManager;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -38,16 +39,16 @@ class AirportManagerServiceTest {
     @InjectMocks
     private AirportManagerService airportManagerService;
 
+    @Mock
+    private AirportManagerMapper airportManagerMapper;
+
     private AirportManagerDto airportManagerDto;
     private AirportManager airportManager;
 
     @BeforeEach
     void setUp() {
         airportManagerDto = new AirportManagerDto(null, 1L, "manager@airport.com");
-        airportManager = new AirportManager();
-        airportManager.setId(10L);
-        airportManager.setAirportId(1L);
-        airportManager.setUserEmail("manager@airport.com");
+        airportManager = new AirportManager(10L, 1L, "manager@airport.com");
     }
 
     @Test
@@ -138,7 +139,10 @@ class AirportManagerServiceTest {
         when(airportRepository.existsById(1L)).thenReturn(true);
         when(airportManagerRepository.existsByUserEmailIgnoreCase("manager@airport.com"))
                 .thenReturn(false);
+        when(airportManagerMapper.toDomain(airportManagerDto)).thenReturn(airportManager);
         when(airportManagerRepository.save(any(AirportManager.class))).thenReturn(airportManager);
+        when(airportManagerMapper.toDto(airportManager))
+                .thenReturn(new AirportManagerDto(10L, 1L, "manager@airport.com"));
         when(transactionTemplate.execute(Mockito.<TransactionCallback<?>>any()))
                 .thenAnswer(invocation -> {
                     TransactionCallback<?> callback = invocation.getArgument(0);
@@ -156,6 +160,8 @@ class AirportManagerServiceTest {
     void getByEmail_shouldReturnDto() {
         when(airportManagerRepository.findByUserEmailIgnoreCase("manager@airport.com"))
                 .thenReturn(Optional.of(airportManager));
+        when(airportManagerMapper.toDto(airportManager))
+                .thenReturn(new AirportManagerDto(10L, 1L, "manager@airport.com"));
 
         StepVerifier.create(airportManagerService.getByEmail("manager@airport.com"))
                 .expectNext(new AirportManagerDto(10L, 1L, "manager@airport.com"))

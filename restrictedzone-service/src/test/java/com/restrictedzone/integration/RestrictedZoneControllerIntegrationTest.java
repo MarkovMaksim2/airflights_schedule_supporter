@@ -1,7 +1,7 @@
 package com.restrictedzone.integration;
 
-import com.airflights.restrictedzone.entity.RestrictedZone;
-import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
+import com.airflights.restrictedzone.infrastructure.persistence.entity.RestrictedZoneEntity;
+import com.airflights.restrictedzone.infrastructure.persistence.repository.JpaRestrictedZoneRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -22,7 +22,7 @@ class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
     private MockMvc mockMvc;
 
     @Autowired
-    private RestrictedZoneRepository restrictedZoneRepository;
+    private JpaRestrictedZoneRepository restrictedZoneRepository;
 
     @BeforeEach
     void setUp() {
@@ -73,7 +73,7 @@ class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldGetAllRestrictedZones() throws Exception {
-        RestrictedZone zone = new RestrictedZone();
+        RestrictedZoneEntity zone = new RestrictedZoneEntity();
         zone.setRegion("Military Zone Beta");
         zone.setStartTime(LocalDateTime.of(2025, 12, 26, 9, 0));
         zone.setEndTime(LocalDateTime.of(2025, 12, 26, 19, 0));
@@ -86,11 +86,11 @@ class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldGetRestrictedZoneById() throws Exception {
-        RestrictedZone zone = new RestrictedZone();
+        RestrictedZoneEntity zone = new RestrictedZoneEntity();
         zone.setRegion("Military Zone Gamma");
         zone.setStartTime(LocalDateTime.of(2025, 12, 27, 10, 0));
         zone.setEndTime(LocalDateTime.of(2025, 12, 27, 20, 0));
-        RestrictedZone saved = restrictedZoneRepository.save(zone);
+        RestrictedZoneEntity saved = restrictedZoneRepository.save(zone);
 
         mockMvc.perform(get("/api/restricted-zones/" + saved.getId()))
                 .andExpect(status().isOk())
@@ -101,11 +101,11 @@ class RestrictedZoneControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldDeleteRestrictedZone() throws Exception {
-        RestrictedZone zone = new RestrictedZone();
+        RestrictedZoneEntity zone = new RestrictedZoneEntity();
         zone.setRegion("Military Zone Delta");
         zone.setStartTime(LocalDateTime.of(2025, 12, 28, 11, 0));
         zone.setEndTime(LocalDateTime.of(2025, 12, 28, 21, 0));
-        RestrictedZone saved = restrictedZoneRepository.save(zone);
+        RestrictedZoneEntity saved = restrictedZoneRepository.save(zone);
 
         mockMvc.perform(delete("/api/restricted-zones/" + saved.getId()))
                 .andExpect(status().isNoContent());

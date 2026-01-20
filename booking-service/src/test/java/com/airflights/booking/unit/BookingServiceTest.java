@@ -1,14 +1,15 @@
 package com.airflights.booking.unit;
 
-import com.airflights.booking.dto.BookingDto;
-import com.airflights.booking.dto.PassengerSummary;
-import com.airflights.booking.entity.Booking;
-import com.airflights.booking.mapper.BookingMapper;
-import com.airflights.booking.repository.BookingRepository;
-import com.airflights.booking.service.BookingService;
-import com.airflights.booking.feign.FlightVerifier;
-import com.airflights.booking.feign.PassengerVerifier;
-import com.airflights.booking.domain.port.BookingEventPublisher;
+import com.airflights.booking.application.dto.BookingDto;
+import com.airflights.booking.application.dto.PassengerSummary;
+import com.airflights.booking.application.event.BookingCreatedEvent;
+import com.airflights.booking.application.mapper.BookingMapper;
+import com.airflights.booking.application.port.out.BookingEventPublisher;
+import com.airflights.booking.application.port.out.BookingRepository;
+import com.airflights.booking.application.port.out.FlightVerifierPort;
+import com.airflights.booking.application.port.out.PassengerVerifierPort;
+import com.airflights.booking.application.service.BookingService;
+import com.airflights.booking.domain.model.Booking;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -28,10 +29,10 @@ class BookingServiceTest {
     private BookingMapper bookingMapper;
 
     @Mock
-    private PassengerVerifier passengerVerifier;
+    private PassengerVerifierPort passengerVerifier;
 
     @Mock
-    private FlightVerifier flightVerifier;
+    private FlightVerifierPort flightVerifier;
 
     @Mock
     private BookingEventPublisher bookingEventPublisher;
@@ -70,8 +71,8 @@ class BookingServiceTest {
         verify(bookingRepository).save(any(Booking.class));
         verify(passengerVerifier).ensurePassengerExists(1L);
         verify(flightVerifier).ensureFlightExists(10L);
-        ArgumentCaptor<com.airflights.booking.domain.event.BookingCreatedEvent> eventCaptor =
-                ArgumentCaptor.forClass(com.airflights.booking.domain.event.BookingCreatedEvent.class);
+        ArgumentCaptor<BookingCreatedEvent> eventCaptor =
+                ArgumentCaptor.forClass(BookingCreatedEvent.class);
         verify(bookingEventPublisher).publishBookingCreated(eventCaptor.capture());
         assertEquals("user@example.com", eventCaptor.getValue().passengerEmail());
     }

@@ -1,11 +1,11 @@
 package com.restrictedzone.unit;
 
-import com.airflights.restrictedzone.dto.RestrictedZoneDto;
-import com.airflights.restrictedzone.entity.RestrictedZone;
-import com.airflights.restrictedzone.mapper.RestrictedZoneMapper;
-import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
-import com.airflights.restrictedzone.service.RestrictedZoneService;
-import jakarta.persistence.EntityNotFoundException;
+import com.airflights.restrictedzone.application.dto.RestrictedZoneDto;
+import com.airflights.restrictedzone.application.exception.ResourceNotFoundException;
+import com.airflights.restrictedzone.application.mapper.RestrictedZoneMapper;
+import com.airflights.restrictedzone.application.port.out.RestrictedZoneRepository;
+import com.airflights.restrictedzone.application.service.RestrictedZoneService;
+import com.airflights.restrictedzone.domain.model.RestrictedZone;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
@@ -105,7 +105,7 @@ class RestrictedZoneServiceAdditionalTest {
     void getById_whenNotFound_throws() {
         when(restrictedZoneRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> restrictedZoneService.getById(1L));
+        assertThrows(ResourceNotFoundException.class, () -> restrictedZoneService.getById(1L));
         verify(restrictedZoneRepository).findById(1L);
     }
 }

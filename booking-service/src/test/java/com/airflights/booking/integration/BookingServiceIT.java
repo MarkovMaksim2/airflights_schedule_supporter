@@ -4,15 +4,15 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.airflights.booking.domain.port.BookingEventPublisher;
-import com.airflights.booking.dto.BookingDto;
-import com.airflights.booking.dto.PassengerSummary;
-import com.airflights.booking.entity.Booking;
-import com.airflights.booking.feign.FlightVerifier;
-import com.airflights.booking.feign.PassengerVerifier;
-import com.airflights.booking.mapper.BookingMapper;
-import com.airflights.booking.repository.BookingRepository;
-import com.airflights.booking.service.BookingService;
+import com.airflights.booking.application.dto.BookingDto;
+import com.airflights.booking.application.dto.PassengerSummary;
+import com.airflights.booking.application.mapper.BookingMapper;
+import com.airflights.booking.application.port.out.BookingEventPublisher;
+import com.airflights.booking.application.port.out.BookingRepository;
+import com.airflights.booking.application.port.out.FlightVerifierPort;
+import com.airflights.booking.application.port.out.PassengerVerifierPort;
+import com.airflights.booking.application.service.BookingService;
+import com.airflights.booking.domain.model.Booking;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -33,8 +33,8 @@ class BookingServiceIT {
         BookingService bookingService(
                 BookingMapper bookingMapper,
                 BookingRepository bookingRepository,
-                FlightVerifier flightVerifier,
-                PassengerVerifier passengerVerifier,
+                FlightVerifierPort flightVerifier,
+                PassengerVerifierPort passengerVerifier,
                 BookingEventPublisher bookingEventPublisher
         ) {
             return new BookingService(bookingMapper, bookingRepository, flightVerifier, passengerVerifier, bookingEventPublisher);
@@ -48,10 +48,10 @@ class BookingServiceIT {
     private BookingMapper bookingMapper;
 
     @MockBean
-    private FlightVerifier flightVerifier;
+    private FlightVerifierPort flightVerifier;
 
     @MockBean
-    private PassengerVerifier passengerVerifier;
+    private PassengerVerifierPort passengerVerifier;
 
     @MockBean
     private BookingEventPublisher bookingEventPublisher;
@@ -70,7 +70,7 @@ class BookingServiceIT {
 
         when(passengerVerifier.getPassengerByEmail("user@example.com"))
                 .thenReturn(new PassengerSummary(1L, "user@example.com"));
-        when(bookingMapper.toEntity(any(BookingDto.class))).thenReturn(booking);
+        when(bookingMapper.toDomain(any(BookingDto.class))).thenReturn(booking);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(any(Booking.class))).thenReturn(bookingDto);
 

@@ -1,10 +1,11 @@
 package com.airflights.auth.unit;
 
-import com.airflights.auth.controller.AuthController;
-import com.airflights.auth.dto.TokenResponse;
-import com.airflights.auth.exception.RestExceptionHandler;
-import com.airflights.auth.security.JwtAuthenticationFilter;
-import com.airflights.auth.service.AuthService;
+import com.airflights.auth.application.dto.TokenDto;
+import com.airflights.auth.application.port.in.AuthUseCase;
+import com.airflights.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.airflights.auth.presentation.controller.AuthController;
+import com.airflights.auth.presentation.exception.RestExceptionHandler;
+import com.airflights.auth.presentation.mapper.AuthPresentationMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -23,22 +24,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AuthController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, AuthPresentationMapper.class})
 class AuthControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private AuthService authService;
+    private AuthUseCase authUseCase;
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void login_returnsTokenResponse() throws Exception {
-        when(authService.login(any()))
-                .thenReturn(new TokenResponse("token", "Bearer", 3600L));
+        when(authUseCase.login(any(), any()))
+                .thenReturn(new TokenDto("token", "Bearer", 3600L));
 
         String json = """
                 {
@@ -63,6 +64,6 @@ class AuthControllerTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest());
 
-        verifyNoInteractions(authService);
+        verifyNoInteractions(authUseCase);
     }
 }

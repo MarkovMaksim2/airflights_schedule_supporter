@@ -1,10 +1,11 @@
 package com.airport.unit;
 
 import com.airflights.airport.AirportServiceApplication;
-import com.airflights.airport.controller.AirportManagerController;
-import com.airflights.airport.dto.AirportManagerDto;
-import com.airflights.airport.exception.RestExceptionHandler;
-import com.airflights.airport.service.AirportManagerService;
+import com.airflights.airport.application.dto.AirportManagerDto;
+import com.airflights.airport.application.port.in.AirportManagerUseCase;
+import com.airflights.airport.presentation.controller.AirportManagerController;
+import com.airflights.airport.presentation.exception.RestExceptionHandler;
+import com.airflights.airport.presentation.mapper.AirportManagerPresentationMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -27,18 +28,18 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AirportManagerController.class)
 @ContextConfiguration(classes = AirportServiceApplication.class)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, AirportManagerPresentationMapper.class})
 class AirportManagerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private AirportManagerService airportManagerService;
+    private AirportManagerUseCase airportManagerUseCase;
 
     @Test
     void getByEmail_delegatesToService() throws Exception {
-        when(airportManagerService.getByEmail("manager@airport.com"))
+        when(airportManagerUseCase.getByEmail("manager@airport.com"))
                 .thenReturn(Mono.just(new AirportManagerDto(1L, 2L, "manager@airport.com")));
 
         MvcResult result = mockMvc.perform(get("/api/airport-managers/by-email")
@@ -53,7 +54,7 @@ class AirportManagerControllerTest {
 
     @Test
     void create_delegatesToService() throws Exception {
-        when(airportManagerService.create(org.mockito.ArgumentMatchers.any()))
+        when(airportManagerUseCase.create(org.mockito.ArgumentMatchers.any()))
                 .thenReturn(Mono.just(new AirportManagerDto(1L, 2L, "manager@airport.com")));
 
         String json = """
@@ -76,7 +77,7 @@ class AirportManagerControllerTest {
 
     @Test
     void delete_delegatesToService() throws Exception {
-        when(airportManagerService.delete(1L)).thenReturn(Mono.empty());
+        when(airportManagerUseCase.delete(1L)).thenReturn(Mono.empty());
 
         MvcResult result = mockMvc.perform(delete("/api/airport-managers/1"))
                 .andExpect(request().asyncStarted())

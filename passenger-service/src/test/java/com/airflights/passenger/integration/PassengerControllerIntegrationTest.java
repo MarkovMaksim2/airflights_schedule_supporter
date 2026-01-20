@@ -1,7 +1,7 @@
 package com.airflights.passenger.integration;
 
-import com.airflights.passenger.entity.Passenger;
-import com.airflights.passenger.repository.PassengerRepository;
+import com.airflights.passenger.infrastructure.persistence.entity.PassengerEntity;
+import com.airflights.passenger.infrastructure.persistence.repository.JpaPassengerRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -16,7 +16,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class PassengerControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
-    private PassengerRepository passengerRepository;
+    private JpaPassengerRepository passengerRepository;
 
     @BeforeEach
     void setUp() {
@@ -36,6 +36,8 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Auth-Roles", "ROLE_SUPERVISOR")
+                        .header("X-Auth-Email", "john@example.com")
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.first_name", is("John")));
@@ -54,12 +56,16 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
 
         mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Auth-Roles", "ROLE_SUPERVISOR")
+                        .header("X-Auth-Email", "john@example.com")
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.first_name", is("John")));
 
         mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Auth-Roles", "ROLE_SUPERVISOR")
+                        .header("X-Auth-Email", "john@example.com")
                         .content(json))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.message", containsString("already exists")));
@@ -67,12 +73,12 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldUpdatePassenger() throws Exception {
-        Passenger p = new Passenger();
+        PassengerEntity p = new PassengerEntity();
         p.setFirstName("John");
         p.setLastName("Doe");
         p.setEmail("john@example.com");
         p.setPassportNumber("A1234567");
-        Passenger saved = passengerRepository.save(p);
+        PassengerEntity saved = passengerRepository.save(p);
 
         String updateJson = """
             {
@@ -94,7 +100,7 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldGetAllPassengers() throws Exception {
-        Passenger p = new Passenger();
+        PassengerEntity p = new PassengerEntity();
         p.setFirstName("Alice");
         p.setLastName("Smith");
         p.setEmail("alice@example.com");
@@ -108,12 +114,12 @@ class PassengerControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldDeletePassenger() throws Exception {
-        Passenger p = new Passenger();
+        PassengerEntity p = new PassengerEntity();
         p.setFirstName("Bob");
         p.setLastName("Brown");
         p.setEmail("bob@example.com");
         p.setPassportNumber("M1234567");
-        Passenger saved = passengerRepository.save(p);
+        PassengerEntity saved = passengerRepository.save(p);
 
         mockMvc.perform(delete("/api/passengers/" + saved.getId()))
                 .andExpect(status().isNoContent());

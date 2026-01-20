@@ -3,7 +3,7 @@ package com.airflights.file.integration;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import com.airflights.file.application.usecase.GetFileMetaUseCase;
+import com.airflights.file.application.service.GetFileMetaUseCase;
 import com.airflights.file.domain.model.FileMetadata;
 import com.airflights.file.domain.port.FileRepository;
 import java.time.LocalDateTime;

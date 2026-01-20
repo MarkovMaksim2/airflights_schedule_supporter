@@ -1,12 +1,13 @@
 package com.airflights.auth.unit;
 
-import com.airflights.auth.dto.UserCreateRequest;
-import com.airflights.auth.dto.UserResponse;
-import com.airflights.auth.entity.Role;
-import com.airflights.auth.entity.User;
-import com.airflights.auth.repository.UserRepository;
-import com.airflights.auth.security.UserPrincipal;
-import com.airflights.auth.service.UserService;
+import com.airflights.auth.application.dto.UserCreateDto;
+import com.airflights.auth.application.dto.UserDto;
+import com.airflights.auth.application.mapper.UserMapper;
+import com.airflights.auth.application.security.UserPrincipal;
+import com.airflights.auth.application.service.UserService;
+import com.airflights.auth.application.port.out.UserRepository;
+import com.airflights.auth.domain.model.Role;
+import com.airflights.auth.domain.model.User;
 import java.util.Optional;
 import java.util.Set;
 import org.junit.jupiter.api.BeforeEach;
@@ -15,6 +16,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -37,11 +39,14 @@ class UserServiceTest {
     @InjectMocks
     private UserService userService;
 
-    private UserCreateRequest createRequest;
+    private UserCreateDto createRequest;
+
+    @Spy
+    private UserMapper userMapper = new UserMapper();
 
     @BeforeEach
     void setUp() {
-        createRequest = new UserCreateRequest();
+        createRequest = new UserCreateDto();
         createRequest.setUsername("user1");
         createRequest.setEmail("user1@example.com");
         createRequest.setPassword("password123");
@@ -78,7 +83,7 @@ class UserServiceTest {
             return user;
         });
 
-        UserResponse response = userService.create(createRequest);
+        UserDto response = userService.create(createRequest);
 
         assertEquals(10L, response.id());
         assertEquals("user1", response.username());
@@ -99,7 +104,7 @@ class UserServiceTest {
         when(passwordEncoder.encode("password123")).thenReturn("hashed");
         when(userRepository.save(any(User.class))).thenAnswer(invocation -> invocation.getArgument(0));
 
-        UserResponse response = userService.create(createRequest);
+        UserDto response = userService.create(createRequest);
 
         assertEquals(Set.of(Role.SUPERVISOR), response.roles());
     }
@@ -120,7 +125,7 @@ class UserServiceTest {
         user.setRoles(Set.of(Role.PASSENGER));
         when(userRepository.findByUsername("user1")).thenReturn(Optional.of(user));
 
-        UserResponse response = userService.getByUsername("user1");
+        UserDto response = userService.getByUsername("user1");
 
         assertEquals(5L, response.id());
         assertEquals("user1", response.username());

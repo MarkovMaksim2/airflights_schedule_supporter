@@ -5,7 +5,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import com.airflights.notification.application.dto.NotificationCommand;
-import com.airflights.notification.application.usecase.CreateNotificationUseCase;
+import com.airflights.notification.application.service.CreateNotificationUseCase;
 import com.airflights.notification.domain.model.Notification;
 import com.airflights.notification.domain.model.NotificationType;
 import com.airflights.notification.domain.port.NotificationRepository;

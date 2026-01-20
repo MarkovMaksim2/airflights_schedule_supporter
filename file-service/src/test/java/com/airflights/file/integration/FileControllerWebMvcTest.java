@@ -10,23 +10,27 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.airflights.file.application.usecase.DeleteFileUseCase;
-import com.airflights.file.application.usecase.DownloadFileUseCase;
-import com.airflights.file.application.usecase.GetFileMetaUseCase;
-import com.airflights.file.application.usecase.UploadFileUseCase;
+import com.airflights.file.application.service.DeleteFileUseCase;
+import com.airflights.file.application.service.DownloadFileUseCase;
+import com.airflights.file.application.service.GetFileMetaUseCase;
+import com.airflights.file.application.service.UploadFileUseCase;
 import com.airflights.file.domain.model.FileMetadata;
-import com.airflights.file.interfaces.rest.FileController;
+import com.airflights.file.presentation.controller.FileController;
+import com.airflights.file.presentation.exception.RestExceptionHandler;
+import com.airflights.file.presentation.mapper.FileMetadataPresentationMapper;
 import java.io.ByteArrayInputStream;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.context.annotation.Import;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(FileController.class)
+@Import({RestExceptionHandler.class, FileMetadataPresentationMapper.class})
 class FileControllerWebMvcTest {
 
     @Autowired

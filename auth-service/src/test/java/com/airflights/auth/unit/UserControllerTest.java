@@ -1,13 +1,15 @@
 package com.airflights.auth.unit;
 
-import com.airflights.auth.controller.UserController;
-import com.airflights.auth.dto.UserResponse;
-import com.airflights.auth.entity.Role;
-import com.airflights.auth.entity.User;
-import com.airflights.auth.exception.RestExceptionHandler;
-import com.airflights.auth.security.JwtAuthenticationFilter;
-import com.airflights.auth.security.UserPrincipal;
-import com.airflights.auth.service.UserService;
+import com.airflights.auth.application.dto.UserCreateDto;
+import com.airflights.auth.application.dto.UserDto;
+import com.airflights.auth.application.port.in.UserUseCase;
+import com.airflights.auth.application.security.UserPrincipal;
+import com.airflights.auth.domain.model.Role;
+import com.airflights.auth.domain.model.User;
+import com.airflights.auth.infrastructure.security.JwtAuthenticationFilter;
+import com.airflights.auth.presentation.controller.UserController;
+import com.airflights.auth.presentation.exception.RestExceptionHandler;
+import com.airflights.auth.presentation.mapper.UserPresentationMapper;
 import java.util.Set;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,22 +32,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = UserController.class)
 @AutoConfigureMockMvc(addFilters = false)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, UserPresentationMapper.class})
 class UserControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private UserService userService;
+    private UserUseCase userUseCase;
 
     @MockBean
     private JwtAuthenticationFilter jwtAuthenticationFilter;
 
     @Test
     void create_returnsUserResponse() throws Exception {
-        when(userService.create(any()))
-                .thenReturn(new UserResponse(1L, "user1", "user1@example.com", Set.of(Role.PASSENGER)));
+        when(userUseCase.create(any(UserCreateDto.class)))
+                .thenReturn(new UserDto(1L, "user1", "user1@example.com", Set.of(Role.PASSENGER)));
 
         String json = """
                 {
@@ -70,13 +72,13 @@ class UserControllerTest {
                         .content("{}"))
                 .andExpect(status().isBadRequest());
 
-        verifyNoInteractions(userService);
+        verifyNoInteractions(userUseCase);
     }
 
     @Test
     void me_returnsCurrentUser() throws Exception {
-        when(userService.getByUsername("user1"))
-                .thenReturn(new UserResponse(2L, "user1", "user1@example.com", Set.of(Role.PASSENGER)));
+        when(userUseCase.getByUsername("user1"))
+                .thenReturn(new UserDto(2L, "user1", "user1@example.com", Set.of(Role.PASSENGER)));
 
         User user = new User();
         user.setId(2L);

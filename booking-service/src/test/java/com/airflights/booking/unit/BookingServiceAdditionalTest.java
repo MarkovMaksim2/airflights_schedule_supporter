@@ -1,15 +1,15 @@
 package com.airflights.booking.unit;
 
-import com.airflights.booking.dto.BookingDto;
-import com.airflights.booking.dto.PassengerSummary;
-import com.airflights.booking.entity.Booking;
-import com.airflights.booking.feign.FlightVerifier;
-import com.airflights.booking.feign.PassengerVerifier;
-import com.airflights.booking.mapper.BookingMapper;
-import com.airflights.booking.repository.BookingRepository;
-import com.airflights.booking.service.BookingService;
-import com.airflights.booking.domain.event.BookingCreatedEvent;
-import com.airflights.booking.domain.port.BookingEventPublisher;
+import com.airflights.booking.application.dto.BookingDto;
+import com.airflights.booking.application.dto.PassengerSummary;
+import com.airflights.booking.application.event.BookingCreatedEvent;
+import com.airflights.booking.application.mapper.BookingMapper;
+import com.airflights.booking.application.port.out.BookingEventPublisher;
+import com.airflights.booking.application.port.out.BookingRepository;
+import com.airflights.booking.application.port.out.FlightVerifierPort;
+import com.airflights.booking.application.port.out.PassengerVerifierPort;
+import com.airflights.booking.application.service.BookingService;
+import com.airflights.booking.domain.model.Booking;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -42,10 +42,10 @@ class BookingServiceAdditionalTest {
     private BookingMapper bookingMapper;
 
     @Mock
-    private PassengerVerifier passengerVerifier;
+    private PassengerVerifierPort passengerVerifier;
 
     @Mock
-    private FlightVerifier flightVerifier;
+    private FlightVerifierPort flightVerifier;
 
     @Mock
     private BookingEventPublisher bookingEventPublisher;
@@ -73,7 +73,7 @@ class BookingServiceAdditionalTest {
 
     @Test
     void create_success_withoutPassengerRole() {
-        when(bookingMapper.toEntity(bookingDto)).thenReturn(booking);
+        when(bookingMapper.toDomain(bookingDto)).thenReturn(booking);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
         doNothing().when(passengerVerifier).ensurePassengerExists(1L);
@@ -99,7 +99,7 @@ class BookingServiceAdditionalTest {
         when(passengerVerifier.getPassengerByEmail("user@example.com")).thenReturn(passenger);
         doNothing().when(passengerVerifier).ensurePassengerExists(5L);
         doNothing().when(flightVerifier).ensureFlightExists(10L);
-        when(bookingMapper.toEntity(bookingDto)).thenReturn(booking);
+        when(bookingMapper.toDomain(bookingDto)).thenReturn(booking);
         when(bookingRepository.save(any(Booking.class))).thenReturn(booking);
         when(bookingMapper.toDto(booking)).thenReturn(bookingDto);
 

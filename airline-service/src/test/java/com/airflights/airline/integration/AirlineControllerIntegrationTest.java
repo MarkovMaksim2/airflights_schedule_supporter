@@ -1,7 +1,7 @@
 package com.airflights.airline.integration;
 
-import com.airflights.airline.entity.Airline;
-import com.airflights.airline.repository.AirlineRepository;
+import com.airflights.airline.infrastructure.persistence.entity.AirlineEntity;
+import com.airflights.airline.infrastructure.persistence.repository.R2dbcAirlineRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +20,7 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
     private WebTestClient webTestClient;
 
     @Autowired
-    private AirlineRepository airlineRepository;
+    private R2dbcAirlineRepository airlineRepository;
 
     @BeforeEach
     void setUp() {
@@ -38,6 +38,7 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
         webTestClient.post()
                 .uri("/api/airlines")
+                .header("X-Auth-Email", "contact@skyairlines.com")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(json)
                 .exchange()
@@ -49,7 +50,7 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Test
     void shouldReturnBadRequestWhenCreatingDuplicateAirline() {
-        Airline airline = new Airline(null, "Sky Airlines", "contact@skyairlines.com");
+        AirlineEntity airline = new AirlineEntity(null, "Sky Airlines", "contact@skyairlines.com");
 
         airlineRepository.save(airline).block();
 
@@ -62,6 +63,7 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
         webTestClient.post()
                 .uri("/api/airlines")
+                .header("X-Auth-Email", "contact@skyairlines.com")
                 .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(json)
                 .exchange()
@@ -72,7 +74,7 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Test
     void shouldGetAllAirlines() {
-        Airline airline = new Airline(null, "Ocean Airways", "info@oceanairways.com");
+        AirlineEntity airline = new AirlineEntity(null, "Ocean Airways", "info@oceanairways.com");
         airlineRepository.save(airline).block();
 
         webTestClient.get()
@@ -85,8 +87,8 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Test
     void shouldGetAirlineById() {
-        Airline airline = new Airline(null, "Mountain Airlines", "info@mountainairlines.com");
-        Airline saved = airlineRepository.save(airline).block();
+        AirlineEntity airline = new AirlineEntity(null, "Mountain Airlines", "info@mountainairlines.com");
+        AirlineEntity saved = airlineRepository.save(airline).block();
 
         webTestClient.get()
                 .uri("/api/airlines/" + saved.getId())
@@ -99,8 +101,8 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Test
     void shouldUpdateAirline() {
-        Airline saved = airlineRepository.save(
-                new Airline(null, "Old", "old@mail.com")
+        AirlineEntity saved = airlineRepository.save(
+                new AirlineEntity(null, "Old", "old@mail.com")
         ).block();
 
         String json = """
@@ -122,8 +124,8 @@ class AirlineControllerIntegrationTest extends BaseIntegrationTest{
 
     @Test
     void shouldDeleteAirline() {
-        Airline airline = new Airline(null, "Forest Airlines", "info@forestairlines.com");
-        Airline saved = airlineRepository.save(airline).block();
+        AirlineEntity airline = new AirlineEntity(null, "Forest Airlines", "info@forestairlines.com");
+        AirlineEntity saved = airlineRepository.save(airline).block();
 
         webTestClient.delete()
                 .uri("/api/airlines/" + saved.getId())

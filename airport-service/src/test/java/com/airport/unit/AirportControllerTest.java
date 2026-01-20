@@ -1,10 +1,11 @@
 package com.airport.unit;
 
-import com.airflights.airport.controller.AirportController;
-import com.airflights.airport.dto.AirportDto;
-import com.airflights.airport.exception.RestExceptionHandler;
 import com.airflights.airport.AirportServiceApplication;
-import com.airflights.airport.service.AirportService;
+import com.airflights.airport.application.dto.AirportDto;
+import com.airflights.airport.application.port.in.AirportUseCase;
+import com.airflights.airport.presentation.controller.AirportController;
+import com.airflights.airport.presentation.exception.RestExceptionHandler;
+import com.airflights.airport.presentation.mapper.AirportPresentationMapper;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
@@ -18,6 +19,7 @@ import reactor.core.publisher.Flux;
 import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
@@ -32,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = AirportController.class)
 @ContextConfiguration(classes = AirportServiceApplication.class)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, AirportPresentationMapper.class})
 class AirportControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private AirportService airportService;
+    private AirportUseCase airportUseCase;
 
     @Test
     void getAll_whenPageSizeOverLimit_returnsBadRequest() throws Exception {
@@ -48,12 +50,12 @@ class AirportControllerTest {
                 .andExpect(jsonPath("$.message")
                         .value("Page size cannot exceed 50. Maximum allowed is 50, but received: 51"));
 
-        verifyNoInteractions(airportService);
+        verifyNoInteractions(airportUseCase);
     }
 
     @Test
     void getAll_whenWithinLimit_delegatesToService() throws Exception {
-        when(airportService.getAll(any()))
+        when(airportUseCase.getAll(anyInt(), anyInt()))
                 .thenReturn(Flux.just(new AirportDto(1L, "Airport", "AAA", "City")));
 
         MvcResult result = mockMvc.perform(get("/api/airports?page=0&size=1"))
@@ -64,12 +66,12 @@ class AirportControllerTest {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$[0].code").value("AAA"));
 
-        verify(airportService).getAll(any());
+        verify(airportUseCase).getAll(anyInt(), anyInt());
     }
 
     @Test
     void getById_delegatesToService() throws Exception {
-        when(airportService.getById(1L))
+        when(airportUseCase.getById(1L))
                 .thenReturn(Mono.just(new AirportDto(1L, "Airport", "AAA", "City")));
 
         MvcResult result = mockMvc.perform(get("/api/airports/1"))
@@ -83,7 +85,7 @@ class AirportControllerTest {
 
     @Test
     void getByCode_delegatesToService() throws Exception {
-        when(airportService.findByCode("AAA"))
+        when(airportUseCase.findByCode("AAA"))
                 .thenReturn(Mono.just(new AirportDto(1L, "Airport", "AAA", "City")));
 
         MvcResult result = mockMvc.perform(get("/api/airports/code/AAA"))
@@ -97,7 +99,7 @@ class AirportControllerTest {
 
     @Test
     void create_delegatesToService() throws Exception {
-        when(airportService.create(any()))
+        when(airportUseCase.create(any()))
                 .thenReturn(Mono.just(new AirportDto(1L, "Airport", "AAA", "City")));
 
         String json = """
@@ -121,7 +123,7 @@ class AirportControllerTest {
 
     @Test
     void update_delegatesToService() throws Exception {
-        when(airportService.update(any(), any()))
+        when(airportUseCase.update(any(), any()))
                 .thenReturn(Mono.just(new AirportDto(1L, "Updated", "AAA", "City")));
 
         String json = """
@@ -145,7 +147,7 @@ class AirportControllerTest {
 
     @Test
     void delete_delegatesToService() throws Exception {
-        when(airportService.delete(1L)).thenReturn(Mono.empty());
+        when(airportUseCase.delete(1L)).thenReturn(Mono.empty());
 
         MvcResult result = mockMvc.perform(delete("/api/airports/1"))
                 .andExpect(request().asyncStarted())
@@ -157,7 +159,7 @@ class AirportControllerTest {
 
     @Test
     void count_delegatesToService() throws Exception {
-        when(airportService.count()).thenReturn(Mono.just(7L));
+        when(airportUseCase.count()).thenReturn(Mono.just(7L));
 
         MvcResult result = mockMvc.perform(get("/api/airports/count"))
                 .andExpect(request().asyncStarted())

@@ -1,14 +1,13 @@
 package com.airflights.flight.unit;
 
-import com.airflights.flight.dto.FlightDto;
-import com.airflights.flight.dto.RestrictedZoneDto;
-import com.airflights.flight.entity.Flight;
-import com.airflights.flight.mapper.FlightMapper;
-import com.airflights.flight.repository.FlightRepository;
-import com.airflights.flight.service.FlightService;
-import com.airflights.flight.feign.AirlineVerifier;
-import com.airflights.flight.feign.AirportManagerVerifier;
-import com.airflights.flight.feign.AirportVerifier;
+import com.airflights.flight.application.dto.FlightDto;
+import com.airflights.flight.application.dto.RestrictedZoneDto;
+import com.airflights.flight.application.mapper.FlightMapper;
+import com.airflights.flight.application.port.out.AirlineVerifierPort;
+import com.airflights.flight.application.port.out.AirportVerifierPort;
+import com.airflights.flight.application.port.out.FlightRepository;
+import com.airflights.flight.application.service.FlightService;
+import com.airflights.flight.domain.model.Flight;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -31,13 +30,10 @@ class FlightServiceTest {
     private FlightMapper flightMapper;
 
     @Mock
-    private AirlineVerifier airlineVerifier;
+    private AirlineVerifierPort airlineVerifier;
 
     @Mock
-    private AirportVerifier airportVerifier;
-
-    @Mock
-    private AirportManagerVerifier airportManagerVerifier;
+    private AirportVerifierPort airportVerifier;
 
     @InjectMocks
     private FlightService flightService;
@@ -67,7 +63,7 @@ class FlightServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(flightMapper.toEntity(flightDto)).thenReturn(flight);
+        when(flightMapper.toDomain(flightDto)).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
         doNothing().when(airlineVerifier).ensureAirlineExists(1L);

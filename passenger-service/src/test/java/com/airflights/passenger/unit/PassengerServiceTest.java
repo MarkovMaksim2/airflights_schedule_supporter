@@ -1,11 +1,11 @@
 package com.airflights.passenger.unit;
 
-import com.airflights.passenger.dto.PassengerDto;
-import com.airflights.passenger.entity.Passenger;
-import com.airflights.passenger.mapper.PassengerMapper;
-import com.airflights.passenger.repository.PassengerRepository;
-import com.airflights.passenger.service.PassengerService;
-import jakarta.persistence.EntityNotFoundException;
+import com.airflights.passenger.application.dto.PassengerDto;
+import com.airflights.passenger.application.exception.ResourceNotFoundException;
+import com.airflights.passenger.application.mapper.PassengerMapper;
+import com.airflights.passenger.application.port.out.PassengerRepository;
+import com.airflights.passenger.application.service.PassengerService;
+import com.airflights.passenger.domain.model.Passenger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -51,12 +51,11 @@ class PassengerServiceTest {
 
     @Test
     void create_shouldSaveAndReturnDto() {
-        when(passengerMapper.toEntity(passengerDto)).thenReturn(passenger);
+        when(passengerMapper.toDomain(passengerDto)).thenReturn(passenger);
         when(passengerRepository.save(passenger)).thenReturn(passenger);
         when(passengerMapper.toDto(passenger)).thenReturn(passengerDto);
         when(passengerRepository.existsByPassportNumber(passengerDto.getPassportNumber())).thenReturn(false);
         when(passengerRepository.existsByEmail(passengerDto.getEmail())).thenReturn(false);
-        // when(bookingRepository.findAllByPassenger_Id(passengerDto.getId())).thenReturn(Optional.of(new ArrayList<>()));
 
         PassengerDto created = passengerService.create(passengerDto);
 
@@ -82,7 +81,7 @@ class PassengerServiceTest {
     void getById_whenNotFound_throws() {
         when(passengerRepository.findById(2L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> passengerService.getById(2L));
+        assertThrows(ResourceNotFoundException.class, () -> passengerService.getById(2L));
         verify(passengerRepository, times(1)).findById(2L);
     }
 
@@ -108,7 +107,7 @@ class PassengerServiceTest {
     void getByEmail_whenNotFound_throws() {
         when(passengerRepository.findByEmail("missing@example.com")).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class,
+        assertThrows(ResourceNotFoundException.class,
                 () -> passengerService.getByEmail("missing@example.com"));
     }
 }

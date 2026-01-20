@@ -9,10 +9,11 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import com.airflights.booking.controller.BookingController;
-import com.airflights.booking.dto.BookingDto;
-import com.airflights.booking.exception.RestExceptionHandler;
-import com.airflights.booking.service.BookingService;
+import com.airflights.booking.application.dto.BookingDto;
+import com.airflights.booking.application.port.in.BookingUseCase;
+import com.airflights.booking.presentation.controller.BookingController;
+import com.airflights.booking.presentation.exception.RestExceptionHandler;
+import com.airflights.booking.presentation.mapper.BookingPresentationMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.Test;
@@ -27,20 +28,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(BookingController.class)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, BookingPresentationMapper.class})
 class BookingControllerWebMvcTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private BookingService bookingService;
+    private BookingUseCase bookingUseCase;
 
     @Test
     void getAll_returnsPage() throws Exception {
         BookingDto bookingDto = new BookingDto(1L, 1L, 10L, LocalDateTime.now());
         Page<BookingDto> page = new PageImpl<>(List.of(bookingDto), PageRequest.of(0, 10), 1);
-        when(bookingService.getAll(any(), any(), any())).thenReturn(page);
+        when(bookingUseCase.getAll(any(), any(), any())).thenReturn(page);
 
         mockMvc.perform(get("/api/bookings?page=0&size=10"))
                 .andExpect(status().isOk())
@@ -57,7 +58,7 @@ class BookingControllerWebMvcTest {
     @Test
     void getById_returnsBooking() throws Exception {
         BookingDto bookingDto = new BookingDto(1L, 1L, 10L, LocalDateTime.now());
-        when(bookingService.getById(1L, null, null)).thenReturn(bookingDto);
+        when(bookingUseCase.getById(1L, null, null)).thenReturn(bookingDto);
 
         mockMvc.perform(get("/api/bookings/1"))
                 .andExpect(status().isOk())
@@ -67,7 +68,7 @@ class BookingControllerWebMvcTest {
     @Test
     void create_returnsCreated() throws Exception {
         BookingDto bookingDto = new BookingDto(1L, 1L, 10L, LocalDateTime.now());
-        when(bookingService.create(any(), any(), any())).thenReturn(bookingDto);
+        when(bookingUseCase.create(any(), any(), any())).thenReturn(bookingDto);
 
         mockMvc.perform(post("/api/bookings")
                         .contentType(MediaType.APPLICATION_JSON)

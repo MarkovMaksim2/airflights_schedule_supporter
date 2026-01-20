@@ -1,10 +1,10 @@
 package com.restrictedzone.unit;
 
-import com.airflights.restrictedzone.dto.RestrictedZoneDto;
-import com.airflights.restrictedzone.entity.RestrictedZone;
-import com.airflights.restrictedzone.mapper.RestrictedZoneMapper;
-import com.airflights.restrictedzone.repository.RestrictedZoneRepository;
-import com.airflights.restrictedzone.service.RestrictedZoneService;
+import com.airflights.restrictedzone.application.dto.RestrictedZoneDto;
+import com.airflights.restrictedzone.application.mapper.RestrictedZoneMapper;
+import com.airflights.restrictedzone.application.port.out.RestrictedZoneRepository;
+import com.airflights.restrictedzone.application.service.RestrictedZoneService;
+import com.airflights.restrictedzone.domain.model.RestrictedZone;
 import java.time.LocalDateTime;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -49,7 +49,7 @@ class RestrictedZoneServiceTest {
 
     @Test
     void create_shouldSave() {
-        when(restrictedZoneMapper.toEntity(dto)).thenReturn(zone);
+        when(restrictedZoneMapper.toDomain(dto)).thenReturn(zone);
         when(restrictedZoneRepository.save(zone)).thenReturn(zone);
         when(restrictedZoneMapper.toDto(zone)).thenReturn(dto);
 

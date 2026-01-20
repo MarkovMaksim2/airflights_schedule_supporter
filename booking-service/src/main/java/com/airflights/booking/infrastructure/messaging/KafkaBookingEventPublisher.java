@@ -1,7 +1,7 @@
 package com.airflights.booking.infrastructure.messaging;
 
-import com.airflights.booking.domain.event.BookingCreatedEvent;
-import com.airflights.booking.domain.port.BookingEventPublisher;
+import com.airflights.booking.application.event.BookingCreatedEvent;
+import com.airflights.booking.application.port.out.BookingEventPublisher;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.kafka.core.KafkaTemplate;

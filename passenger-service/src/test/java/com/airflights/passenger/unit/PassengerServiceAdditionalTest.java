@@ -1,11 +1,11 @@
 package com.airflights.passenger.unit;
 
-import com.airflights.passenger.dto.PassengerDto;
-import com.airflights.passenger.entity.Passenger;
-import com.airflights.passenger.mapper.PassengerMapper;
-import com.airflights.passenger.repository.PassengerRepository;
-import com.airflights.passenger.service.PassengerService;
-import jakarta.persistence.EntityNotFoundException;
+import com.airflights.passenger.application.dto.PassengerDto;
+import com.airflights.passenger.application.exception.ResourceNotFoundException;
+import com.airflights.passenger.application.mapper.PassengerMapper;
+import com.airflights.passenger.application.port.out.PassengerRepository;
+import com.airflights.passenger.application.service.PassengerService;
+import com.airflights.passenger.domain.model.Passenger;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -18,7 +18,6 @@ import org.springframework.data.domain.Pageable;
 
 import java.util.List;
 import java.util.Optional;
-
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
@@ -92,25 +91,6 @@ class PassengerServiceAdditionalTest {
     }
 
     @Test
-    void getByIdEntity_success() {
-        when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
-
-        Passenger result = passengerService.getByIdEntity(1L);
-
-        assertNotNull(result);
-        assertEquals(passenger, result);
-        verify(passengerRepository).findById(1L);
-    }
-
-    @Test
-    void getByIdEntity_whenNotFound_throws() {
-        when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
-
-        assertThrows(EntityNotFoundException.class, () -> passengerService.getByIdEntity(1L));
-        verify(passengerRepository).findById(1L);
-    }
-
-    @Test
     void update_success() {
         when(passengerRepository.findById(1L)).thenReturn(Optional.of(passenger));
         when(passengerRepository.save(passenger)).thenReturn(passenger);
@@ -131,7 +111,7 @@ class PassengerServiceAdditionalTest {
     void update_whenNotFound_throws() {
         when(passengerRepository.findById(1L)).thenReturn(Optional.empty());
 
-        assertThrows(EntityNotFoundException.class, () -> passengerService.update(1L, passengerDto));
+        assertThrows(ResourceNotFoundException.class, () -> passengerService.update(1L, passengerDto));
         verify(passengerRepository).findById(1L);
         verify(passengerRepository, never()).save(any(Passenger.class));
     }

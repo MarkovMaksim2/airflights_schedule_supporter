@@ -1,14 +1,15 @@
 package com.airflights.flight.unit;
 
-import com.airflights.flight.dto.AirlineDto;
-import com.airflights.flight.dto.FlightDto;
-import com.airflights.flight.entity.Flight;
-import com.airflights.flight.feign.AirlineVerifier;
-import com.airflights.flight.feign.AirportManagerVerifier;
-import com.airflights.flight.feign.AirportVerifier;
-import com.airflights.flight.mapper.FlightMapper;
-import com.airflights.flight.repository.FlightRepository;
-import com.airflights.flight.service.FlightService;
+import com.airflights.flight.application.dto.AirlineDto;
+import com.airflights.flight.application.dto.FlightDto;
+import com.airflights.flight.application.exception.BadRequestException;
+import com.airflights.flight.application.exception.ForbiddenException;
+import com.airflights.flight.application.mapper.FlightMapper;
+import com.airflights.flight.application.port.out.AirlineVerifierPort;
+import com.airflights.flight.application.port.out.AirportVerifierPort;
+import com.airflights.flight.application.port.out.FlightRepository;
+import com.airflights.flight.application.service.FlightService;
+import com.airflights.flight.domain.model.Flight;
 import jakarta.persistence.EntityNotFoundException;
 import java.time.LocalDateTime;
 import java.util.Optional;
@@ -18,7 +19,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.web.server.ResponseStatusException;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertNotNull;
@@ -37,13 +37,10 @@ class FlightServiceRoleTest {
     private FlightMapper flightMapper;
 
     @Mock
-    private AirlineVerifier airlineVerifier;
+    private AirlineVerifierPort airlineVerifier;
 
     @Mock
-    private AirportVerifier airportVerifier;
-
-    @Mock
-    private AirportManagerVerifier airportManagerVerifier;
+    private AirportVerifierPort airportVerifier;
 
     @InjectMocks
     private FlightService flightService;
@@ -78,7 +75,7 @@ class FlightServiceRoleTest {
                 .thenReturn(new AirlineDto(1L, "Air", "airline@example.com"));
         doNothing().when(airportVerifier).ensureAirportExists(1L);
         doNothing().when(airportVerifier).ensureAirportExists(2L);
-        when(flightMapper.toEntity(flightDto)).thenReturn(flight);
+        when(flightMapper.toDomain(flightDto)).thenReturn(flight);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
@@ -92,7 +89,7 @@ class FlightServiceRoleTest {
 
     @Test
     void create_withAirlineRole_missingEmail_throws() {
-        assertThrows(ResponseStatusException.class,
+        assertThrows(ForbiddenException.class,
                 () -> flightService.create(flightDto, "ROLE_AIRLINE_COMPANY", " "));
 
         verifyNoInteractions(airlineVerifier, airportVerifier, flightRepository);
@@ -103,7 +100,7 @@ class FlightServiceRoleTest {
         when(airlineVerifier.getAirline(1L))
                 .thenReturn(new AirlineDto(1L, "Air", "other@example.com"));
 
-        assertThrows(ResponseStatusException.class,
+        assertThrows(ForbiddenException.class,
                 () -> flightService.create(flightDto, "ROLE_AIRLINE_COMPANY", "airline@example.com"));
         verifyNoInteractions(airportVerifier, flightRepository);
     }
@@ -113,10 +110,10 @@ class FlightServiceRoleTest {
         when(airlineVerifier.getAirline(1L))
                 .thenReturn(new AirlineDto(1L, "Air", null));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
                 () -> flightService.create(flightDto, "ROLE_AIRLINE_COMPANY", "airline@example.com"));
 
-        assertEquals("Airline access denied", ex.getReason());
+        assertEquals("Airline access denied", ex.getMessage());
         verifyNoInteractions(airportVerifier, flightRepository);
     }
 
@@ -127,10 +124,10 @@ class FlightServiceRoleTest {
         when(airlineVerifier.getAirline(1L))
                 .thenReturn(new AirlineDto(1L, "Air", "airline@example.com"));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
                 () -> flightService.update(10L, flightDto, "ROLE_AIRLINE_COMPANY", "airline@example.com"));
 
-        assertEquals("Airline change not allowed", ex.getReason());
+        assertEquals("Airline change not allowed", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
         verifyNoInteractions(airportVerifier);
     }
@@ -159,7 +156,7 @@ class FlightServiceRoleTest {
         when(airlineVerifier.getAirline(1L))
                 .thenReturn(new AirlineDto(1L, "Air", "other@example.com"));
 
-        assertThrows(ResponseStatusException.class,
+        assertThrows(ForbiddenException.class,
                 () -> flightService.delete(10L, "ROLE_AIRLINE_COMPANY", "airline@example.com"));
         verify(flightRepository, never()).delete(any(Flight.class));
     }
@@ -179,11 +176,10 @@ class FlightServiceRoleTest {
     void approve_whenWaitingApproval_departure_setsApprovedDeparture() {
         flight.setStatus("WAITING_APPROVAL");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        FlightDto result = flightService.approve(10L, "manager@example.com");
+        FlightDto result = flightService.approveByAirport(10L, 1L);
 
         assertNotNull(result);
         verify(flightRepository).save(argThat(saved -> "APPROVED_DEPARTURE".equals(saved.getStatus())));
@@ -193,11 +189,10 @@ class FlightServiceRoleTest {
     void approve_whenApprovedDeparture_arrival_setsApproved() {
         flight.setStatus("APPROVED_DEPARTURE");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 2L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED".equals(saved.getStatus())));
     }
@@ -206,11 +201,10 @@ class FlightServiceRoleTest {
     void approve_whenApprovedDeparture_departure_keepsStatus() {
         flight.setStatus("APPROVED_DEPARTURE");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 1L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED_DEPARTURE".equals(saved.getStatus())));
     }
@@ -219,11 +213,10 @@ class FlightServiceRoleTest {
     void approve_whenApprovedArrival_departure_setsApproved() {
         flight.setStatus("APPROVED_ARRIVAL");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 1L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED".equals(saved.getStatus())));
     }
@@ -232,11 +225,10 @@ class FlightServiceRoleTest {
     void approve_whenApprovedArrival_arrival_keepsStatus() {
         flight.setStatus("APPROVED_ARRIVAL");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 2L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED_ARRIVAL".equals(saved.getStatus())));
     }
@@ -245,11 +237,10 @@ class FlightServiceRoleTest {
     void approve_whenAlreadyApproved_keepsStatus() {
         flight.setStatus("APPROVED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 1L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED".equals(saved.getStatus())));
     }
@@ -258,11 +249,10 @@ class FlightServiceRoleTest {
     void approve_whenStatusNull_setsApprovedArrival() {
         flight.setStatus(null);
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.approve(10L, "manager@example.com");
+        flightService.approveByAirport(10L, 2L);
 
         verify(flightRepository).save(argThat(saved -> "APPROVED_ARRIVAL".equals(saved.getStatus())));
     }
@@ -271,12 +261,10 @@ class FlightServiceRoleTest {
     void approve_whenAirportMismatch_throws() {
         flight.setStatus("WAITING_APPROVAL");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(99L);
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
+                () -> flightService.approveByAirport(10L, 99L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.approve(10L, "manager@example.com"));
-
-        assertEquals("Airport mismatch", ex.getReason());
+        assertEquals("Airport mismatch", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
     }
 
@@ -284,35 +272,21 @@ class FlightServiceRoleTest {
     void approve_whenInvalidStatus_throws() {
         flight.setStatus("UNKNOWN");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
+        BadRequestException ex = assertThrows(BadRequestException.class,
+                () -> flightService.approveByAirport(10L, 1L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.approve(10L, "manager@example.com"));
-
-        assertEquals("Flight not eligible for approval", ex.getReason());
+        assertEquals("Flight not eligible for approval", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
-    }
-
-    @Test
-    void approve_whenMissingEmail_throws() {
-        when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.approve(10L, " "));
-
-        assertEquals("User email required", ex.getReason());
-        verifyNoInteractions(airportManagerVerifier);
     }
 
     @Test
     void depart_whenApproved_departureMatches_setsDeparted() {
         flight.setStatus("APPROVED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.depart(10L, "manager@example.com");
+        flightService.departByAirport(10L, 1L);
 
         verify(flightRepository).save(argThat(saved -> "DEPARTED".equals(saved.getStatus())));
     }
@@ -321,12 +295,10 @@ class FlightServiceRoleTest {
     void depart_whenAirportMismatch_throws() {
         flight.setStatus("APPROVED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
+                () -> flightService.departByAirport(10L, 2L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.depart(10L, "manager@example.com"));
-
-        assertEquals("Departure airport mismatch", ex.getReason());
+        assertEquals("Departure airport mismatch", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
     }
 
@@ -334,12 +306,10 @@ class FlightServiceRoleTest {
     void depart_whenNotApproved_throws() {
         flight.setStatus("WAITING_APPROVAL");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
+        BadRequestException ex = assertThrows(BadRequestException.class,
+                () -> flightService.departByAirport(10L, 1L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.depart(10L, "manager@example.com"));
-
-        assertEquals("Flight is not approved", ex.getReason());
+        assertEquals("Flight is not approved", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
     }
 
@@ -347,11 +317,10 @@ class FlightServiceRoleTest {
     void arrive_whenDeparted_arrivalMatches_setsArrived() {
         flight.setStatus("DEPARTED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
         when(flightRepository.save(flight)).thenReturn(flight);
         when(flightMapper.toDto(flight)).thenReturn(flightDto);
 
-        flightService.arrive(10L, "manager@example.com");
+        flightService.arriveByAirport(10L, 2L);
 
         verify(flightRepository).save(argThat(saved -> "ARRIVED".equals(saved.getStatus())));
     }
@@ -360,12 +329,10 @@ class FlightServiceRoleTest {
     void arrive_whenAirportMismatch_throws() {
         flight.setStatus("DEPARTED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(1L);
+        ForbiddenException ex = assertThrows(ForbiddenException.class,
+                () -> flightService.arriveByAirport(10L, 1L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.arrive(10L, "manager@example.com"));
-
-        assertEquals("Arrival airport mismatch", ex.getReason());
+        assertEquals("Arrival airport mismatch", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
     }
 
@@ -373,12 +340,10 @@ class FlightServiceRoleTest {
     void arrive_whenNotDeparted_throws() {
         flight.setStatus("APPROVED");
         when(flightRepository.findById(10L)).thenReturn(Optional.of(flight));
-        when(airportManagerVerifier.getAirportIdByEmail("manager@example.com")).thenReturn(2L);
+        BadRequestException ex = assertThrows(BadRequestException.class,
+                () -> flightService.arriveByAirport(10L, 2L));
 
-        ResponseStatusException ex = assertThrows(ResponseStatusException.class,
-                () -> flightService.arrive(10L, "manager@example.com"));
-
-        assertEquals("Flight has not departed", ex.getReason());
+        assertEquals("Flight has not departed", ex.getMessage());
         verify(flightRepository, never()).save(any(Flight.class));
     }
 

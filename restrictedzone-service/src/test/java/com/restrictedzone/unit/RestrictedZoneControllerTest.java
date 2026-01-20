@@ -1,10 +1,11 @@
 package com.restrictedzone.unit;
 
 import com.airflights.restrictedzone.RestrictedZoneServiceApplication;
-import com.airflights.restrictedzone.controller.RestrictedZoneController;
-import com.airflights.restrictedzone.dto.RestrictedZoneDto;
-import com.airflights.restrictedzone.exception.RestExceptionHandler;
-import com.airflights.restrictedzone.service.RestrictedZoneService;
+import com.airflights.restrictedzone.application.dto.RestrictedZoneDto;
+import com.airflights.restrictedzone.application.port.in.RestrictedZoneUseCase;
+import com.airflights.restrictedzone.presentation.controller.RestrictedZoneController;
+import com.airflights.restrictedzone.presentation.exception.RestExceptionHandler;
+import com.airflights.restrictedzone.presentation.mapper.RestrictedZonePresentationMapper;
 import java.time.LocalDateTime;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
@@ -33,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = RestrictedZoneController.class)
 @ContextConfiguration(classes = RestrictedZoneServiceApplication.class)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, RestrictedZonePresentationMapper.class})
 class RestrictedZoneControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private RestrictedZoneService restrictedZoneService;
+    private RestrictedZoneUseCase restrictedZoneService;
 
     private RestrictedZoneDto dto;
 

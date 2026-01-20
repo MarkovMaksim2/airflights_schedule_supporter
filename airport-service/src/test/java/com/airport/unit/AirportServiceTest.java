@@ -1,19 +1,16 @@
 package com.airport.unit;
 
-import com.airflights.airport.dto.AirportDto;
-import com.airflights.airport.entity.Airport;
-import com.airflights.airport.exception.ResourceNotFoundException;
-import com.airflights.airport.mapper.AirportMapper;
-import com.airflights.airport.repository.AirportRepository;
-import com.airflights.airport.service.AirportService;
+import com.airflights.airport.application.dto.AirportDto;
+import com.airflights.airport.application.exception.ResourceNotFoundException;
+import com.airflights.airport.application.mapper.AirportMapper;
+import com.airflights.airport.application.port.out.AirportRepository;
+import com.airflights.airport.application.service.AirportService;
+import com.airflights.airport.domain.model.Airport;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.*;
 import org.mockito.junit.jupiter.MockitoExtension;
-import org.springframework.data.domain.PageImpl;
-import org.springframework.data.domain.PageRequest;
-import org.springframework.data.domain.Pageable;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.TransactionCallback;
 import org.springframework.transaction.support.TransactionTemplate;
@@ -60,15 +57,14 @@ class AirportServiceTest {
 
     @Test
     void getAll_shouldReturnPagedResults() {
-        Pageable pageable = PageRequest.of(0, 2);
         Airport airport2 = new Airport();
         airport2.setId(2L);
         airport2.setName("Domodedovo");
         airport2.setCode("DME");
         airport2.setCity("Moscow");
 
-        when(airportRepository.findAll(pageable))
-                .thenReturn(new PageImpl<>(List.of(airport, airport2), pageable, 2));
+        when(airportRepository.findAll(0, 2))
+                .thenReturn(List.of(airport, airport2));
         when(airportMapper.toDto(airport)).thenReturn(airportDto);
         when(airportMapper.toDto(airport2)).thenReturn(
                 new AirportDto(2L, "Domodedovo", "DME", "Moscow")
@@ -79,12 +75,12 @@ class AirportServiceTest {
                     return callback.doInTransaction(null);
                 });
 
-        StepVerifier.create(airportService.getAll(pageable))
+        StepVerifier.create(airportService.getAll(0, 2))
                 .expectNext(airportDto)
                 .expectNext(new AirportDto(2L, "Domodedovo", "DME", "Moscow"))
                 .verifyComplete();
 
-        verify(airportRepository).findAll(pageable);
+        verify(airportRepository).findAll(0, 2);
     }
 
     @Test
@@ -144,7 +140,7 @@ class AirportServiceTest {
     @Test
     void create_shouldSave() {
         when(airportRepository.existsByCode("SVO")).thenReturn(false);
-        when(airportMapper.toEntity(airportDto)).thenReturn(airport);
+        when(airportMapper.toDomain(airportDto)).thenReturn(airport);
         when(airportRepository.save(airport)).thenReturn(airport);
         when(airportMapper.toDto(airport)).thenReturn(airportDto);
         when(transactionTemplate.execute(Mockito.<TransactionCallback<?>>any()))
@@ -162,7 +158,7 @@ class AirportServiceTest {
     void create_whenNameNull_skipsNameCheck() {
         AirportDto noName = new AirportDto(1L, null, "SVO", "Moscow");
         when(airportRepository.existsByCode("SVO")).thenReturn(false);
-        when(airportMapper.toEntity(noName)).thenReturn(airport);
+        when(airportMapper.toDomain(noName)).thenReturn(airport);
         when(airportRepository.save(airport)).thenReturn(airport);
         when(airportMapper.toDto(airport)).thenReturn(noName);
         when(transactionTemplate.execute(Mockito.<TransactionCallback<?>>any()))

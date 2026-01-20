@@ -1,9 +1,9 @@
 package com.airflights.auth.unit;
 
-import com.airflights.auth.entity.Role;
-import com.airflights.auth.entity.User;
-import com.airflights.auth.repository.UserRepository;
-import com.airflights.auth.service.BootstrapUserRunner;
+import com.airflights.auth.application.port.out.UserRepository;
+import com.airflights.auth.domain.model.Role;
+import com.airflights.auth.domain.model.User;
+import com.airflights.auth.infrastructure.bootstrap.BootstrapUserRunner;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;

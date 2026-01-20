@@ -1,10 +1,11 @@
 package com.airflights.passenger.unit;
 
 import com.airflights.passenger.PassengerServiceApplication;
-import com.airflights.passenger.controlller.PassengerController;
-import com.airflights.passenger.dto.PassengerDto;
-import com.airflights.passenger.exception.RestExceptionHandler;
-import com.airflights.passenger.service.PassengerService;
+import com.airflights.passenger.application.dto.PassengerDto;
+import com.airflights.passenger.application.port.in.PassengerUseCase;
+import com.airflights.passenger.presentation.controller.PassengerController;
+import com.airflights.passenger.presentation.exception.RestExceptionHandler;
+import com.airflights.passenger.presentation.mapper.PassengerPresentationMapper;
 import java.util.List;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -33,14 +34,14 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 
 @WebMvcTest(controllers = PassengerController.class)
 @ContextConfiguration(classes = PassengerServiceApplication.class)
-@Import(RestExceptionHandler.class)
+@Import({RestExceptionHandler.class, PassengerPresentationMapper.class})
 class PassengerControllerTest {
 
     @Autowired
     private MockMvc mockMvc;
 
     @MockBean
-    private PassengerService passengerService;
+    private PassengerUseCase passengerService;
 
     private PassengerDto passengerDto;
 
@@ -101,7 +102,7 @@ class PassengerControllerTest {
     }
 
     @Test
-    void create_withoutPassengerRole_creates() throws Exception {
+    void create_withSupervisorRole_creates() throws Exception {
         when(passengerService.create(any())).thenReturn(passengerDto);
 
         String json = """
@@ -115,6 +116,8 @@ class PassengerControllerTest {
 
         mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
+                        .header("X-Auth-Roles", "ROLE_SUPERVISOR")
+                        .header("X-Auth-Email", "john@example.com")
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.id").value(1));
@@ -141,7 +144,7 @@ class PassengerControllerTest {
     }
 
     @Test
-    void create_withPassengerRole_emailMismatch_forbidden() throws Exception {
+    void create_withoutPassengerRole_forbidden() throws Exception {
         String json = """
                 {
                   "first_name": "John",
@@ -153,8 +156,8 @@ class PassengerControllerTest {
 
         mockMvc.perform(post("/api/passengers")
                         .contentType(MediaType.APPLICATION_JSON)
-                        .header("X-Auth-Roles", "ROLE_PASSENGER")
-                        .header("X-Auth-Email", "other@example.com")
+                        .header("X-Auth-Roles", "ROLE_USER")
+                        .header("X-Auth-Email", "john@example.com")
                         .content(json))
                 .andExpect(status().isForbidden());
 
@@ -181,6 +184,8 @@ class PassengerControllerTest {
                         .content(json))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.email").value("john@example.com"));
+
+        verify(passengerService).create(any());
     }
 
     @Test

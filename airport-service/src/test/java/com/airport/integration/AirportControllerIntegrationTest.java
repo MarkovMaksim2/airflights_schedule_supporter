@@ -1,7 +1,7 @@
 package com.airport.integration;
 
-import com.airflights.airport.entity.Airport;
-import com.airflights.airport.repository.AirportRepository;
+import com.airflights.airport.infrastructure.persistence.entity.AirportEntity;
+import com.airflights.airport.infrastructure.persistence.repository.JpaAirportRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -17,7 +17,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @ActiveProfiles("test")
 class AirportControllerIntegrationTest extends BaseIntegrationTest {
     @Autowired
-    private AirportRepository airportRepository;
+    private JpaAirportRepository airportRepository;
 
     @BeforeEach
     void setUp() {
@@ -75,7 +75,7 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldGetAllAirports() throws Exception {
-        Airport airport = new Airport();
+        AirportEntity airport = new AirportEntity();
         airport.setCode("LAX");
         airport.setCity("Los Angeles");
         airport.setName("Los Angeles International Airport");
@@ -91,11 +91,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldGetAirportById() throws Exception {
-        Airport airport = new Airport();
+        AirportEntity airport = new AirportEntity();
         airport.setCode("JFK");
         airport.setCity("New York");
         airport.setName("John F. Kennedy International Airport");
-        Airport saved = airportRepository.save(airport);
+        AirportEntity saved = airportRepository.save(airport);
 
         MvcResult result = mockMvc.perform(get("/api/airports/" + saved.getId()))
                 .andExpect(request().asyncStarted())
@@ -107,11 +107,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldUpdateAirport() throws Exception {
-        Airport airport = new Airport();
+        AirportEntity airport = new AirportEntity();
         airport.setCode("ORD");
         airport.setCity("Chicago");
         airport.setName("O'Hare International Airport");
-        Airport saved = airportRepository.save(airport);
+        AirportEntity saved = airportRepository.save(airport);
 
         String json = """
                 {
@@ -133,11 +133,11 @@ class AirportControllerIntegrationTest extends BaseIntegrationTest {
 
     @Test
     void shouldDeleteAirport() throws Exception {
-        Airport airport = new Airport();
+        AirportEntity airport = new AirportEntity();
         airport.setCode("DFW");
         airport.setCity("Dallas");
         airport.setName("Dallas/Fort Worth International Airport");
-        Airport saved = airportRepository.save(airport);
+        AirportEntity saved = airportRepository.save(airport);
 
         MvcResult result = mockMvc.perform(delete("/api/airports/" + saved.getId()))
                 .andExpect(request().asyncStarted())

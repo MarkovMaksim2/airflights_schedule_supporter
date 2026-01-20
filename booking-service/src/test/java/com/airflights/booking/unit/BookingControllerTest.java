@@ -1,13 +1,17 @@
 package com.airflights.booking.unit;
 
-import com.airflights.booking.controller.BookingController;
-import com.airflights.booking.dto.BookingDto;
-import com.airflights.booking.service.BookingService;
+import com.airflights.booking.application.dto.BookingDto;
+import com.airflights.booking.application.port.in.BookingUseCase;
+import com.airflights.booking.presentation.controller.BookingController;
+import com.airflights.booking.presentation.dto.BookingRequest;
+import com.airflights.booking.presentation.dto.BookingResponse;
+import com.airflights.booking.presentation.mapper.BookingPresentationMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
+import org.mockito.Spy;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
@@ -25,12 +29,14 @@ import static org.mockito.Mockito.*;
 class BookingControllerTest {
 
     @Mock
-    private BookingService bookingService;
+    private BookingUseCase bookingUseCase;
 
     @InjectMocks
     private BookingController bookingController;
 
     private BookingDto bookingDto;
+    @Spy
+    private BookingPresentationMapper bookingPresentationMapper = new BookingPresentationMapper();
 
     @BeforeEach
     void setUp() {
@@ -46,9 +52,9 @@ class BookingControllerTest {
         Pageable pageable = PageRequest.of(0, 10);
         Page<BookingDto> page = new PageImpl<>(List.of(bookingDto));
 
-        when(bookingService.getAll(pageable, null, null)).thenReturn(page);
+        when(bookingUseCase.getAll(pageable, null, null)).thenReturn(page);
 
-        ResponseEntity<Page<BookingDto>> response = bookingController.getAll(pageable, null, null);
+        ResponseEntity<Page<BookingResponse>> response = bookingController.getAll(pageable, null, null);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
@@ -56,7 +62,7 @@ class BookingControllerTest {
         assertEquals(1, response.getBody().getContent().size());
         assertEquals(1L, response.getBody().getContent().get(0).getId());
         assertEquals("1", response.getHeaders().getFirst("X-Total-Count"));
-        verify(bookingService).getAll(pageable, null, null);
+        verify(bookingUseCase).getAll(pageable, null, null);
     }
 
     @Test
@@ -64,43 +70,44 @@ class BookingControllerTest {
         Pageable pageable = PageRequest.of(0, 100); // больше 50
 
         assertThrows(IllegalArgumentException.class, () -> bookingController.getAll(pageable, null, null));
-        verify(bookingService, never()).getAll(any(), any(), any());
+        verify(bookingUseCase, never()).getAll(any(), any(), any());
     }
 
     @Test
     void getById_success() {
-        when(bookingService.getById(1L, null, null)).thenReturn(bookingDto);
+        when(bookingUseCase.getById(1L, null, null)).thenReturn(bookingDto);
 
-        ResponseEntity<BookingDto> response = bookingController.getById(1L, null, null);
+        ResponseEntity<BookingResponse> response = bookingController.getById(1L, null, null);
 
         assertNotNull(response);
         assertEquals(200, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(bookingService).getById(1L, null, null);
+        verify(bookingUseCase).getById(1L, null, null);
     }
 
     @Test
     void create_success() {
-        when(bookingService.create(bookingDto, null, null)).thenReturn(bookingDto);
+        when(bookingUseCase.create(any(BookingDto.class), any(), any())).thenReturn(bookingDto);
 
-        ResponseEntity<BookingDto> response = bookingController.create(bookingDto, null, null);
+        BookingRequest request = new BookingRequest(1L, 10L);
+        ResponseEntity<BookingResponse> response = bookingController.create(request, null, null);
 
         assertNotNull(response);
         assertEquals(201, response.getStatusCode().value());
         assertNotNull(response.getBody());
         assertEquals(1L, response.getBody().getId());
-        verify(bookingService).create(bookingDto, null, null);
+        verify(bookingUseCase).create(any(BookingDto.class), any(), any());
     }
 
     @Test
     void delete_success() {
-        doNothing().when(bookingService).delete(1L, null, null);
+        doNothing().when(bookingUseCase).delete(1L, null, null);
 
         ResponseEntity<Void> response = bookingController.delete(1L, null, null);
 
         assertNotNull(response);
         assertEquals(204, response.getStatusCode().value());
-        verify(bookingService).delete(1L, null, null);
+        verify(bookingUseCase).delete(1L, null, null);
     }
 }

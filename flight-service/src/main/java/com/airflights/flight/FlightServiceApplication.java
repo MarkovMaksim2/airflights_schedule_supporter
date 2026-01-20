@@ -7,7 +7,7 @@ import org.springframework.cloud.openfeign.EnableFeignClients;
 
 @SpringBootApplication
 @EnableDiscoveryClient
-@EnableFeignClients(basePackages = "com.airflights.flight.feign")
+@EnableFeignClients(basePackages = "com.airflights.flight.infrastructure.feign")
 public class FlightServiceApplication {
     public static void main(String[] args) {
         SpringApplication.run(FlightServiceApplication.class, args);
