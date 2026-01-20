@@ -112,7 +112,7 @@ class FlightControllerTest {
 
     @Test
     void update_success() {
-        when(flightUseCase.update(1L, any(FlightDto.class), any(), any())).thenReturn(flightDto);
+        when(flightUseCase.update(eq(1L), any(FlightDto.class), any(), any())).thenReturn(flightDto);
 
         FlightRequest request = new FlightRequest(
                 flightDto.getAirlineId(),

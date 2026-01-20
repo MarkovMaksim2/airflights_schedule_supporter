@@ -89,7 +89,7 @@ class UploadFileUseCaseTest {
                 )
         );
 
-        assertNotNull(ex.getReason());
+        assertNotNull(ex.getMessage());
         verify(fileRepository, never()).save(any());
         ArgumentCaptor<FileUploadFailedEvent> failedCaptor = ArgumentCaptor.forClass(FileUploadFailedEvent.class);
         verify(fileEventPublisher).publishFileUploadFailed(failedCaptor.capture());

@@ -85,10 +85,10 @@ class UserServiceTest {
 
         UserDto response = userService.create(createRequest);
 
-        assertEquals(10L, response.id());
-        assertEquals("user1", response.username());
-        assertEquals("user1@example.com", response.email());
-        assertEquals(Set.of(Role.PASSENGER), response.roles());
+        assertEquals(10L, response.getId());
+        assertEquals("user1", response.getUsername());
+        assertEquals("user1@example.com", response.getEmail());
+        assertEquals(Set.of(Role.PASSENGER), response.getRoles());
 
         ArgumentCaptor<User> captor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(captor.capture());
@@ -106,7 +106,7 @@ class UserServiceTest {
 
         UserDto response = userService.create(createRequest);
 
-        assertEquals(Set.of(Role.SUPERVISOR), response.roles());
+        assertEquals(Set.of(Role.SUPERVISOR), response.getRoles());
     }
 
     @Test
@@ -127,9 +127,9 @@ class UserServiceTest {
 
         UserDto response = userService.getByUsername("user1");
 
-        assertEquals(5L, response.id());
-        assertEquals("user1", response.username());
-        assertEquals("user1@example.com", response.email());
+        assertEquals(5L, response.getId());
+        assertEquals("user1", response.getUsername());
+        assertEquals("user1@example.com", response.getEmail());
     }
 
     @Test
